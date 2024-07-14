@@ -8,6 +8,8 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: '0'
+  labels:
+    argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
   sources:

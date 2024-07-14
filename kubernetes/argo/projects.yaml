@@ -4,14 +4,14 @@ kind: Application
 metadata:
   name: projects
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: '0'
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    repoURL: "https://github.com/ajaykumar4/home-lab-argocd.git"
+    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
     path: kubernetes/argo/projects
-    targetRevision: "main"
+    targetRevision: main
   destination:
     name: in-cluster
     namespace: argocd

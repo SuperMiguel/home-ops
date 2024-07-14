@@ -4,8 +4,10 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
   annotations:
-    argocd.argoproj.io/sync-wave: '4'
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
   sources:
@@ -25,16 +27,8 @@ spec:
     namespace: argocd
   syncPolicy:
     automated:
-      allowEmpty: true
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-  - group: argoproj.io
-    kind: Application
-    jsonPointers:
-    - /status
-    - /metadata/annotations
+    - CreateNamespace=true
+    - ServerSideApply=true

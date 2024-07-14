@@ -4,19 +4,22 @@ kind: Application
 metadata:
   name: apps
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: '1'
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+
   source:
-    repoURL: "https://github.com/ajaykumar4/home-lab-argocd.git"
+    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
     path: kubernetes/apps
-    targetRevision: "main"
+    targetRevision: main
     directory:
       recurse: true
+
   destination:
     name: in-cluster
     namespace: argocd
+
   syncPolicy:
     automated:
       prune: true
@@ -30,4 +33,3 @@ spec:
       kind: Application
       jsonPointers:
         - /spec/syncPolicy
-

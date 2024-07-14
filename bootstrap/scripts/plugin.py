@@ -7,6 +7,8 @@ from typing import Any
 from typing import Any
 from netaddr import IPNetwork
 
+from datetime import datetime
+
 import makejinja
 import validation
 
@@ -34,6 +36,10 @@ def nthhost(value: str, query: int) -> str:
     except ValueError:
         return False
     return value
+
+# Return current datetime
+def current_datetime() -> str:
+    return datetime.now().strftime('%Y-%m-%dT%H:%M:%S%Z')
 
 
 def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
@@ -68,7 +74,7 @@ class Plugin(makejinja.plugin.Plugin):
 
 
     def functions(self) -> makejinja.plugin.Functions:
-        return [talos_patches]
+        return [talos_patches, current_datetime]
 
 
     def path_filters(self):

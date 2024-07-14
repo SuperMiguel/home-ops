@@ -2,34 +2,19 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-vars:
-  ARGO_HELMFILE: "{{.KUBERNETES_DIR}}/bootstrap/argo.yaml"
-  CLUSTER_SECRET_SOPS_FILE: "{{.KUBERNETES_DIR}}/argo/vars/cluster-secrets.sops.yaml"
-
 tasks:
 
   bootstrap:
     desc: Bootstrap Argo into a Kubernetes cluster
     cmds:
-      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} create namespace argocd
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/argo -n argocd
       - cat {{.AGE_FILE}} | kubectl --kubeconfig {{.KUBECONFIG_FILE}} -n argocd create secret generic helm-secrets-private-keys --from-file=key.txt=/dev/stdin
-      - task: install-helm-apps
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/argo
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
       - msg: Missing Sops Age key file
         sh: test -f {{.AGE_FILE}}
-
-  install-helm-apps:
-    desc: Bootstrap argo apps
-    cmds:
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.ARGO_HELMFILE}} apply --skip-diff-on-install --suppress-diff
-    preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
-      - msg: Missing helmfile
-        sh: test -f {{.ARGO_HELMFILE}}
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster

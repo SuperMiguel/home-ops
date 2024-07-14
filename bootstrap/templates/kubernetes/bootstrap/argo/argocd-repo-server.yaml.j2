@@ -7,150 +7,62 @@ spec:
     spec:
       automountServiceAccountToken: true
       volumes:
-        - configMap:
-            name: cmp-plugin
-          name: cmp-plugin
         - name: custom-tools
           emptyDir: {}
-        - name: sops-age
+        - name: helm-secrets-private-keys
           secret:
-            secretName: sops-age
+            secretName: helm-secrets-private-keys
 
       # Download tools
       initContainers:
-        - name: download-tools
-          image: busybox
-          env:
-            - name: AVP_VERSION
-              value: 1.18.1
-            - name: SOPS_VERSION
-              value: v3.8.1
-            - name: AGE_VERSION
-              value: v1.1.1
-            - name: HELM_VERSION
-              value: v3.14.4
-            - name: HELMFILE_VERSION
-              value: 0.163.1
-            - name: KUSTOMIZE_VERSION
-              value: 5.1.1
-            - name: YQ_VERSION
-              value: v4.35.1
-            - name: KUBECTL_VERSION
-              value: v1.29.2
-          command: [sh, -c]
+        - name: gitops-tools
+          image: ajaykumar4/gitops-tools:latest
+          imagePullPolicy: Always
+          command: [sh, -ec]
           args:
             - |
-              mkdir -p /custom-tools
-              GO_ARCH=$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')
-              wget -qO-                          "https://get.helm.sh/helm-${HELM_VERSION}-linux-${GO_ARCH}.tar.gz" | tar zxv --strip-components=1 -C /tmp linux-${GO_ARCH}/helm && mv /tmp/helm /custom-tools/helm
-              wget -qO "/custom-tools/sops"     "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${GO_ARCH}"
-              wget -qO-                          "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-${GO_ARCH}.tar.gz" | tar zxv --strip-components=1 -C /custom-tools age/age age/age-keygen
-              wget -qO-                          "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_${GO_ARCH}.tar.gz" | tar zxv -C /custom-tools helmfile
-              wget -qO "/custom-tools/yq"       "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${GO_ARCH}"
-              wget -qO "/custom-tools/kubectl"  "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${GO_ARCH}/kubectl"
-              wget -qO "/custom-tools/argocd-vault-plugin"  "https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v${AVP_VERSION}/argocd-vault-plugin_${AVP_VERSION}_linux_${GO_ARCH}"
-              wget -qO-                          "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_${GO_ARCH}.tar.gz" | tar zxv -C /custom-tools kustomize
+              mkdir -p /custom-tools/
+              cp -rf /gitops-tools/* /custom-tools
               chmod +x /custom-tools/*
           volumeMounts:
             - mountPath: /custom-tools
               name: custom-tools
       containers:
-        - name: avp
-          command: [/var/run/argocd/argocd-cmp-server]
-          image: busybox
-          env:
-            - name: SOPS_AGE_KEY_FILE # For age
-              value: /sops-age/key.txt
-            - name: AVP_TYPE
-              value: sops
-            - name: PATH
-              value: $(PATH):/custom-tools
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 999
-          volumeMounts:
-            - mountPath: /var/run/argocd
-              name: var-files
-            - mountPath: /home/argocd/cmp-server/plugins
-              name: plugins
-            - mountPath: /tmp
-              name: tmp
-            # Register plugins into sidecar
-            - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-              subPath: avp.yaml
-              name: cmp-plugin
-            # Important: Mount tools into $PATH
-            - mountPath: /custom-tools
-              name: custom-tools
-            - mountPath: /sops-age/
-              name: sops-age
-        - name: avp-kustomize
-          command: [/var/run/argocd/argocd-cmp-server]
-          image: busybox
-          env:
-            - name: SOPS_AGE_KEY_FILE # For age
-              value: /sops-age/key.txt
-            - name: AVP_TYPE
-              value: sops
-            - name: PATH
-              value: $(PATH):/custom-tools
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 999
-          volumeMounts:
-            - mountPath: /var/run/argocd
-              name: var-files
-            - mountPath: /home/argocd/cmp-server/plugins
-              name: plugins
-            - mountPath: /tmp
-              name: tmp
-            # Register plugins into sidecar
-            - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-              subPath: avp-kustomize.yaml
-              name: cmp-plugin
-            # Important: Mount tools into $PATH
-            - mountPath: /custom-tools
-              name: custom-tools
-            - mountPath: /sops-age/
-              name: sops-age
-        - name: avp-helm
-          command: [/var/run/argocd/argocd-cmp-server]
-          image: busybox
-          env:
-            - name: SOPS_AGE_KEY_FILE # For age
-              value: /sops-age/key.txt
-            - name: AVP_TYPE
-              value: sops
-            - name: PATH
-              value: $(PATH):/custom-tools
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 999
-          volumeMounts:
-            - mountPath: /var/run/argocd
-              name: var-files
-            - mountPath: /home/argocd/cmp-server/plugins
-              name: plugins
-            - mountPath: /tmp
-              name: tmp
-            # Register plugins into sidecar
-            - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-              subPath: avp-helm.yaml
-              name: cmp-plugin
-            # Important: Mount tools into $PATH
-            - mountPath: /custom-tools
-              name: custom-tools
-            - mountPath: /sops-age/
-              name: sops-age
         - name: argocd-repo-server
           env:
-            - name: SOPS_AGE_KEY_FILE # For age
-              value: /sops-age/key.txt
-            - name: AVP_TYPE
+            - name: HELM_PLUGINS
+              value: /custom-tools/helm-plugins/
+            - name: HELM_SECRETS_CURL_PATH
+              value: /custom-tools/curl
+            - name: HELM_SECRETS_SOPS_PATH
+              value: /custom-tools/sops
+            - name: HELM_SECRETS_VALS_PATH
+              value: /custom-tools/vals
+            - name: HELM_SECRETS_KUBECTL_PATH
+              value: /custom-tools/kubectl
+            - name: HELM_SECRETS_BACKEND
               value: sops
+            # https://github.com/jkroepke/helm-secrets/wiki/Security-in-shared-environments
+            - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+              value: "false"
+            - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+              value: "true"
+            - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+              value: "false"
+            - name: HELM_SECRETS_WRAPPER_ENABLED
+              value: "true"
+            - name: HELM_SECRETS_DECRYPT_SECRETS_IN_TMP_DIR
+              value: "true"
+            - name: HELM_SECRETS_HELM_PATH
+              value: /usr/local/bin/helm
+            - name: SOPS_AGE_KEY_FILE # For age
+              value: /helm-secrets-private-keys/key.txt
           volumeMounts:
             - mountPath: /custom-tools
               name: custom-tools
-            - mountPath: /sops-age/
-              name: sops-age
+            - mountPath: /usr/local/sbin/helm
+              subPath: helm
+              name: custom-tools
+            - mountPath: /helm-secrets-private-keys/
+              name: helm-secrets-private-keys
 

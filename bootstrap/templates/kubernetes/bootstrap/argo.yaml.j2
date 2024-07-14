@@ -14,12 +14,6 @@ apiVersions:
   - monitoring.coreos.com/v1
 
 releases:
-  - name: cert-manager
-    namespace: cert-manager
-    chart: jetstack/cert-manager
-    version: v1.15.1
-    values:
-      - ../apps/cert-manager/cert-manager/values.yaml
   - name: argocd
     namespace: argocd
     chart: oci://ghcr.io/argoproj/argo-helm/argo-cd

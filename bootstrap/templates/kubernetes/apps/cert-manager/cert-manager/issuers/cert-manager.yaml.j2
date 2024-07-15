@@ -14,6 +14,10 @@ spec:
     repoURL: #{ bootstrap_github_address }#
     path: kubernetes/apps/cert-manager/cert-manager/issuers
     targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+    helm:
+      releaseName: cert-manager-issuers
+      valueFiles:
+        - secrets://values.sops.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

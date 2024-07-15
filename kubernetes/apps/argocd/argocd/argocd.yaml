@@ -4,20 +4,24 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: '0'
   labels:
     argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
-  source:
-    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-    path: kubernetes/apps/argocd/argocd
-    targetRevision: main
-    directory:
-      recurse: true
+  sources:
+    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+      path: kubernetes/apps/argocd/argocd
+      targetRevision: main
+      ref: repo
+    - repoURL: ghcr.io/argoproj/argo-helm
+      chart: argo-cd
+      targetRevision: 7.3.6
+      helm:
+        releaseName: argocd
+        valueFiles:
+          - $repo/kubernetes/apps/argocd/argocd/app/values.sops.yaml
   destination:
     name: in-cluster
     namespace: argocd

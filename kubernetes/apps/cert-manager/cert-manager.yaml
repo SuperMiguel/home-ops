@@ -4,16 +4,14 @@ kind: Application
 metadata:
   name: cert-manager-app
   namespace: argocd
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
   sources:
-    - repoURL: #{ bootstrap_github_address }#
-      path: kubernetes/apps/cert-manager/cert-manager/app
-      targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+      path: kubernetes/apps/cert-manager/cert-manager
+      targetRevision: main
       ref: repo
     - repoURL: https://charts.jetstack.io
       chart: cert-manager
@@ -21,7 +19,14 @@ spec:
       helm:
         releaseName: cert-manager
         valueFiles:
-          - $repo/kubernetes/apps/cert-manager/cert-manager/app/values.yaml
+          - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
+    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+      path: kubernetes/apps/cert-manager/cert-manager/issuers
+      targetRevision: main
+      helm:
+        releaseName: cert-manager
+        valueFiles:
+          - secrets://values.sops.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

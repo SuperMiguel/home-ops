@@ -1,12 +1,13 @@
----
-cloudflare_token: "#{ bootstrap_cloudflare.token }#"
-cloudflare_domain: "#{ bootstrap_cloudflare.domain }#"
-cloudflare_email: "#{ bootstrap_cloudflare.acme.email }#"
+cloudflare:
+  api_token: "#{ bootstrap_cloudflare.token }#"
+  domain: "#{ bootstrap_cloudflare.domain }#"
+  email: "#{ bootstrap_cloudflare.acme.email }#"
 
-#% if bootstrap_cloudflare.acme.production %#
-issuer_name: "letsencrypt-production"
-issuer_server: "https://acme-v02.api.letsencrypt.org/directory"
-#% else %#
-issuer_name: "letsencrypt-staging"
-issuer_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
-#% endif %#
+issuer:
+  #% if bootstrap_cloudflare.acme.production %#
+  name: "letsencrypt-production"
+  server: "https://acme-v02.api.letsencrypt.org/directory"
+  #% else %#
+  name: "letsencrypt-staging"
+  server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  #% endif %#

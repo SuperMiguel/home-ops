@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-app
+  name: argocd
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
@@ -12,18 +12,12 @@ metadata:
     argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
-  sources:
-    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-      path: kubernetes/apps/argocd/argocd/app
-      targetRevision: main
-      ref: repo
-    - repoURL: ghcr.io/argoproj/argo-helm
-      chart: argo-cd
-      targetRevision: 7.3.6
-      helm:
-        releaseName: argocd
-        valueFiles:
-          - $repo/kubernetes/apps/argocd/argocd/app/values.sops.yaml
+  source:
+    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+    path: kubernetes/apps/argocd/argocd
+    targetRevision: main
+    directory:
+      recurse: true
   destination:
     name: in-cluster
     namespace: argocd

@@ -4,25 +4,29 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: '0'
-  labels:
-    argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
   source:
     repoURL: #{ bootstrap_github_address }#
     path: kubernetes/apps/argocd/argocd
-    targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+    targetRevision: #{ bootstrap_github_branch }#
   destination:
     name: in-cluster
     namespace: argocd
   syncPolicy:
     automated:
+      allowEmpty: true
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+  - group: argoproj.io
+    kind: Application
+    jsonPointers:
+    - /status
+    - /metadata/annotations

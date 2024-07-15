@@ -10,10 +10,18 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
-  source:
-    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-    path: kubernetes/apps/cert-manager/cert-manager
-    targetRevision: main
+  sources:
+    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+      path: kubernetes/apps/cert-manager/cert-manager/app
+      targetRevision: main
+      ref: repo
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.15.1
+      helm:
+        releaseName: cert-manager
+        valueFiles:
+          - $repo/kubernetes/apps/cert-manager/cert-manager/app/values.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

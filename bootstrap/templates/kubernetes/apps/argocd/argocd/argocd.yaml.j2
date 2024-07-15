@@ -12,18 +12,10 @@ metadata:
     argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
-  sources:
-    - repoURL: #{ bootstrap_github_address }#
-      path: kubernetes/apps/argocd/argocd
-      targetRevision: #{ bootstrap_github_branch|default('main', true) }#
-      ref: repo
-    - repoURL: ghcr.io/argoproj/argo-helm
-      chart: argo-cd
-      targetRevision: 7.3.6
-      helm:
-        releaseName: argocd
-        valueFiles:
-          - $repo/kubernetes/apps/argocd/argocd/values.sops.yaml
+  source:
+    repoURL: #{ bootstrap_github_address }#
+    path: kubernetes/apps/argocd/argocd
+    targetRevision: #{ bootstrap_github_branch|default('main', true) }#
   destination:
     name: in-cluster
     namespace: argocd

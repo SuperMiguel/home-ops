@@ -10,18 +10,10 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
-  sources:
-    - repoURL: #{ bootstrap_github_address }#
-      path: kubernetes/apps/cert-manager/cert-manager
-      targetRevision: #{ bootstrap_github_branch|default('main', true) }#
-      ref: repo
-    - repoURL: https://charts.jetstack.io
-      chart: cert-manager
-      targetRevision: v1.15.1
-      helm:
-        releaseName: cert-manager
-        valueFiles:
-          - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
+  source:
+    repoURL: #{ bootstrap_github_address }#
+    path: kubernetes/apps/cert-manager/cert-manager
+    targetRevision: #{ bootstrap_github_branch|default('main', true) }#
   destination:
     name: in-cluster
     namespace: cert-manager

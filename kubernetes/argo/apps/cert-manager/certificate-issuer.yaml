@@ -9,9 +9,9 @@ metadata:
 spec:
   project: home-kubernetes
   source:
-    repoURL: #{ bootstrap_github_address }#
-    path: kubernetes/apps/cert-manager/cert-manager
-    targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+    path: kubernetes/apps/cert-manager/certificate-issuer
+    targetRevision: main
   destination:
     name: in-cluster
     namespace: cert-manager

@@ -10,7 +10,7 @@ spec:
   project: home-kubernetes
   source:
     repoURL: #{ bootstrap_github_address }#
-    path: kubernetes/apps/cert-manager/cert-manager
+    path: kubernetes/apps/cert-manager/certificate-issuer
     targetRevision: #{ bootstrap_github_branch|default('main', true) }#
   destination:
     name: in-cluster

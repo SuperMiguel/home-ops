@@ -15,7 +15,7 @@ spec:
       helm:
         releaseName: certificate-issuer
         valueFiles:
-          - secrets://values.sops.yaml
+          - $repo/kubernetes/apps/cert-manager/certificate-issuer/values.sops.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

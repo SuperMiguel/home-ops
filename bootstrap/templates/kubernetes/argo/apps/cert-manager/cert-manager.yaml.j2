@@ -12,6 +12,7 @@ spec:
     repoURL: #{ bootstrap_github_address }#
     path: kubernetes/apps/cert-manager/cert-manager
     targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+    ref: repo
   destination:
     name: in-cluster
     namespace: cert-manager

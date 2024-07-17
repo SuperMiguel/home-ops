@@ -12,6 +12,7 @@ spec:
     repoURL: #{ bootstrap_github_address }#
     path: kubernetes/apps/argocd/argocd
     targetRevision: #{ bootstrap_github_branch }#
+    ref: repo
   destination:
     name: in-cluster
     namespace: argocd

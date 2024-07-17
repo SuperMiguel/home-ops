@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: certificate-issuer
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: '0'
@@ -10,16 +10,12 @@ spec:
   project: home-kubernetes
   sources:
     - repoURL: #{ bootstrap_github_address }#
-      path: kubernetes/apps/cert-manager/cert-manager
+      path: kubernetes/apps/cert-manager/certificate-issuer
       targetRevision: #{ bootstrap_github_branch|default('main', true) }#
-      ref: repo
-    - repoURL: https://charts.jetstack.io
-      chart: cert-manager
-      targetRevision: v1.15.1
       helm:
-        releaseName: cert-manager
+        releaseName: certificate-issuer
         valueFiles:
-          - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
+          - secrets://values.sops.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

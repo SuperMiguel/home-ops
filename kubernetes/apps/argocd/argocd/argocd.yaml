@@ -10,18 +10,14 @@ metadata:
     argocd.argoproj.io/instance: argocd
 spec:
   project: home-kubernetes
-  sources:
-    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-      path: kubernetes/apps/argocd/argocd
-      targetRevision: main
-      ref: repo
-    - repoURL: ghcr.io/argoproj/argo-helm
-      chart: argo-cd
-      targetRevision: 7.3.6
-      helm:
-        releaseName: argocd
-        valueFiles:
-          - $repo/kubernetes/apps/argocd/argocd/values.sops.yaml
+  source:
+    repoURL: ghcr.io/argoproj/argo-helm
+    chart: argo-cd
+    targetRevision: 7.3.6
+    helm:
+      releaseName: argocd
+      valueFiles:
+        - kubernetes/apps/argocd/argocd/values.sops.yaml
   destination:
     name: in-cluster
     namespace: argocd

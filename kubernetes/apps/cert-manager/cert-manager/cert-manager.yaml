@@ -21,7 +21,7 @@ spec:
         valueFiles:
           - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
     - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-      path: kubernetes/apps/cert-manager/certificate-issuer
+      chart: kubernetes/apps/cert-manager/certificate-issuer
       targetRevision: main
       helm:
         releaseName: cert-manager

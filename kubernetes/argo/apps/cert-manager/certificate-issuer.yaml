@@ -12,6 +12,7 @@ spec:
     repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
     path: kubernetes/apps/cert-manager/certificate-issuer
     targetRevision: main
+    ref: repo
   destination:
     name: in-cluster
     namespace: cert-manager

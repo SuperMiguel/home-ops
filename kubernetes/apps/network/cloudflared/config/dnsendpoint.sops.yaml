@@ -1,0 +1,30 @@
+apiVersion: ENC[AES256_GCM,data:+6IA1dEA6+LffkqBjeYO7Da1rmk0ZiSy+As1,iv:o3OlnwwyZ/V594s/czchBM8Rj/oBpd1qNnhWnYgg4YU=,tag:Jlruw7z9qPwU/iQ/VJowqQ==,type:str]
+kind: ENC[AES256_GCM,data:92AR0UoD72wJfn0=,iv:5+shfl+b2E/r38FogF9zCUpaY4oDFp/TkVE3kEPRzUc=,tag:eyXasjSIGvFN1tBR0p1/+w==,type:str]
+metadata:
+    name: ENC[AES256_GCM,data:+uZp0Sx8gKj6h2w=,iv:C6egOL1p2XmtppxODFox6D/Q1OcE4dnPIXovUOzwfCg=,tag:R3hO2iZuubSEIcAzjrpvyQ==,type:str]
+spec:
+    endpoints:
+        - dnsName: ENC[AES256_GCM,data:lwkipQ+V2a0rzjC6kCJjygD1TX6y,iv:/5hLlkgF/AvP/2xOJYYycwcDsRK0bfj8JzOfuu+eYa8=,tag:0MxGDMLTd7SJR6jDA+lq6Q==,type:str]
+          recordType: ENC[AES256_GCM,data:nW8dXd4=,iv:YpJ6dYCVQb58nyzsonokos+Dfsp7pVv0Suvmi/jw4iI=,tag:zOs/uGpOlNfvduuhIyF7jQ==,type:str]
+          targets:
+            - ENC[AES256_GCM,data:FCJ6yfA53dMmqy3wblwjUzi257+QM9TcsqtDyW85Xx+TgfWRfF/BzD0Uj48/BtvoF75To1o=,iv:FAHDwqaE93oJVMPrS7A4GUQ6GDJOr/1kyTgrpIoS2s4=,tag:T3Pvj03QY/E0XxLD0Uyrgw==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1kh9qxg0nplvlncvld27lg3h4f3epdsr32vuxswtxn95fyhj04ufsuq9cl6
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBKaTl1NS8vbkxZUTZPQ2Vy
+            bW5yWmc1N1RpL2pJS3NNMUd3YXduK2JmaWk4CmwyclJnRUpBUUcxbWRoOStzNk1u
+            d2dLOWZUMG81b3ZiZFd4a2MxMTlYa3cKLS0tIGpMNWMzZnR0VXRWQkFwTFFnR2Mz
+            S2oxRzVPZXlETkhBVEFFNWU5SGNZa3cKJq76aGqY5r9pRKNC3AQAhEWebM4s9rCG
+            QQbQBe3Zbu3PlUWmQ7VyLzKLM7YbMtl1I6rRhfDVw2cWPXp30BZnYg==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-07-18T22:09:55Z"
+    mac: ENC[AES256_GCM,data:apAQ8YodLLSg3HyIxArQMNQYFkVXnbhbDj9/TD7VO8GNgaEOHSyYsZ45QuZjJYPAl/JeY+yy2u3LsC8CsJ69VtyZEEsqKDCZjGEL/qolFuPqpe8+z4CjpDrHdtD35OrmQQUGTT1+GiaVT7yxb2sJiB7D40LcSaHvE0oFwX0rbLA=,iv:v+WvtCwYD6Ym57x6bNav890bK+a9vCIg0tr1AzFfOMg=,tag:MMvGLwPL6xhvjUDpqvvIeA==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.9.0

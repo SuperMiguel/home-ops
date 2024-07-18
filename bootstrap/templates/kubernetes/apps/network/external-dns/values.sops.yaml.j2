@@ -1,5 +1,5 @@
 ---
-fullnameOverride: *app
+fullnameOverride: external-dns
 provider: cloudflare
 env:
   - name: CF_API_TOKEN
@@ -16,7 +16,7 @@ policy: sync
 sources: ["crd", "ingress"]
 txtPrefix: k8s.
 txtOwnerId: default
-domainFilters: ["${SECRET_DOMAIN}"]
+domainFilters: ["#{ bootstrap_cloudflare.domain }#"]
 serviceMonitor:
   enabled: true
 podAnnotations:

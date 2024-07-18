@@ -12,21 +12,21 @@ spec:
     - repoURL: #{ bootstrap_github_address }#
       path: kubernetes/apps/cert-manager/cert-manager
       targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+      ref: repo
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.15.1
+      helm:
+        releaseName: cert-manager
+        valueFiles:
+          - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
   destination:
     name: in-cluster
     namespace: cert-manager
   syncPolicy:
     automated:
-      allowEmpty: true
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-  - group: argoproj.io
-    kind: Application
-    jsonPointers:
-    - /status
-    - /metadata/annotations
+    - CreateNamespace=true
+    - ServerSideApply=true

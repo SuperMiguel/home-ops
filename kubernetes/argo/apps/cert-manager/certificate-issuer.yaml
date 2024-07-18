@@ -8,25 +8,17 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
-  sources:
-    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-      path: kubernetes/apps/cert-manager/certificate-issuer
-      targetRevision: main
+  source:
+    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+    path: kubernetes/apps/cert-manager/certificate-issuer/
+    targetRevision: main
   destination:
     name: in-cluster
     namespace: cert-manager
   syncPolicy:
     automated:
-      allowEmpty: true
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-  - group: argoproj.io
-    kind: Application
-    jsonPointers:
-    - /status
-    - /metadata/annotations
+    - CreateNamespace=true
+    - ServerSideApply=true

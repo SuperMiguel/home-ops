@@ -8,11 +8,10 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
-  source:
-    repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-    path: kubernetes/apps/cert-manager/cert-manager
-    targetRevision: main
-    ref: repo
+  sources:
+    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
+      path: kubernetes/apps/cert-manager/cert-manager
+      targetRevision: main
   destination:
     name: in-cluster
     namespace: cert-manager

@@ -8,11 +8,10 @@ metadata:
     argocd.argoproj.io/sync-wave: '0'
 spec:
   project: home-kubernetes
-  source:
-    repoURL: #{ bootstrap_github_address }#
-    path: kubernetes/apps/argocd/argocd
-    targetRevision: #{ bootstrap_github_branch }#
-    ref: repo
+  sources:
+    - repoURL: #{ bootstrap_github_address }#
+      path: kubernetes/apps/argocd/argocd
+      targetRevision: #{ bootstrap_github_branch }#
   destination:
     name: in-cluster
     namespace: argocd

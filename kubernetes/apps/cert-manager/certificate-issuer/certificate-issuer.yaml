@@ -12,14 +12,10 @@ spec:
     - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
       path: kubernetes/apps/cert-manager/certificate-issuer-chart
       targetRevision: main
-      ref: repo
-    - repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-      path: kubernetes/apps/cert-manager/certificate-issuer-chart
-      targetRevision: main
       helm:
         releaseName: certificate-issuer
         valueFiles:
-          - $repo/kubernetes/apps/cert-manager/certificate-issuer-chart/values.sops.yaml
+          - secrets://kubernetes/apps/cert-manager/certificate-issuer-chart/values.sops.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

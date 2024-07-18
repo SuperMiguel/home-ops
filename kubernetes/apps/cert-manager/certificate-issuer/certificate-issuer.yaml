@@ -10,7 +10,7 @@ spec:
   project: home-kubernetes
   source:
     repoURL: https://github.com/ajaykumar4/home-lab-argocd.git
-    path: kubernetes/apps/cert-manager/certificate-issuer
+    path: kubernetes/apps/cert-manager/certificate-issuer/app
     targetRevision: main
   destination:
     name: in-cluster

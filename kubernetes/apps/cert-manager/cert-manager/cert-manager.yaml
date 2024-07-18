@@ -19,7 +19,7 @@ spec:
       helm:
         releaseName: cert-manager
         valueFiles:
-          - $repo/kubernetes/apps/cert-manager/cert-manager/values.yaml
+          - $repo/kubernetes/apps/cert-manager/cert-manager/app/values.yaml
   destination:
     name: in-cluster
     namespace: cert-manager

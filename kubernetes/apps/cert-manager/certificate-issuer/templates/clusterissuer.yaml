@@ -1,13 +1,13 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: {{ .Values.issuer.name }}
+  name: letsencrypt-staging
 spec:
   acme:
-    server: {{ .Values.issuer.server }}
-    email: {{ .Values.cloudflare.email }}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: n.uajaykumar@gmail.com
     privateKeySecretRef:
-      name: {{ .Values.issuer.name }}
+      name: letsencrypt-staging
     solvers:
       - dns01:
           cloudflare:
@@ -16,4 +16,4 @@ spec:
               key: api-token
         selector:
           dnsZones:
-            - {{ .Values.cloudflare.domain }}
+            - ajaykumar.ie

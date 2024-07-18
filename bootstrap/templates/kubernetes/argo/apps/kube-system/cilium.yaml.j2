@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: home-kubernetes
+  sources:
+    - repoURL: #{ bootstrap_github_address }#
+      path: kubernetes/apps/kube-system/cilium
+      targetRevision: #{ bootstrap_github_branch|default('main', true) }#
+      ref: repo
+    - repoURL: https://helm.cilium.io
+      chart: cilium
+      targetRevision: 1.15.6
+      helm:
+        releaseName: cilium
+        valueFiles:
+          - $repo/kubernetes/apps/kube-system/cilium/values.sops.yaml
+  destination:
+    name: in-cluster
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true

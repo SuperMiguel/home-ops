@@ -5,9 +5,10 @@ metadata:
   name: cloudflared-configmap
 data:
   config.yaml: |
+    ---
     originRequest:
       originServerName: "external.#{ bootstrap_cloudflare.domain }#"
-
+    
     ingress:
       - hostname: "#{ bootstrap_cloudflare.domain }#"
         service: https://ingress-nginx-external-controller.network.svc.cluster.local:443

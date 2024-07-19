@@ -1,14 +1,17 @@
 ---
 autoDirectNodeRoutes: true
+bandwidthManager:
+  enabled: true
+  bbr: false
 bpf:
   masquerade: false # Required for Talos `.machine.features.hostDNS.forwardKubeDNSToHost`
+cluster:
+  name: "aj-home-lab"
+  id: 1
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
-cluster:
-  id: 1
-  name: "aj-home-lab"
 cni:
   exclusive: false
 # NOTE: devices might need to be set if you have more than one active NIC on your hosts
@@ -16,43 +19,52 @@ cni:
 endpointRoutes:
   enabled: true
 hubble:
-  enabled: false
+  enabled: true
+  metrics:
+    enabled:
+      - dns:query
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
+  relay:
+    enabled: true
+    rollOutPods: true
+  ui:
+    enabled: true
+    rollOutPods: true
+    ingress:
+      enabled: false
 ipam:
   mode: kubernetes
-ipv4NativeRoutingCIDR: "10.69.0.0/16"
-k8sServiceHost: 127.0.0.1
-k8sServicePort: 7445
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
+k8sServiceHost: "192.168.1.195"
+k8sServicePort: 6443
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  mode: snat
+  mode: dsr
 localRedirectPolicy: true
+image:
+  # #testing https://github.com/cilium/cilium/issues/20942
+  # override: "quay.io/cilium/cilium-ci:e14988e02ce8d0f3451b177a4f97a3833df65ab3"
 operator:
+  # #testing https://github.com/cilium/cilium/issues/20942
+  # image:
+  #   override: "quay.io/cilium/operator-generic-ci:e14988e02ce8d0f3451b177a4f97a3833df65ab3"
   replicas: 1
   rollOutPods: true
 rollOutCiliumPods: true
-routingMode: native
 securityContext:
-  capabilities:
-    ciliumAgent:
-      - CHOWN
-      - KILL
-      - NET_ADMIN
-      - NET_RAW
-      - IPC_LOCK
-      - SYS_ADMIN
-      - SYS_RESOURCE
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETGID
-      - SETUID
-    cleanCiliumState:
-      - NET_ADMIN
-      - SYS_ADMIN
-      - SYS_RESOURCE
-podSecurityContext:
-  appArmorProfile:
-    type: Unconfined
+  privileged: true
+routingMode: native
+gatewayAPI:
+  enabled: true
+  secretsNamespace:
+    create: false
+    name: certificate

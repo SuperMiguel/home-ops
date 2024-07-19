@@ -19,7 +19,6 @@ spec:
       helm:
         releaseName: cilium
         valueFiles:
-          - $repo/kubernetes/apps/kube-system/cilium/values.yaml
           - $repo/kubernetes/apps/kube-system/cilium/values.sops.yaml
   destination:
     name: in-cluster

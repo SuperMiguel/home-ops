@@ -23,8 +23,8 @@ releases:
     namespace: kube-system
     chart: cilium/cilium
     version: 1.15.6
-    secrets:
-      - ../apps/kube-system/cilium/values.sops.yaml
+    values:
+      - ../apps/kube-system/cilium/values.yaml
     needs:
       - observability/prometheus-operator-crds
   - name: coredns

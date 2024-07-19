@@ -36,7 +36,6 @@ operator:
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
-  privileged: false
   capabilities:
     ciliumAgent:
       - CHOWN
@@ -54,3 +53,6 @@ securityContext:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
+podSecurityContext:
+  appArmorProfile:
+    type: Unconfined

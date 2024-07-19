@@ -49,6 +49,7 @@ operator:
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
+  privileged: false
   capabilities:
     ciliumAgent:
       - CHOWN

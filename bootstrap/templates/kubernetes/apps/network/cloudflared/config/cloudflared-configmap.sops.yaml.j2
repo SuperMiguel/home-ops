@@ -8,7 +8,10 @@ data:
     ---
     originRequest:
       originServerName: "external.#{ bootstrap_cloudflare.domain }#"
-    
+      #% if not bootstrap_cloudflare.acme.production %#
+      noTLSVerify: true
+      #% endif %#
+
     ingress:
       - hostname: "#{ bootstrap_cloudflare.domain }#"
         service: https://ingress-nginx-external-controller.network.svc.cluster.local:443

@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  ARGO_HELMFILE: "{{.KUBERNETES_DIR}}/bootstrap/argo.yaml"
+  ARGO_HELMFILE_FILE: "{{.KUBERNETES_DIR}}/bootstrap/argo.yaml"
 
 tasks:
 
@@ -23,12 +23,12 @@ tasks:
   install-helm-apps:
     desc: Bootstrap argo apps
     cmds:
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.ARGO_HELMFILE}} apply --skip-diff-on-install --suppress-diff
+      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.ARGO_HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
       - msg: Missing helmfile
-        sh: test -f {{.ARGO_HELMFILE}}
+        sh: test -f {{.ARGO_HELMFILE_FILE}}
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster

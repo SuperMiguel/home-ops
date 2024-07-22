@@ -6,6 +6,7 @@ configs:
   params:
     server.insecure: true
   cm:
+    admin.enabled: false
     statusbadge.enabled: true
     kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
     helm.valuesFileSchemes: >-
@@ -24,9 +25,6 @@ configs:
     argocdServerAdminPassword: #{ bootstrap_argocd_admin_password }#
     argocdServerAdminPasswordMtime: #{ current_datetime() }#
     githubSecret: #{ bootstrap_github_webhook_token }#
-    extra:
-      accounts.hertz.password: Password@1234
-      accounts.hertz.passwordMtime: #{ current_datetime() }#
 controller:
   metrics:
     enabled: true

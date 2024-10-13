@@ -19,6 +19,8 @@ cni:
 # devices: eno+ eth+
 endpointRoutes:
   enabled: true
+envoy:
+  enabled: false
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "#{ bootstrap_pod_network.split(',')[0] }#"

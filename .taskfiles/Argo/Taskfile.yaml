@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  ARGO_HELMFILE_FILE: "{{.KUBERNETES_DIR}}/bootstrap/argo.yaml"
+  ARGO_HELMFILE_FILE: "{{.KUBERNETES_DIR}}/bootstrap/helmfile/argo.yaml"
 
 tasks:
 
@@ -11,16 +11,16 @@ tasks:
     desc: Bootstrap Argo into a Kubernetes cluster
     cmds:
       - kubectl --kubeconfig {{.KUBECONFIG}} create namespace argocd
-      - cat {{.AGE_FILE}} | kubectl --kubeconfig {{.KUBECONFIG}} -n argocd create secret generic helm-secrets-private-keys --from-file=key.txt=/dev/stdin
-      - task: install-helm-apps
+      - cat {{.SOPS_AGE_KEY_FILE}} | kubectl --kubeconfig {{.KUBECONFIG}} -n argocd create secret generic helm-secrets-private-keys --from-file=key.txt=/dev/stdin
+      - task: apps
       - kubectl apply --kubeconfig {{.KUBECONFIG}} --server-side --filename {{.KUBERNETES_DIR}}/argo
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG}}
       - msg: Missing Sops Age key file
-        sh: test -f {{.AGE_FILE}}
+        sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
-  install-helm-apps:
+  apps:
     desc: Bootstrap argo apps
     cmds:
       - helmfile --kubeconfig {{.KUBECONFIG}} --file {{.ARGO_HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff

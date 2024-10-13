@@ -10,22 +10,22 @@ tasks:
   bootstrap:
     desc: Bootstrap Argo into a Kubernetes cluster
     cmds:
-      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} create namespace argocd
-      - cat {{.AGE_FILE}} | kubectl --kubeconfig {{.KUBECONFIG_FILE}} -n argocd create secret generic helm-secrets-private-keys --from-file=key.txt=/dev/stdin
+      - kubectl --kubeconfig {{.KUBECONFIG}} create namespace argocd
+      - cat {{.AGE_FILE}} | kubectl --kubeconfig {{.KUBECONFIG}} -n argocd create secret generic helm-secrets-private-keys --from-file=key.txt=/dev/stdin
       - task: install-helm-apps
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/argo
+      - kubectl apply --kubeconfig {{.KUBECONFIG}} --server-side --filename {{.KUBERNETES_DIR}}/argo
     preconditions:
       - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
+        sh: test -f {{.KUBECONFIG}}
       - msg: Missing Sops Age key file
         sh: test -f {{.AGE_FILE}}
 
   install-helm-apps:
     desc: Bootstrap argo apps
     cmds:
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.ARGO_HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
+      - helmfile --kubeconfig {{.KUBECONFIG}} --file {{.ARGO_HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
     preconditions:
       - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
+        sh: test -f {{.KUBECONFIG}}
       - msg: Missing helmfile
         sh: test -f {{.ARGO_HELMFILE_FILE}}

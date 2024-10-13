@@ -17,8 +17,8 @@ configs:
               clusters:
                 - "*"
     secret:
-        argocdServerAdminPassword: $2a$10$sI.lEvb9I9bCG4ng4lGKG.Zf11BzJVVQTC11CJXCwRNCN6lnW5p4a
-        argocdServerAdminPasswordMtime: 2024-10-13T15:37:48
+        argocdServerAdminPassword: $2a$10$VS18cczTtbUep4iBCs0FdORY9tWiBZ/ew4m62ciotMBWrWeyC.JNO
+        argocdServerAdminPasswordMtime: 2024-10-13T17:21:07
         githubSecret: bd77b8ded03b9fdc259013f221d5c244
 controller:
     metrics:
@@ -149,14 +149,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4ZzdMbzVEVmE4OWJUeURn
-            TFhFL2VXV1RZSWs3YVU4UlZWYTdiRmF4bHowCmw4SUtQTHAweUNCSktHV0pqWURR
-            QXZVdmxNUnZLRXdjdU9qTnBMQmhYdEkKLS0tIENpUjNCY3VTNVk1S2laSit1T21n
-            d3JYK29STGt0Z3ozaTZhMVA1eVR3RGcKe37Jj7FDm33mQ2ahok1l8DQrtuiDdvqY
-            lDJHHQ0/UrMXumhrG9ySGBiMetDmjSMTC/f2NWil4PKHNRZ8eeAHtA==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB5MGczQmg2bVdpZnh1Ympy
+            OFVwT2M2NjNPNGhiVTFtWHZoN1lRa1hFRUdZCitOUHZlMVlaY1hISXpIcnRlajE5
+            SDZib2hybDJtU2l6eDJxTjNlSTJYTGcKLS0tIFFTZDBheitRN21vaFFOQkZCbXhR
+            SEZtMndocW5XeTZaT3RRQXNDb1lNaG8KI23+D5wxg8dbZjG9+cDuhdIZMCKiMXfs
+            7BK2DjFqYOTGcc7bGTwRG6rCTRn0p0RNsCfQ5Nh3ThGzSNObIEGbhQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-10-13T14:37:48Z"
-    mac: ENC[AES256_GCM,data:8ZTWlXLHRDnHBvRTtzVj/UI/fAnVZ7okbTJdqw59xW48MBCbYXRSv0d0VTkZZ+pNXQy0wEUbatJMEc/LvCBnSVxQgyzDWQIwfjnIFuIhce3zb1aBr9AIqoez7Iip48E0BvOHphmFI7T/Qm51OiOVTjxU7V38J8yEUNt81+atV14=,iv:Kky6UYOrCIFr2h+phaAAHjxaIBaIxxeVdAH3mwD/NnQ=,tag:uUK7t8Fm6CPIBCCBfRJF5w==,type:str]
+    lastmodified: "2024-10-13T16:21:07Z"
+    mac: ENC[AES256_GCM,data:Un60ag571qC09PYRX3sdtDJ5wVG+pZszOJrd/EZjEc2/pM/CRWjbMQKhD4UnKgtlV3OmmIZLrUMLGZVFrJ88cyVRH6kkxH+Lypr0EGlIAeCWSuYVZei6GS/OjjmPiDC4nFueza/So6U1EZL+su3wczAq/Cc7+XYq4etpaU5cano=,iv:2m5tENGMDkVWokPRJBbACGFWbgDGrjzA6/nACfYWTF4=,tag:VT9mpwmtdU/OYVfUSH69Bg==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

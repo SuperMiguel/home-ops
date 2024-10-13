@@ -14,7 +14,7 @@
   "rebaseWhen": "conflicted",
   "schedule": ["every weekend"],
   "ignorePaths": ["**/*.sops.*"],
-  "argocd": {
+  "flux": {
     "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"]
   },
   "helm-values": {

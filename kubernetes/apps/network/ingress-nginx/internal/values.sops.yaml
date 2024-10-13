@@ -1,64 +1,65 @@
-fullnameOverride: ENC[AES256_GCM,data:k8MCwlWZ63zlpdY0XyP/3v0fLVaaTg==,iv:TEMnYBptuVNqmS73rIhDwUGfHLROhEutwpXkG+c1DkI=,tag:ZQQa+utTQhtWXKmlhetwvA==,type:str]
+fullnameOverride: ingress-nginx-internal
 controller:
     service:
         annotations:
-            io.cilium/lb-ipam-ips: ENC[AES256_GCM,data:pjD0KdEkvx7GWnY/KQ==,iv:TTINS365k0djKMKSumx56yJ2AHxUqdlgXlmeYsmiJ2s=,tag:mehkOFkK6fbRhSzicTMefw==,type:str]
-        externalTrafficPolicy: ENC[AES256_GCM,data:gFpkYXC+NA==,iv:pw4p3So6cnYGlmagHS1s9K1Sy3A5uH03Qm9yyxoiIOM=,tag:jjdaBq1430kCofSnNUm2JA==,type:str]
+            io.cilium/lb-ipam-ips: 192.168.8.201
+        externalTrafficPolicy: Cluster
     ingressClassResource:
-        name: ENC[AES256_GCM,data:byMzbkGbGnk=,iv:HWeBmvHXEigS0I5fZsDPr7a0VBp3LkWRQh9UKtI8RGY=,tag:4XDXBuQuyzO/+FJ6RflSJA==,type:str]
-        default: ENC[AES256_GCM,data:2f9IaA==,iv:eRk4qQam9it19EEfy2WjkLRsSPuIUugtjPl9ijK6M/Q=,tag:VJf8JcAcR4baSyABJVsGTg==,type:bool]
-        controllerValue: ENC[AES256_GCM,data:Xr8QtjnwBSfUsDKEojUN,iv:eWSwSgdLKl8OjnWOEXOmNVmzwGOz03lgWpUm1X5AdgU=,tag:UBLMHbHHRJ/LxYHprA1R4A==,type:str]
+        name: internal
+        default: true
+        controllerValue: k8s.io/internal
     admissionWebhooks:
         objectSelector:
             matchExpressions:
-                - key: ENC[AES256_GCM,data:U7IG4TUjBCm5TH6R7g==,iv:CleqqHaWcCfsyyOWFnGUCcBnRsAyhUHen/reJ5HPPcQ=,tag:gJznCg20JBFDrQtWoYPV/A==,type:str]
-                  operator: ENC[AES256_GCM,data:6rk=,iv:XY7nr/WXVpem4NJ8NHz/6JFp8gSoCBP4YkrPk1WOrIE=,tag:uZr7uNlDP8Z7pApgw4fCYg==,type:str]
+                - key: ingress-class
+                  operator: In
                   values:
-                    - ENC[AES256_GCM,data:KBKkLlNuv+s=,iv:XKBwir90lyfHGXxR+/ldtYRD0PgZoBTIY+rYdofRZps=,tag:CfdDhtvAHNJkN7CvLfNQZg==,type:str]
+                    - internal
     config:
-        client-body-buffer-size: ENC[AES256_GCM,data:YqslfA==,iv:g07UpH9xaCxrWK1iBd8iGzGg22tp0543Cv/I7A29suE=,tag:KLETtPLlj+A2MNOyNJBLvg==,type:str]
-        client-body-timeout: ENC[AES256_GCM,data:5ZGy,iv:SUrZ07z2UP1WSM6vJkxD+aEylCDi/2MSRoOlOcfg+UI=,tag:csM40DReMUgCGkPkFboizg==,type:int]
-        client-header-timeout: ENC[AES256_GCM,data:obW4,iv:wR+hZkt7yhzISWwmYI5qMZp6xRLnnZe2j1FW/aeMF20=,tag:ylwOqlOuiVf6crsYtk56Pw==,type:int]
-        enable-brotli: ENC[AES256_GCM,data:c4SJ0A==,iv:NC1833d+dQdn7VTAo/GRPAW7CHfi5P81QF2NmwbBm2w=,tag:wha8LtsX16c8T6w6yPgnAw==,type:str]
-        enable-real-ip: ENC[AES256_GCM,data:f26UQA==,iv:0Haxmle4dQgVvgWfh1GcdQRwxzSy5AZCvVeHbjWylgc=,tag:myyHVh2oBuUNEAhB1pAEBw==,type:str]
-        hsts-max-age: ENC[AES256_GCM,data:XLRhM7cyyrQ=,iv:U3XDaYQ7fouIH+1Uq2jkQj4tWZPumSJpP/MAuT7W7bg=,tag:I0kJzah/bBH8jV5AnbuGrA==,type:int]
-        keep-alive-requests: ENC[AES256_GCM,data:wYI3y5A=,iv:t0+u3z9SgQrUJdOzrwon6nJx7ET6gs04SNar9jsvHCc=,tag:s28NBOTJfJ+svTpBHqF5WA==,type:int]
-        keep-alive: ENC[AES256_GCM,data:mZuA,iv:g+gJBqA8Zl88OmnejQhcGB6v15MJq4JkE+P0EYxtZqo=,tag:wt1F/rdTXLePETFjn1hkRA==,type:int]
-        log-format-escape-json: ENC[AES256_GCM,data:1JYV1A==,iv:sTBy957r1zBmTI1zpsAb89kRXikz8jyALgUSonlrwAs=,tag:PxYrTLmBa13rMrKgMwaCUQ==,type:str]
-        log-format-upstream: ENC[AES256_GCM,data:ABPWRi3RUqSN3HSWM5AhRcp8V4n9KtNKu8nUNMg/A6yV81TbBiZnXXn211GgYkdmTBBO3XBIqOwacYLgtY87Ip3VzmgzcZtyF15L5vjnugf0adN4U2cwG09zg3IYjTKTiu4CCgAA6OZ7OkfZJ4NP51EO2+iFXy5VlEZmGsogWhwMz3RkjqBdcGXX8kNn5djBSbFxuvBt6E17jR7+pTrkJ/DGjm04Upqs2LpzDt+BELkBxIrB4QM5oIZpPlLU9Z3MSJB0hizNbEpy/KvXMJFJIPpglblN01T94Jszi2FnvfnYVV7UEmZZlZ42QaoKsPAddbqgRJIaXawjF9+vVTRNrmsA6W3/Uxh7qVtrPYe2qL+puZNTyUximoKRb9JjJY4Co3unvzi5qfss1zqoCwXVjA0C7YNLCf12GSRRvDhwytgTJwluAORHO0gYtAsPXn4jenu7MURYBXkSfBj45cSHmqnTu/VgQhvTKaYpwD03yPnsWuRTNMZMekSL4H5smuTmfs9sgIa+CDkOil3qHn35CWNhqbO85IsDOM5DeqgPiV9oY5B+YmV9RjLOb01DjKMx6+MzYZINZxkyGe19TkvArX7cuLKfvF5UBhvAtM6PXeXRIXdiYVFSSw85rbgtLqaPtXYlauM7bQf3DkXpPmDSm5EV8vYGXwcjy8GFcA==,iv:gnGXWrbIqwSjWp+peHASZMHBHf2vqm9pSu1fNmCemQU=,tag:ZAlKRK5z9QAJ/7kntBKW4g==,type:str]
-        proxy-body-size: ENC[AES256_GCM,data:1g==,iv:NTzB5/MWXJxqSbLftmzjt5NNz1MDUHo0Pa/El2eaA10=,tag:y2xfNIFkA9SEBVb0/IZBGQ==,type:int]
-        proxy-buffer-size: ENC[AES256_GCM,data:tx+s,iv:fASRspezlwtbZ3ucH+v469KfnhcWRlgYI5IyrIFY4yc=,tag:yDG3WRNV4MHUSNgmUrsUeA==,type:str]
-        ssl-protocols: ENC[AES256_GCM,data:hl3BESt2rigIa1gSyUFy,iv:H3u5mTrfMfePSLjkzKz0ao6TMItcGtGSh4KpMw+4MjU=,tag:nLKYK0Fi1xjrIqf9UHW4ww==,type:str]
+        client-body-buffer-size: 100M
+        client-body-timeout: 120
+        client-header-timeout: 120
+        enable-brotli: "true"
+        enable-real-ip: "true"
+        hsts-max-age: 31449600
+        keep-alive-requests: 10000
+        keep-alive: 120
+        log-format-escape-json: "true"
+        log-format-upstream: |
+            {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status": $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time, "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}
+        proxy-body-size: 0
+        proxy-buffer-size: 16k
+        ssl-protocols: TLSv1.3 TLSv1.2
     metrics:
-        enabled: ENC[AES256_GCM,data:9OepOw==,iv:KvaBow7gVupJR6KPFhOW3fZzRdqc8ne79U6z3BM7Mo4=,tag:ewzqWu7fXzqeHFsaXOWEjw==,type:bool]
+        enabled: true
         serviceMonitor:
-            enabled: ENC[AES256_GCM,data:v3C7YQ==,iv:7ZKK14MTD2DJHfpW/Un1GaPJN8zem7YVbaOqmQWlCVM=,tag:iTz9FITYYgrBxE4RwLF9lA==,type:bool]
+            enabled: true
             namespaceSelector:
-                any: ENC[AES256_GCM,data:PXKW7w==,iv:z3XU29Jy/IrcmIVmWrus1N0lonD89P4Be/1mIMwQtTg=,tag:RloTpW+uI23MtrZXyc14Mg==,type:bool]
+                any: true
     extraArgs:
-        default-ssl-certificate: ENC[AES256_GCM,data:8R56HGL/Vqn/4DaSjnC1w6qH8I4CVa8SBVp0UL1aClca/fg=,iv:F8hUPBXEy2EsOmkQK8BCNrEsqa5Zc9MBXf0eaBII7Zs=,tag:3NiTlgYA1aIPBRjybjW0Ag==,type:str]
+        default-ssl-certificate: network/ajaykumar-ie-staging-tls
     resources:
         requests:
-            cpu: ENC[AES256_GCM,data:j4rZhA==,iv:pkFpLhKH0ZbhuSErWWqPORbcROtFy8hKmmyi7Hh9bns=,tag:4n+rrOSHekwJHF2jyoEvcg==,type:str]
+            cpu: 100m
         limits:
-            memory: ENC[AES256_GCM,data:RVV5QMo=,iv:tc2N5X5U+G1/LVsgvENTRErMFc92mgVXIG+QLkyZ8bc=,tag:6YYkqq+/jvXb2SQifxsqeQ==,type:str]
+            memory: 500Mi
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
     hc_vault: []
     age:
-        - recipient: age1kh9qxg0nplvlncvld27lg3h4f3epdsr32vuxswtxn95fyhj04ufsuq9cl6
+        - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBWQmt4b1NTcVdzZ2RjV0l3
-            UHBhVkd1aWRXTWJ1eDVHeUgwRHdDamFMcUQ4ClZseDJMaTdyM0ppZ1dweHBqZGFF
-            ajNkUjZRQ3NNWjhaWGFlQitQYm13OUEKLS0tIDRJL0tBQi9ZL3BJRkUxM2lkSWc4
-            Ymh6bXBvK084Q1d2MG9LOVQvOTYyN1EKUIMHvVh33wZ2jSUCP4OGoh4jDjCiDtp2
-            bG/bGmBdK+nUjUfGGPjSFtuOidueRVm5jCNKAj5ctvMPkByUlt7OIQ==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB3OFJXaTFxNkF3WmhqZDRE
+            MzVtSGZXeXpDQlk5eXVGckkzYjJaa2U4VWpFCmdjSUo4V3loNVlLMGVjZTFWUzRQ
+            WlJ0bWhKVjJjazdsV2NubkVkeUZyQ00KLS0tIE5aeWczcGsyNlRMeEs0RTdIZFc4
+            WHIra3RtYW02RlQ2cC9LWVZiTzllbHcKlf4tsxuOVgPOwA7rprfKYoe3C1nyeODJ
+            9oEhQeNVshJqsYJBH01OseuGLSPOHKZ/Z2+tngrlal5TKunHnQlSvw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-08-09T13:58:23Z"
-    mac: ENC[AES256_GCM,data:Iu9S8WoPJL0e7+fRtndhs1peqDGVf4VN68nKrMgdUmG6ZdYsocP3ullLGco82IRPUc0/Ex8DD4atIWbzHVHfD/gL/ld0MnWEz3AAt4RhgrU3WUshDqTDWJ1qYa4jV3O9Z+vpbVllGTjVNI/44SqoOz/1P0erhj8YwqVMPv97ZMo=,iv:3PW7hlUn6DOIlf/kiQ9Wo2u1xVCD6QfN4qsNu1PQ0hE=,tag:RpEZ8dP6wo7Yz5Y6uS/W7A==,type:str]
+    lastmodified: "2024-10-13T14:37:48Z"
+    mac: ENC[AES256_GCM,data:WQC1gdEz/NU8cmLGOYOFGIvnZmTKSSWr9twT4DXmzkfbXS7TRYk5F0PA3aRFTVq+4R4WPD6Vp+iETZzZmEDcCNHS/3XFH4EKdqVJBrTu/lAXAGRvs9TOQ3tU+Wb8HhZ7XOppxBIScPr398BAdY4CAWJNfLj5CzLMAZGhE+Cgmyc=,iv:14I2Vt6E+GNGrGE1pUwLRkmMetub1e6f7D7xDcc0a+E=,tag:4JGTMkZOE+L05P1tUIBFFg==,type:str]
     pgp: []
-    unencrypted_suffix: _unencrypted
-    version: 3.9.0
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.1

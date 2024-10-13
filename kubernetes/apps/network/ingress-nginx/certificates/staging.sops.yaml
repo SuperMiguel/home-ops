@@ -1,33 +1,33 @@
-apiVersion: ENC[AES256_GCM,data:TXLOH177xCv3gnQa+aIuqlSi,iv:+T1eYOOtTAY/9HnMgWft6l+02sYdJ3MNNpqyWtBgC8A=,tag:turRs34TclqItV2/HCZL5w==,type:str]
-kind: ENC[AES256_GCM,data:ruhITYQbiSfixKY=,iv:fwgvKcclfWZ+CIEgPE4ApXXyuEx/lRzouj2hRKkRh5I=,tag:wpHkFLKibLeLd8NzaPcVew==,type:str]
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
-    name: ENC[AES256_GCM,data:L6SdK3Vt4kA/sYOK7OzFZ6HD3dI=,iv:asrV0uf+gkQxZoFlZ+J5CyPgCNVSztlLXCwuNrNehJo=,tag:r8dSuSvcxb4eeLz+tibgnQ==,type:str]
+    name: ajaykumar-ie-staging
 spec:
-    secretName: ENC[AES256_GCM,data:xKm6NBZ87QFS6pYg6x82OQP0gGYW7cAM,iv:8DDHs8Za+xJUSbXPDST2rwGxe3U9ncpsNsSCbfNpkFQ=,tag:UfqbhZvSNS08Mv1JryIfWw==,type:str]
+    secretName: ajaykumar-ie-staging-tls
     issuerRef:
-        name: ENC[AES256_GCM,data:+s1Vxgbvri8+wQkHcAObcr7TsA==,iv:OBL3kFZqXPfGo8xIj7VtL0uCksXPNuWBdGMIeK18stk=,tag:QZUlniMnth0lt1CHJKaTHA==,type:str]
-        kind: ENC[AES256_GCM,data:I58gjjP4cDyi8lYUTQ==,iv:2V2gLU4H1WZjR8pKTa4iDhqL8pZN6ZELG/ndEC6As90=,tag:LQKPX5pO4W5QuzYx8qKGIw==,type:str]
-    commonName: ENC[AES256_GCM,data:Nx+e+Ipr0DtDscnX,iv:2gJITIckf7GVhLb+gCXonqZV1QKvg2kEKRFWnU+JlP8=,tag:qyBQD9tZKYhECv90HL9qUQ==,type:str]
+        name: letsencrypt-staging
+        kind: ClusterIssuer
+    commonName: ajaykumar.ie
     dnsNames:
-        - ENC[AES256_GCM,data:nolLEpC1JjxDJN1P,iv:7A2kSHdn1ZERL0LZN9lkSijIk2zuvOADTvWNFDx2/Js=,tag:7mViHLKQobT8isO9CDhZEA==,type:str]
-        - ENC[AES256_GCM,data:ltDTU87N1AzvPRxBLeM=,iv:Ych45GXc7NSQ9cGasQngT3APOtFUv6QlKObuCx8Zq8w=,tag:eYYsWXoFWzCadWDKcpolEg==,type:str]
+        - ajaykumar.ie
+        - '*.ajaykumar.ie'
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
     hc_vault: []
     age:
-        - recipient: age1kh9qxg0nplvlncvld27lg3h4f3epdsr32vuxswtxn95fyhj04ufsuq9cl6
+        - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzOVIxNjZJdEk5dDdtd3Mz
-            TFJYKy9MUGJHN0dkUlFoREVweHN0UWtDN0Z3CklzVVhhcUh0eEFhekV5cFNRZUlz
-            bEREL2t2Y0MxZTB1ZWI2MXdLZkFKRW8KLS0tIHlIYThQOE11Y1JMWXFzV1dlRmRt
-            Q3dkTERMd2t1RlZOaEdNYXlvRU1BYUEKaDY7RUF9dui9OGmc++JK6FJxFqUiN9gC
-            6M45jdNX+/STLX1HjCfMryMGSK9w2dzFERfZuDdUxcFuJrH2YrgcDw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBhSi90VlpENG9zRlltVTJ0
+            N2NSMU50b2Via0MwaUxiZjlUbFFpRUpkUFJBCjBzazRFSE53YXl5WjJaY3BwQ2hP
+            cEZGMEMxY1pwMDUrMis0ZzJqbVRJY2sKLS0tIHNoRmZFWWRqeEdvb3NDSm1uMGpp
+            QkR4RFhRaW9zcmRaN2EvQ29YT0pVOHMKy7neXhon9Lgj9Br8YZpnOoVc4iEcPCEi
+            57hYwv/iWQP2n7Mb3CSjlF9E/PNRuaOTSSU8yIaNHkJ0PPyAej1Qew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-08-09T13:58:23Z"
-    mac: ENC[AES256_GCM,data:ThuvcWQU2+qt6HEyg7+6h3Gulz76SzId+Mh5cFAHRbb/zqIcQw63RIPDTJtoDFi1xa3aZPyPS3TrRXY0GnlJkPwhUhhAqnOsTccMiB6NOc4mrnaRyEtIUfdMXnexzYC+WiJ5RdymCCF0Fu7sC///RqHGXil6EJEiTRPFVMjMsPY=,iv:y96hvUnhSeJR3SmwdkEFafdMPRR0TMT0AO15oFaDQew=,tag:Q3Lf4A3JyaUw5ntnZ1yaEw==,type:str]
+    lastmodified: "2024-10-13T14:37:48Z"
+    mac: ENC[AES256_GCM,data:Z78dm92nKBBIHHTw1JlZ29G3nEdLIWojobexBAU6bV2iac6tNVmXZENaJ/VK19xsDXE3HEljwT2r4vJidbVbvY2qncY1vDLb01DUFjgqnq0JMLu/XncFnhhsrRsxL6S2B9Z/DWCtdCepWmgMU8jT+3P8jz1LSA7BDU55B2Bs2J8=,iv:ivrQp6HQRrSyf4/6Pm7IeuaHom7sc1adjs9iGVsixpE=,tag:rEf8U6vwVIf6w+81pNGySg==,type:str]
     pgp: []
-    unencrypted_suffix: _unencrypted
-    version: 3.9.0
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.1

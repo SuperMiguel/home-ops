@@ -1,30 +1,30 @@
-apiVersion: ENC[AES256_GCM,data:2RnJOgaKII0q8jE0i0TsWCFeIfFCEEzyAxCB,iv:HxHB7gOKf44XRXLTy5P5wZsRbwW5cbXuSv9fk3zXL9Q=,tag:0zyFh5usvBopNpjd/pmBdg==,type:str]
-kind: ENC[AES256_GCM,data:jdz9ChWyDqjnQk8=,iv:E5VugUzgr4DlwmuTEvmy44nAPGqkp4pW6qlU4G9Wk5A=,tag:b269+7Sqku8l7dCjXsrARQ==,type:str]
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
 metadata:
-    name: ENC[AES256_GCM,data:bDMEfvnpxRLitVk=,iv:iozvtw765NiVwhIrULXfwPCwUC96c4a+A2+1uN4o2l0=,tag:4SvUc1ynWWjRvv1Rxc9T8A==,type:str]
+    name: cloudflared
 spec:
     endpoints:
-        - dnsName: ENC[AES256_GCM,data:iDsASS8dN21if1mN9GR54MIYGUfM,iv:V85AotRmlpUT5WVE/2+jBAoE9uBLMez/SGI+2RIpIlE=,tag:OmcAXC0V1J24mVz28FARkA==,type:str]
-          recordType: ENC[AES256_GCM,data:t957lz0=,iv:8GRSKjHJM2QCZPJ0tiCOS6RJawfZ4Sna4bqOAg9JTh4=,tag:bfoVN2Q0M6EHEDiNKSGVrA==,type:str]
+        - dnsName: external.ajaykumar.ie
+          recordType: CNAME
           targets:
-            - ENC[AES256_GCM,data:eLj/uP5GW/p4Y3DZh/SHMKsnYb6kG987VOYrAbJPfqTQUCGgmn8gQ7ZfVlGTDNYLRZPGQ4c=,iv:GU0mB72STTV2vtkp0GX+wItGd8RblE/02NrC3pfZlYY=,tag:obwP+KU8scyejkkS5vR8ZA==,type:str]
+            - a5142a55-dde8-4096-b322-912461fe6083.cfargotunnel.com
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
     hc_vault: []
     age:
-        - recipient: age1kh9qxg0nplvlncvld27lg3h4f3epdsr32vuxswtxn95fyhj04ufsuq9cl6
+        - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB2eVVLQjJRTnJxTmIzd0pw
-            eE9uN3JEZVRPa1JFVzJRN3I2OXhQZGpNOXpvCldvMGRDMEtFYjNodmdmMjlIdERq
-            WkFkT2RzMEg3Ymw4L3ZhR3dyNC9ic28KLS0tIFhZNFgxYjEreVhTcmJjTmFEWHFr
-            Q0Z0S0ttTmhSd1NkbDJTc2VKNHowVUEKt2OPWz27ucj3nCtXs2cb78wli4q0PKUT
-            ohG+sTQdDSd5TNgMt/3N7T6VbCM9Nhy1gesR2e6zqoA7SdflbfJPgg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBmQW5tMHc4QlBSbksyYSt1
+            cHFIZkRDd0tpSDh4SUhhaWVrUG55SkpOb0dZCjFZa1VBOTlxaldFR2RJRnVNbHJm
+            b1pwTllqVWRrQXpET2FzZi8vY2JPbGcKLS0tIHRhNThKeWFRN2p5SmJVcW0rSm9L
+            OFZxLzlOSnZtc0JnamFBRTBCZyswTlUKLGMoLItBuiXWvUGhwohq+MlB2ZZVIW3h
+            e9ayIidn823byxxm6ByAozZbOtGIGnzI1obNMDVmWDiJRUuvJtQEcg==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-08-09T13:58:23Z"
-    mac: ENC[AES256_GCM,data:SPuyi1d7mWOXjgjIEh6KpHwyFFIMP1ZXtqvLeMBYfS2dupFKLfNHfGaAK5IwEg8gCok23tjToX81whEOtsnJVY/yDu6GHjUGDn1S2kKyi20YREM0nNFGfrIigUEB63rL2fBpv6zHJ6RUZSrBJW8fnqoy9+F22YDoRWKEd/yNxGE=,iv:PvUNHFJeurH5WAzG6/JWze/dvOuLQbh0Z3F/uyCAOfo=,tag:E6YlBE0sxceqoaopmUxrow==,type:str]
+    lastmodified: "2024-10-13T14:37:48Z"
+    mac: ENC[AES256_GCM,data:mwMicHSxcoIelWBqF8D0RS4qVg+NNxrwPASvINxBgQqgAx31vnz6ELSmmgEfEK9m9lPR7IHuX7KDwN/asbncOdxAukdud/EnH3YVxhegfhOMdnJ3K/k00rTcJiJyLThamDDcIZvqeN+zuGMpXe3NFHguViU3weeLUlkmwdI33hk=,iv:nEXzGWmaemlicHcw7Z/3/nMC38Fwwo9j1x7kPWUkjb0=,tag:IhYRoZaI8sZK4SroqvNxeQ==,type:str]
     pgp: []
-    unencrypted_suffix: _unencrypted
-    version: 3.9.0
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.1

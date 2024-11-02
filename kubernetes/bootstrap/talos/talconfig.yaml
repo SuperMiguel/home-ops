@@ -6,13 +6,13 @@ talosVersion: v1.8.2
 kubernetesVersion: v1.31.2
 
 clusterName: "aj-home-lab"
-endpoint: https://:6443
+endpoint: https://192.168.8.200:6443
 clusterPodNets:
   - "10.69.0.0/16"
 clusterSvcNets:
   - "10.96.0.0/16"
 additionalApiServerCertSans: &sans
-  - ""
+  - "192.168.8.200"
   - 127.0.0.1 # KubePrism
   - "86.43.201.200"
   - "ajaykumar.ie"
@@ -40,7 +40,7 @@ nodes:
             gateway: "192.168.8.1"
         mtu: 1500
         vip:
-          ip: ""
+          ip: "192.168.8.200"
     extensionServices:
       - name: tailscale
         configFiles:
@@ -65,7 +65,7 @@ nodes:
             gateway: "192.168.8.1"
         mtu: 1500
         vip:
-          ip: ""
+          ip: "192.168.8.200"
     extensionServices:
       - name: tailscale
         configFiles:
@@ -90,7 +90,7 @@ nodes:
             gateway: "192.168.8.1"
         mtu: 1500
         vip:
-          ip: ""
+          ip: "192.168.8.200"
     extensionServices:
       - name: tailscale
         configFiles:
@@ -115,7 +115,7 @@ nodes:
             gateway: "192.168.8.1"
         mtu: 1500
         vip:
-          ip: ""
+          ip: "192.168.8.200"
     extensionServices:
       - name: tailscale
         configFiles:
@@ -140,7 +140,7 @@ nodes:
             gateway: "192.168.8.1"
         mtu: 1500
         vip:
-          ip: ""
+          ip: "192.168.8.200"
     extensionServices:
       - name: tailscale
         configFiles:

@@ -1,0 +1,32 @@
+fullnameOverride: k8s-gateway
+domain: ajaykumar.ie
+ttl: 1
+service:
+    type: LoadBalancer
+    port: 53
+    annotations:
+        io.cilium/lb-ipam-ips: 192.168.8.202
+    externalTrafficPolicy: Cluster
+watchedResources:
+    - Ingress
+    - Service
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBKL0RURVBrQVhOS3V6Z0tP
+            T1FYV0dQZHgzczJ2RExjRVhmckMySVIxOFZVCjE1ai9vb05jRUdGNGV3ZmpXZ0RQ
+            OTAyK0dqV0trdjlnbVU5R3BZTTFKeEkKLS0tIFU5WHZVZW1zN3VuanBVUFJkQVhr
+            OFlPUnFHUkFXQVJpclpOWnJ2QUpkdGcKmXsfwZZvG8uWsNE3Y9cySUDde2H1GJqn
+            xt9ZpAxLCSqZmkpesveMXok3bB9eLFKfvCCjdqNnYp5+r3E6MP/5Qw==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-11-02T23:43:55Z"
+    mac: ENC[AES256_GCM,data:SXbrfnbVrVkdUE6YMW5lLyvCfURLPrVqg4LmxLp6nuTWO9kq8GL6PRJf1JMVxHDgJ4EQGc8JquZJOeSmoRK03JGTx6Mf3II2ZkH7cyVe2tpg25HTezySjj3k8yX5LuvEmB4+ctnhqnNKwdouacat0DSryVqcVUcm0ix9Mws3sMw=,iv:0oOuAL5JiZEO2DHPG0uL0bbhd9hjYX+UVtYMkky34Qw=,tag:LETRdMVal7Ng4Uc+PqAO3A==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.1

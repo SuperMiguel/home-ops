@@ -1,0 +1,123 @@
+autoDirectNodeRoutes: true
+bpf:
+    # Required for Talos `.machine.features.hostDNS.forwardKubeDNSToHost`
+    masquerade: false
+cgroup:
+    automount:
+        enabled: false
+    hostRoot: /sys/fs/cgroup
+cluster:
+    id: 1
+    name: aj-home-lab
+cni:
+    exclusive: false
+# NOTE: devices might need to be set if you have more than one active NIC on your hosts
+# devices: eno+ eth+
+endpointRoutes:
+    enabled: true
+envoy:
+    enabled: false
+ipam:
+    mode: kubernetes
+ipv4NativeRoutingCIDR: 10.69.0.0/16
+k8sServiceHost: 127.0.0.1
+k8sServicePort: 7445
+kubeProxyReplacement: true
+kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+l2announcements:
+    enabled: true
+loadBalancer:
+    algorithm: maglev
+    mode: snat
+localRedirectPolicy: true
+rollOutCiliumPods: true
+routingMode: native
+securityContext:
+    capabilities:
+        ciliumAgent:
+            - CHOWN
+            - KILL
+            - NET_ADMIN
+            - NET_RAW
+            - IPC_LOCK
+            - SYS_ADMIN
+            - SYS_RESOURCE
+            - DAC_OVERRIDE
+            - FOWNER
+            - SETGID
+            - SETUID
+        cleanCiliumState:
+            - NET_ADMIN
+            - SYS_ADMIN
+            - SYS_RESOURCE
+hubble:
+    enabled: true
+    metrics:
+        enabled:
+            - dns:query
+            - drop
+            - tcp
+            - flow
+            - port-distribution
+            - icmp
+            - http
+        serviceMonitor:
+            enabled: true
+        dashboards:
+            enabled: true
+            annotations:
+                grafana_folder: Cilium
+    relay:
+        enabled: true
+        rollOutPods: true
+        prometheus:
+            serviceMonitor:
+                enabled: true
+    ui:
+        enabled: true
+        rollOutPods: true
+        ingress:
+            enabled: true
+            className: internal
+            hosts:
+                - hubble.ajaykumar.ie
+operator:
+    replicas: 1
+    rollOutPods: true
+    prometheus:
+        enabled: true
+        serviceMonitor:
+            enabled: true
+    dashboards:
+        enabled: true
+        annotations:
+            grafana_folder: Cilium
+prometheus:
+    enabled: true
+    serviceMonitor:
+        enabled: true
+        trustCRDsExist: true
+dashboards:
+    enabled: true
+    annotations:
+        grafana_folder: Cilium
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBHY0d0bytNcU5OZTJSN21i
+            aFh6c2wrOTJsbzFnRWVqV2NSaHhOME4wTFZRClplVTBweWIya0RXWUt6RTJCcUxs
+            c3RnMmhNL1ZVYXptd3ArNU9WS25sTDQKLS0tIEdjV1Z2K3RjYzR2ZDF4SWJvMTAx
+            V1BSQ3JudE1hWUVJb0VCMm1aS3JZelEKuKLHKg+5T4jfYFLLRXriy/bC+6882kwh
+            d2pl0d3hFMENnVeq2lvkge4vsVT9Pni0alLxal1XBqibeXf8WBmteA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-11-02T23:43:55Z"
+    mac: ENC[AES256_GCM,data:oAdDQr/btvrDKL7cQTeeVZJpJGxYiP/3HtLwJbYPN0aBbk6defcVKDvx0BEea596OjMB6IUbSBfwP2v7XNDolAMLKGAEOJgvnR1TmDaMFYkLUZf1QBnYipF1AytMdQpt9kIwExSdw4psqADQAWRuLol64T3yKHni4ekEa1xxKXI=,iv:eAOPgSUekMU9W+ggEMrw45WM0QuTPfxe/IIAO3gWujs=,tag:NS1+c52CMB/WKJbR/njF4g==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.1

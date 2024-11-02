@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: apps
-  namespace: argocd
+  namespace: argo-system
 spec:
   project: default
 
@@ -16,7 +16,7 @@ spec:
 
   destination:
     name: in-cluster
-    namespace: argocd
+    namespace: argo-system
 
   syncPolicy:
     automated:

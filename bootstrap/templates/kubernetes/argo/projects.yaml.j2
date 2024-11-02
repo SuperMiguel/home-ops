@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: projects
-  namespace: argocd
+  namespace: argo-system
 spec:
   project: default
   source:
@@ -12,7 +12,7 @@ spec:
     targetRevision: #{ bootstrap_github_branch }#
   destination:
     name: in-cluster
-    namespace: argocd
+    namespace: argo-system
   syncPolicy:
     automated:
       prune: true

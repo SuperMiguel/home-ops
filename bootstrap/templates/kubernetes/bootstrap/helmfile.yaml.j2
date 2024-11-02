@@ -24,15 +24,15 @@ releases:
     chart: cilium/cilium
     version: 1.16.3
     secrets:
-      - ../../apps/kube-system/cilium/values.sops.yaml
+      - ../apps/kube-system/cilium/values.sops.yaml
     needs:
       - observability/prometheus-operator-crds
   - name: coredns
     namespace: kube-system
     chart: coredns/coredns
-    version: 1.36.1
+    version: 1.36.0
     values:
-      - ../../apps/kube-system/coredns/values.yaml
+      - ../apps/kube-system/coredns/values.yaml
     needs:
       - observability/prometheus-operator-crds
       - kube-system/cilium
@@ -41,7 +41,7 @@ releases:
     chart: postfinance/kubelet-csr-approver
     version: 1.2.3
     values:
-      - ../../apps/kube-system/kubelet-csr-approver/values.yaml
+      - ../apps/kube-system/kubelet-csr-approver/values.yaml
     needs:
       - observability/prometheus-operator-crds
       - kube-system/cilium
@@ -51,9 +51,21 @@ releases:
     chart: oci://ghcr.io/spegel-org/helm-charts/spegel
     version: v0.0.27
     values:
-      - ../../apps/kube-system/spegel/values.yaml
+      - ../apps/kube-system/spegel/values.yaml
     needs:
       - observability/prometheus-operator-crds
       - kube-system/cilium
       - kube-system/coredns
       - kube-system/kubelet-csr-approver
+  - name: argo
+    namespace: argo-system
+    chart: oci://ghcr.io/argoproj/argo-helm/argo-cd
+    version: 7.6.12
+    secrets:
+      - ../apps/argo-system/argo/values.sops.yaml
+    needs:
+      - observability/prometheus-operator-crds
+      - kube-system/cilium
+      - kube-system/coredns
+      - kube-system/kubelet-csr-approver
+      - kube-system/spegel

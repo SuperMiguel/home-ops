@@ -1,7 +1,7 @@
 crds:
   install: true
 global:
-  domain: "argocd.#{ bootstrap_cloudflare.domain }#"
+  domain: "argo.#{ bootstrap_cloudflare.domain }#"
 configs:
   params:
     server.insecure: true
@@ -48,7 +48,7 @@ server:
     ingressClassName: external
     annotations:
       external-dns.alpha.kubernetes.io/target: "external.#{ bootstrap_cloudflare.domain }#"
-    hostname: "argocd.#{ bootstrap_cloudflare.domain }#"
+    hostname: "argo.#{ bootstrap_cloudflare.domain }#"
   metrics:
     enabled: true
     serviceMonitor: *service-monitor

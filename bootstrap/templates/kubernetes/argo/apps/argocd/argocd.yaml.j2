@@ -2,29 +2,29 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
-  namespace: argocd
+  name: argo
+  namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: '0'
   labels:
-    argocd.argoproj.io/instance: argocd
+    argocd.argoproj.io/instance: argo
 spec:
   project: home-kubernetes
   sources:
     - repoURL: #{ bootstrap_github_address }#
-      path: kubernetes/apps/argocd/argocd
+      path: kubernetes/apps/argo-system/argo
       targetRevision: #{ bootstrap_github_branch|default('main', true) }#
       ref: repo
     - repoURL: ghcr.io/argoproj/argo-helm
       chart: argo-cd
       targetRevision: 7.6.12
       helm:
-        releaseName: argocd
+        releaseName: argo
         valueFiles:
-          - $repo/kubernetes/apps/argocd/argocd/values.sops.yaml
+          - $repo/kubernetes/apps/argo-system/argo/values.sops.yaml
   destination:
     name: in-cluster
-    namespace: argocd
+    namespace: argo-system
   syncPolicy:
     automated:
       prune: true

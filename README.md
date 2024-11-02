@@ -80,7 +80,8 @@ You have two different options for setting up your local workstation.
     # Homebrew
     brew install direnv go-task
     # or, Arch
-    pacman -S --noconfirm direnv go-task && ln -sf /usr/bin/go-task /usr/local/bin/task
+    pacman -S --noconfirm direnv go-task \
+      && ln -sf /usr/bin/go-task /usr/local/bin/task
     ```
 
 2. [Hook `direnv` into your preferred shell](https://direnv.net/docs/hook.html), then run:
@@ -99,7 +100,7 @@ You have two different options for setting up your local workstation.
 
 3. Install the additional **required** CLI tools
 
-   📍 _**Not using Homebrew or ArchLinux?** Try using the generic Linux task below, if that fails check out the [Brewfile](.taskfiles/Workstation/Brewfile)/[Archfile](.taskfiles/Workstation/Archfile) for what CLI tools needed and install them._
+   📍 _**Not using Homebrew or ArchLinux?** Try using the generic Linux task below, if that fails check out the [Brewfile](.taskfiles/workstation/Brewfile)/[Archfile](.taskfiles/workstation/Archfile) for what CLI tools needed and install them._
 
     ```sh
     # Homebrew
@@ -154,7 +155,7 @@ You have two different options for setting up your local workstation.
 1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
 
     ```sh
-    task talos:bootstrap
+    task bootstrap:talos
     ```
 
 2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [nuke the cluster](#-Nuke) before trying again.
@@ -190,16 +191,14 @@ You have two different options for setting up your local workstation.
 
 2. Install Flux and sync the cluster to the Git repository
 
-    📍 _Run `task flux:github-deploy-key` first if using a private repository._
-
     ```sh
-    task flux:bootstrap
+    task bootstrap:flux
     # namespace/flux-system configured
     # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
     # ...
     ```
 
-1. Verify Flux components are running in the cluster
+3. Verify Flux components are running in the cluster
 
     ```sh
     kubectl -n flux-system get pods -o wide
@@ -281,12 +280,48 @@ By default Flux will periodically check your git repository for changes. In orde
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your `bootstrap_github_webhook_token` secret in `config.yaml`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
-## 💥 Nuke
+## 💥 Reset
 
 There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has run.
 
 ```sh
-task talos:nuke
+task talos:reset # --force
+```
+
+## 🛠️ Talos and Kubernetes Maintenance
+
+#### ⚙️ Updating Talos node configuration
+
+📍 _Ensure you have updated `talconfig.yaml` and any patches with your updated configuration._
+
+```sh
+# (Re)generate the Talos config
+task talos:generate-config
+# Apply the config to the node
+task talos:apply-config HOSTNAME=? MODE=?
+# e.g. task talos:apply-config HOSTNAME=k8s-0 MODE=reboot
+```
+
+#### ⬆️ Updating Talos and Kubernetes versions
+
+📍 _Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to._
+
+```sh
+# Upgrade the whole cluster to a newer Talos version
+task talos:upgrade-cluster
+# e.g. task talos:upgrade-cluster
+```
+
+```sh
+# Upgrade node to a newer Talos version
+task talos:upgrade-node HOSTNAME=?
+# e.g. task talos:upgrade HOSTNAME=k8s-0
+```
+
+```sh
+# Upgrade cluster to a newer Kubernetes version
+task talos:upgrade-k8s
+# e.g. task talos:upgrade-k8s
 ```
 
 ## 🤖 Renovate
@@ -343,26 +378,6 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
 
-## ⬆️ Upgrading Talos and Kubernetes
-
-### Manual
-
-```sh
-# Upgrade Talos to a newer version
-# NOTE: This needs to be run once on every node
-task talos:upgrade NODE=? VERSION=?
-# e.g.
-# task talos:upgrade NODE=192.168.42.10 VERSION=v1.8.1
-```
-
-```sh
-# Upgrade Kubernetes to a newer version
-# NOTE: This only needs to be run once against a controller node
-task talos:upgrade-k8s NODE=? VERSION=?
-# e.g.
-# task talos:upgrade-k8s NODE=192.168.42.10 VERSION=1.30.1
-```
-
 ## 👉 Help
 
 - Make a post in this repository's Github [Discussions](https://github.com/onedr0p/cluster-template/discussions).
@@ -375,6 +390,10 @@ The cluster is your oyster (or something like that). Below are some optional con
 ### Ship it
 
 To browse or get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) as a creative way to search Flux HelmReleases across Github and Gitlab.
+
+### DNS
+
+Instead of using [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provide DNS for your applications you might want to check out [external-dns](https://github.com/kubernetes-sigs/external-dns), it has wide support for many different providers such as [Pi-hole](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/pihole.md), [UniFi](https://github.com/kashalls/external-dns-unifi-webhook), [Adguard Home](https://github.com/muhlba91/external-dns-provider-adguard), [Bind](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/rfc2136.md) and more.
 
 ### Storage
 

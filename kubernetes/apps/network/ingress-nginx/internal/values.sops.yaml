@@ -37,7 +37,7 @@ controller:
             namespaceSelector:
                 any: true
     extraArgs:
-        default-ssl-certificate: network/ajaykumar-ie-staging-tls
+        default-ssl-certificate: network/ajaykumar-ie-production-tls
     resources:
         requests:
             cpu: 100m
@@ -52,14 +52,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRUUIzN0RKc1V6TllLbXFs
-            RS8zVVB0S1VHZHY2dlowa2l4M1pxemNOTFZnCjFTZ1JRKzd2aVRUTnBnOVFQQzkw
-            Y0FDODRIVFFSdE5GMUpOd0FkY3FMVlUKLS0tIEh2SHhoN05RV2xieWpBbzRhanRN
-            R0dBTXVZb0UvekpISWV4Zk1ob2hRN0UKfZT1Q40fiRvZAyd4vkOBD/jozIo620hh
-            ABqp+JGFg8STbm/xmdNHgtrc96jMHhYjxMXXR27/nEpU67Co6o777A==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB6d2Y0dDBpZ3VZUEdvZUVy
+            OTdQTFUzTTJHSzdjMHFWWUpLS0lxV1FSSEhZCkI1Z1dlUWxCc0pBTExocVdFU09r
+            QkZBcnFMN1B0dFV5YUFsenRKRGVOeXMKLS0tIGdLUDRpREtxZmwxRDlCMXNJMFE4
+            dkx1MXhEL25sbVJEWTZZc0ZGbVY4T0UK2rVcXzXr45RZv11EtSopwppp0rVVAxwB
+            WJrNOhdM6W3qU4GC1cwWNZgFb7NEYGLEa+pniOr/7Hqf5CN6+V7qcw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-03T00:02:16Z"
-    mac: ENC[AES256_GCM,data:UyxvmOYBP8kshEdpYQM3oS9n8wNrGPSjBNF91uNPx3lBMW21aiHPSgt1hbQtMQLJ4NIIBsl73U/6C1EcZG5+CM2A2Mg9PotUhyZ5XW0/gk1qbfE5jgct7cxfx203yB+8NEfvBtPGn2pjEFWnjDlWlqY8fv7oTRmRUCf9OpKWLZo=,iv:fGN3vyD7OC1zKusGWNIj3wk0A2rsrQWJVw6MdF4RS1o=,tag:BbRHzL+3RqxbgbzzbByDUw==,type:str]
+    lastmodified: "2024-11-03T00:10:43Z"
+    mac: ENC[AES256_GCM,data:oDZkc5LeVzQEhSCisH9TsjoSsI/mZXno9R36IOuHFCCDIbSToaZKnFrGRqOfwaKPe7fAm3yIVPuoNgihTKHkYRSHUughA1xd3dCe6YQqAP6u5F2qdnu2aM5eZOznR5bJC+zVPIglwB6t06vUUuXRHQ6qXc+6zjtvluRCOLMeYG4=,iv:O3bvknb0kCkhWEoJj0rGGO6vGTe0aIP6lSMQkT6j0WM=,tag:OdeRYN9aQp492gwW5JxZUQ==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

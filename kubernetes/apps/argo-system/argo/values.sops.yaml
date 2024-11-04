@@ -18,7 +18,7 @@ configs:
                 - "*"
     secret:
         argocdServerAdminPassword: $2a$10$sI.lEvb9I9bCG4ng4lGKG.Zf11BzJVVQTC11CJXCwRNCN6lnW5p4a
-        argocdServerAdminPasswordMtime: 2024-11-03T00:10:40
+        argocdServerAdminPasswordMtime: 2024-11-04T22:21:50
         githubSecret: bd77b8ded03b9fdc259013f221d5c244
 controller:
     metrics:
@@ -149,14 +149,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBpRzFBVlpOOTVsVTZTa1dz
-            UEIzY2JrWGNnc3J3UERucnhMUnovTTZMM1UwCk1SODdwZmQ4QnVHcnF2WS93bTJH
-            eXFHVWxPY1lKNlZQYlU1VXhDeGpxZVEKLS0tIFF6Q2RwZ05uQjlBdzRPQ3oxZ0Ja
-            NXNkSXJreVBETjBJaFFudGh6QXluM0EKWXOttsklHWyF+FX9skXbkGZsIO6hw5MP
-            HSEAMaxhFeBsnV35g2AniAD2ndOTp6ozOPiZjzJL9jVeZ/0G/XcL+w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBuYzE1ejhnN29JRWExc3E3
+            R281QlNTK0V4bmg0Y01YR0EyQVIrNE95NHo0Ck52Ym9zMm5tNWxSSldIdE9MUjAy
+            OE90c2RrODJRaHVuUEVJQlRnTktqOGMKLS0tIGQ1aTRmV0Y2WU5IMFdZR1J3QWpU
+            RXkydFBUTEczc0hJcENlSG0vV3V1RVUKyVUQyFNPO34luxxOMIQD+8/NW+SAOti/
+            ztP/olkito86d3oBFUuCqqU2pd84+Ec30OBZrLKwsZ1vSvYdv8hmDA==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-03T00:10:43Z"
-    mac: ENC[AES256_GCM,data:xBsvhOCz3GINf381OjhEewiruNQzWepTtfJZJchhWYVrQSgahIM7xvRbY6oPHuxidcPGraFlmUN8l08T1UTwXsuvQBOWHHECDSvGpRgAsUGZvuadF7wOaMBkqRQMUpD3fZyHjaS3YjmJ5nkk444pOhj1kZrRvrUknhotL+tsdnU=,iv:GgDdsN0cXHuvjIsieZSVLuJWIxVukZtXw1j2QJM9QkI=,tag:xO5yOcc5chzMtgLjAaJsRA==,type:str]
+    lastmodified: "2024-11-04T22:21:54Z"
+    mac: ENC[AES256_GCM,data:C/fU378+hnPajXRP9KCJt+yFlzsRrkXY2muACyqetd0cHrF64xa80D3OKzSxFQJpFmxTNqniKom2Xz5diBHf7kp2s5rS+1XU2vqD9Io+zH5+G4vI2MAh6PtBi8z6917yZkeiWx5qdEljieXVaYcY0x2VK6cSaLXrtUWop8KuVXA=,iv:LyDpiJWB5m1hY9Sttnjhg2TxB0t4UOIDTRZ7TE/OA9o=,tag:D0my1pEOZ+oKW1BJK71wfA==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

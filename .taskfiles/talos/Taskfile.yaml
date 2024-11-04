@@ -49,7 +49,7 @@ tasks:
     desc: Upgrade Talos on a single node
     cmds:
       - task: '{{if ne .ROLLOUT true}}down{{else}}noop{{end}}'
-      - talosctl --nodes {{.HOSTNAME}} upgrade --image="factory.talos.dev/installer/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" --timeout=10m
+      - talosctl --nodes {{.HOSTNAME}} upgrade --image="factory.talos.dev/installer/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" --timeout=10m 
       - talosctl --nodes {{.HOSTNAME}} health --wait-timeout=10m --server=false
       - task: '{{if ne .ROLLOUT true}}up{{else}}noop{{end}}'
     vars:
@@ -72,13 +72,11 @@ tasks:
   upgrade-cluster:
     desc: Upgrade Talos on the whole cluster
     cmds:
-      - task: down
       - for: { var: HOSTNAMES }
         task: upgrade-node
         vars:
           HOSTNAME: '{{.ITEM}}'
           ROLLOUT: true
-      - task: up
     vars:
       HOSTNAMES:
         sh: kubectl get nodes --output=jsonpath='{.items[*].metadata.name}'
@@ -106,14 +104,6 @@ tasks:
     dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
-
-  down:
-    internal: true
-    cmd: argocd app suspend argo-system
-
-  up:
-    internal: true
-    cmd: argocd app sync argo-system
 
   # Ref: https://github.com/go-task/task/issues/608
   noop:

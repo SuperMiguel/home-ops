@@ -2,7 +2,7 @@ fullnameOverride: ingress-nginx-external
 controller:
     service:
         annotations:
-            external-dns.alpha.kubernetes.io/hostname: external.ajaykumar.ie
+            external-dns.alpha.kubernetes.io/hostname: external.aknuk.dev
             io.cilium/lb-ipam-ips: 192.168.8.203
         externalTrafficPolicy: Cluster
     ingressClassResource:
@@ -38,7 +38,7 @@ controller:
             namespaceSelector:
                 any: true
     extraArgs:
-        default-ssl-certificate: network/ajaykumar-ie-production-tls
+        default-ssl-certificate: network/aknuk-dev-production-tls
     resources:
         requests:
             cpu: 100m
@@ -53,14 +53,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB0OWp3TmpQMXVBc2c4YzR5
-            T3VreVlnbXcxemVPUjlhQkJ5UElobnBkYWtBCmE3VjMvUUVoTkc0T1JJRitvS2FN
-            ejNBUklPV1hFZU5yRmJzc1NTWlNzNm8KLS0tIFJ3YTFkbnkvVThXVXZPcjVzNHpw
-            YUFRWlU3TFhSMjhHdkpkeE8zWnMvTXcK6b8NQK/k2jrXEJSdRV83S30yN5EzHPUR
-            pa6U4+l8022vtzYMN6ymCHB/17ErtTouKbAf8rAQ9CihlWLRTm/K0g==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBpcERDWUl1c2puVm1XYlRE
+            eEhzYTdNYmpQdW16QU9VdStwcjc1VURqSjNJClBvZW03RDJ0VFVLSXE2SU0xTmRB
+            RURZaXA1ZTJCeFFiTStsd2c1bENqY3MKLS0tIGR6bnFvNURQUW0wd2VOMHFOT3ZL
+            ekdMM29qWnhlS1BKVjR5Y0NNZXJRUnMKo8JrLZJ/g5vD3Ho4yJH7FqVq1baS4pvW
+            L73xxD/sovBtSbNeyxWe4dQ4ag+4kopyO4KObR8yznFX+9UbdjikrQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:S9hNogObK5x348O8RtMbKdQ25KWGREem2ajLVftmV/jarhMSNSVPHk0rChAig7Ou8KuiH398KgDfezAiL0l+Or2istyWqEQbWFilm9UhXEP8tprk243SRa9B0/rE0qK/I9oZdocRj+hLzF3LXjoIwS9hRBIEdjPh+HZYqUzIE/I=,iv:qXRe+GobRzDau+nhtqyamuAEcn5K7Zhy1T9CbKAtOHg=,tag:Vm45PfjAGSbxhJUoUTEPeQ==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:BPpQL+Fe6W5fjzyoup1A4uoolsHqXA4w0TDrYe869uewey8DxidaO1DCbQVE+CYnw+O00u2EmL4r2/XRK0o9oCX/gdGk8ikr+GZ0wFBsP9lwm5XZJXt5JoTeyJc6om0nmzJhxCZQ+7a0n9A1xrCVAEt2UMgs92pIaKgod4gA85Q=,iv:2EEb5YPVAVbnthWq5ZcieUXpUj1B0PPzSYn8nZaCHsA=,tag:1ipk9YIkhTdZkYKtQE+kmw==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

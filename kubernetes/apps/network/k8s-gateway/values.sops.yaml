@@ -1,5 +1,5 @@
 fullnameOverride: k8s-gateway
-domain: ajaykumar.ie
+domain: aknuk.dev
 ttl: 1
 service:
     type: LoadBalancer
@@ -19,14 +19,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBPYjJtQWEybXNJQ2VINWVv
-            dHJWSzg5amcxRUJkV1p0TFZRT05NOWJrSnlVClpkOGFGMjJQTzVnWG9nT3dKMWlB
-            bUJUVUhQeEl4YkZja2REakNPTWVvTFkKLS0tIEFWcEhKdDNtZUROWmxDNGZCV0ts
-            L3BzTWViVGhKbkVUcjNDSlBRMUJFS28KLUDIN9O/Pr09gubK4TDlFPdiN2jYv+JB
-            qBQp3NgMyuuV7JFZElRhAHvexuEpnJY3pU6Q7+cEjBbANl/kInbkOQ==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQL1QvQWRKakxFM3lvR00w
+            QWRTa1V1NnZYVzhUWUJLQnNubTUyWjg0NkE0CnJkV1RLNUF3NHEwMEJOTW5YL0t3
+            bUZBSDRZUGhUaUdoamlNU01hMVBaNk0KLS0tIGVoaFRORWhEWm9ROUtMbkhYZmYw
+            WWtXWms1OE9jM2U0aGE2VnVGWHEwT1EK1PpijFYs4U5NeVnTGaSqAQSwGNM1Fv7F
+            Bm51wDRfplkoXMPJlbOALlydQifctsJ7CdEe6DAq+N3i9FTx/K7rAg==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:ZLIvGjRAMMQ854D0Hvck/Z6+hXhhBmWVzhdljSjy/OyJj+P81lcCOeV1Mqbd88IuJF27Ozi8tjANnYAQUJ+M1XnjmkYVFhpMzanihFHlXquesogW++FPqUAS9n/jtGsDzaWcok1u65ntBQaK49/T0kC4HnHFXApaFpNyS3oW/b4=,iv:O6MjLl+/9KdUSd4bDYxYdE8qWS6BbMFYU0zb9UcNcJQ=,tag:GFmpPEiMYvfqVVwQzlhe8w==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:qiVfu3ZMMrm9Nd0WcMPIdKxfeG/YyiHPMnaLRaMlsDQY9Z3QQ0BGHaJ5a8YQwVmIq78vpgWEpxB/oWvuIRceOsJJNag3MPBQ2cGhH+lSyDyyKNeEuhGW2BRRWWsGXBr+TVitPlpzWcAPAxjnRQ4+HEjaQiua7jKnD9fzGbAUHuA=,iv:4EW4c1iD7SZNHu87giqt1CLrLHKeYBMmknasM5TE9eg=,tag:xXVM8319NO8QXHa5piI+aQ==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

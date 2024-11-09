@@ -1,16 +1,16 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-    name: ajaykumar-ie-staging
+    name: aknuk-dev-staging
 spec:
-    secretName: ajaykumar-ie-staging-tls
+    secretName: aknuk-dev-staging-tls
     issuerRef:
         name: letsencrypt-staging
         kind: ClusterIssuer
-    commonName: ajaykumar.ie
+    commonName: aknuk.dev
     dnsNames:
-        - ajaykumar.ie
-        - '*.ajaykumar.ie'
+        - aknuk.dev
+        - '*.aknuk.dev'
 sops:
     kms: []
     gcp_kms: []
@@ -20,14 +20,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBYbWtCYjN4SVVYTFhZM3hE
-            QnUrWmppM0R6S3VYWFdsMmhiSHZMcEQ2cDNJCmdjV1RDeWRDUStQTWFUeWF0L1RM
-            Sk9lNTkwYmlGaE05N0VldFoyeDZJb2sKLS0tIGRJQ2lkQ3dQVDNpVVhKUkx6bDNu
-            b25vdGVBVVl4MEtNSDhQOU8wQ0kvbWMK7A/GqHxb3XhvL8W+XkioLIrDxXWBqIHp
-            0oEIU0y6XSC+2KctaZMB+47tWpMDeUnMzzqa7rC3WaJ8a7mzTRQVFg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBMS3U4T29yYzNzUmRlMUFN
+            dlo1QmRiSXpKaGxoZHluaEJMM2tuMkhGblEwCnBVT2ZBVFJPNUdaT0hLUVVDbFhE
+            QWdXUjFwQ1RCNjc3WmQzbCtDa3JXSncKLS0tIFBZbEd1akwwRStWZkRhSEcyS0hB
+            Z3E1TEZlamsycW1FYW1Xdm11ZUY2R0EKHRLyaRs4MSrMhnEX+xMMYJVYYijODFsi
+            E0IoSLZfWvwkeCMEhPF6B7cTc3+X22unFye3T5KhvVQgeUVokAlMHQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:SJ/j44Enpk3lz607hIUY9SChpnKFm6VV+uQdSQfndq4gyeVw0WeOS2maxYzqRbuk6OHS31LqH0EBqpZf18oxMqQDHMDYyTVJFeQVMo+61RF2VQO+hTF2ybkXzupxvD04ad+t6biBpYQ27e9l9rC1JOgYGyXZSvJPjkv5OYuCdzA=,iv:E7X0SpRtRuDCyjcFTlO+UK2O7Gq3+5mrSvFNgan/U8k=,tag:5pArz8Jj6u5ZJSq8cgjvcQ==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:nQdmpoZjll1VfXKtwANM1Ou1ISGxLh721UVrYSqeqtE/XNmqYFqKG76SxXyDHdGTmedX6XhAtGACineLaSku99nmedLajkAS0R0t/2XmQ9vtCYsgxCNoRX1O5IfzqoZVTmHTHfu1uRASfFBnaQcFJ70qINNnhAQcph/HxMegATQ=,iv:e39HEBzIdT9Kodd0zPTZkIoofgXCL8VDcDUDTz+0kT8=,tag:NlyxE4of5G4QqtyRb9FBnw==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

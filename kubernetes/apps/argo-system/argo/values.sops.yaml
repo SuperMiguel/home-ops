@@ -1,7 +1,7 @@
 crds:
     install: true
 global:
-    domain: argo.ajaykumar.ie
+    domain: argo.aknuk.dev
 configs:
     params:
         server.insecure: true
@@ -18,7 +18,7 @@ configs:
                 - "*"
     secret:
         argocdServerAdminPassword: $2a$10$sI.lEvb9I9bCG4ng4lGKG.Zf11BzJVVQTC11CJXCwRNCN6lnW5p4a
-        argocdServerAdminPasswordMtime: 2024-11-04T23:28:31
+        argocdServerAdminPasswordMtime: 2024-11-09T00:22:10
         githubSecret: bd77b8ded03b9fdc259013f221d5c244
 controller:
     metrics:
@@ -49,8 +49,8 @@ server:
         enabled: true
         ingressClassName: external
         annotations:
-            external-dns.alpha.kubernetes.io/target: external.ajaykumar.ie
-        hostname: argo.ajaykumar.ie
+            external-dns.alpha.kubernetes.io/target: external.aknuk.dev
+        hostname: argo.aknuk.dev
     metrics:
         enabled: true
         serviceMonitor:
@@ -149,14 +149,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBORUY4YUI0VVRiZXBqZE9B
-            T2E1cFFEWEtyYnBEbkNmckZ1TjNNWEoxTjJZCjRPcEVrdUJzbHFldktxMWdoVko4
-            MmdKNDl2ZWJVdjdFNFg2YWVORHRselEKLS0tIElYcFJsTHc1aGdFY0NBUnRJQUxw
-            MnFndHRaNDlTUEtib1puVW13Qk1tVkUKU0R25eh/YJDftzLExVyAmuUR75bij4Jz
-            pjLLOp/DO8f4HOMFnbFNxmsxZMp9gitDXpfeN/2hnHgu7hZ20cWpPw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBoUU9EaDhLT1dDdkxlL0ov
+            Nk9KUElZa0lyUjdBYVFKS1NGRE9iVzRGWVY4CmtRVCtJOGFOQVZmTHlkUzBMT3ps
+            YWF2RVhnZ0U3blh0Q1FlYnYzUncvaWsKLS0tIDYrZnplU08vYXFxTmRIT2QycDZI
+            Ym9tdHBBMDBjcG5mV0hDNzRSdU9MRUkKOCQ0MFVcEifGV045e6FZiT688PsCCnrH
+            TL6L6mwR6uwfYVMI+sMazrT/WBBZqaAah1R5ceI7zJjKFSinyq96SQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:qN6N3tOSXzS6j0UjXBdoI80yEMM6GEFsZLIeJ88C741WdoJsT0XZ1VdL29rhEoZ2y080IZ1UiOxEmpvg7bu1vKPiPdrZtyy6X/vwOx924sxOrNhkFL+XzXekPD9Oonk2HaGdGKW9da05y/lMElXe6ohLMjk5OggX+CD9WPP1wRg=,iv:aKzJ619u/0G2ksZ1TTkVLeuMmcOe9iOQt02cEgkJo9A=,tag:O1WQq3ZPiwxrUZW4YzWyRg==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:iImcV9iszOVySYd/NvJLNHCHbX6kzyV52V1Yu5JUv01LO5kPkLBZSh0+zcMvvUz8+catHY5wxbT5sXcp/lFv9ngcTXqfDhsOptj9C7XAIQ78m69dKVAlSo3S4B3WvwMBouKh6fR0yA8KRks644AN3eFWUoRqsq2D/WWjlQP03s4=,iv:WHLI+naUSC6WIa2dSgfyS1L8Vb5o3e7VTNxVq2olnwE=,tag:dc6jNId+QjDyBYuY3KCGFg==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

@@ -71,9 +71,9 @@ ingress:
     app:
         className: external
         annotations:
-            external-dns.alpha.kubernetes.io/target: external.ajaykumar.ie
+            external-dns.alpha.kubernetes.io/target: external.aknuk.dev
         hosts:
-            - host: '{{ .Release.Name }}.ajaykumar.ie'
+            - host: '{{ .Release.Name }}.aknuk.dev'
               paths:
                 - path: /
                   service:
@@ -88,14 +88,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2by9pWWlDdnhKMmZRT0Q1
-            WEdKTElLUWxoTjFmYXlHMFQvbGE2d05uT3hFCkNvTStuN0toSC9JZlhORWhNUzRq
-            T2ZaNU85WkJKOEw5dVVNZHRrU3doaW8KLS0tIGN0SHBDNkJKTHV0SzJKc3NYNk55
-            WUdiQUpWamdDVWtzNEQ2RzJJV1hxeU0KpuFuYc2+sbe0ypgMg13tnn78rrom/JEA
-            lr16dpZCFTtvLrUEH1vq0EN9tXmWd65MirRkuh4uafwPT7xEIo1v6w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBkREtkSDJEcy9uN2Y2ZE44
+            Uy92MTJDcnZoMEx2MHVXbElmZlViSE5vTzNJCkVxcldzVHVUVGZsbXRqMG42eGsz
+            akZKUjdWUmNlM0hrZ2JPdnBRSS9sWFUKLS0tIEpxZy92Sk40REFSTjcvV1RVQXl4
+            Tmd6UTh6RUYvckZXOHFBa1lsdVgvemMKbKlO27rbtP4sIRbSlO04ksL90M5Mi+ju
+            fEJeaLf324+VYrv5TJc/ppdeqcEytE5PPGM9e+oq065Z2apPLnQJ+Q==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:4AKMmFh0tOhmPu8VKib+eZ1ZBruoH+YAgMRvS/vMg5iqXgFYvOZh7veEYj7fOyLAAXmkNhH6HNfWVDz/m7Ex5Ij8whjzUoHGttA3x2LepCkLkpoaLn/3Ocy2FKtKSiKWg+q2YWkmJpl7HvRhDysAHaPl/4xJgycEA37EFzm/ick=,iv:/Sr3xt0RCjqXs9zdfEmzpy32bIpfw22BZSue+jzJJI4=,tag:K5qkZsKAT11Z2fT0Iib4qQ==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:37FcsYfBiZbQRa85woynSf2Fmgelep4UQsNqKxDdfhhWqnu9cKt3uvzINUfxVERJa2kd8BrUUAVIECD3eHCU76uMDiziZo9Ra6wcGJBSJwv/9RzgGxJfFLJOhegDRhOamXrqCZFiLU9M+uynePMlFCFoBo5ZU59mNPV+zIrQ1nY=,iv:LtdYlhdSMkdWyt6pl80zQKdMYY5VVFExs6MWqs/Gykk=,tag:VnO5E7O5Gj8pA5YEvEQpfw==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

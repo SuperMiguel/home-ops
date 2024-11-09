@@ -18,7 +18,7 @@ sources:
 txtPrefix: k8s.
 txtOwnerId: default
 domainFilters:
-    - ajaykumar.ie
+    - aknuk.dev
 serviceMonitor:
     enabled: true
 podAnnotations:
@@ -32,14 +32,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBHUFAzSHpUK01EOW5FYXcv
-            ejBlV01LNmtPWVhqN3RJRTRFakRINmFRR1JFCkFCNGZ1UUVzR09WOTlXZHp2VXhT
-            YVF3Y2JUZHdjalI3M2JPUElmTHBSZFUKLS0tIDd3QXNHZjNzaXdtOTNxYUNpR1VY
-            UFl1UCt1eDNPTXhpYVQreXpIOHYyKzQKBjVZV9VJPKqxz7puKMcsxQoe6wyG5MWi
-            vX7OMUjSR+nk1WZB7PkOS5Uxqoc7/iR5nvF/nGlJGy4m+gBWejj/FA==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxS0U3Q1BiT1FFVDZqMmtr
+            YkJTODYyMHY1WjlldldrRUc1dHlIL1ZTVUNBClBhUk9hbDlSVm4yV2tRU0dsNmtP
+            bWhhaDdhQng2SEVaank3ZkZIR2dOblkKLS0tIFNUNlRNNU1wTnRNRnk5bnFGaFdY
+            ekNmUDRqQnhhZy8wNmprd093OGk1WkUK7BBX+30Twnoy93032k6+UbpQIUEzGsFX
+            2Ub6bHjs+aPkC1+2t1r5IbH4qlZUwHk/gvF2tLMc9b2QPGXXEW9hoQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:UbThoyA1jpzrJxrEdNu+KLiNBZ9+MYwdx12mKhxdLb+LKjok7lwRHwlq+y3RVHZl37n4yGYyvbv6CwvVW7uZVNslwnUOt7fGcTkQiPYgoqSS2X84ZBnmaEvaS+fvMcwz+ETtt1k/9ie22J2Hjh98QJxkAiC+8i9mDIqzt/T1wag=,iv:fDZ3qAA6ekWjAg+3jfDcIerX8d+LA+SvwJM3WYINjOE=,tag:93f+c0wUAaEVE1B5C4O7/Q==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:ktNa55c7tjnirk33FvOxXtOVnCHP5yVyg6DiAYyRQyXG1GK7QdyOGKAnxZSCyWP+kACawp/gWU+02Beiud1qrI1u+ZaM2rdsrfy9X0L6q6mjwbEkGn2hvM6HgGqz9Gs2q6HU9JS9bdCGVibPNho9CkLZ8PoM6//r7Xdm3xC5b64=,iv:R90s6vObokPrQirXqMt1QA4xmXNTppcfnXb7+OIPdP4=,tag:X7itOtzbm1FvQNgRD+iiUg==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

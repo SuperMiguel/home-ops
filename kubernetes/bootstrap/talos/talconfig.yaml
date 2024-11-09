@@ -7,16 +7,18 @@ kubernetesVersion: v1.31.2
 
 clusterName: "aj-home-lab"
 endpoint: https://192.168.8.200:6443
+
 clusterPodNets:
   - "10.69.0.0/16"
 clusterSvcNets:
   - "10.96.0.0/16"
+
 additionalApiServerCertSans: &sans
   - "192.168.8.200"
-  - 127.0.0.1 # KubePrism
   - "86.43.201.200"
-  - "ajaykumar.ie"
-  - "k8s.ajaykumar.ie"
+  - "aknuk.dev"
+  - "k8s.aknuk.dev"
+  - "127.0.0.1"
 additionalMachineCertSans: *sans
 
 # Disable built-in Flannel to use Cilium
@@ -155,8 +157,10 @@ patches:
   - "@./patches/global/cluster-discovery.yaml"
   - "@./patches/global/containerd.yaml"
   - "@./patches/global/disable-search-domain.yaml"
+  - "@./patches/global/dns.yaml"
   - "@./patches/global/hostdns.yaml"
   - "@./patches/global/kubelet.yaml"
+  - "@./patches/global/ntp.yaml"
   - "@./patches/global/openebs-local.yaml"
   - "@./patches/global/sysctl.yaml"
 

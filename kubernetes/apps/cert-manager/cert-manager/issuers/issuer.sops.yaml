@@ -16,7 +16,7 @@ spec:
                         key: api-token
               selector:
                 dnsZones:
-                    - ajaykumar.ie
+                    - aknuk.dev
 sops:
     kms: []
     gcp_kms: []
@@ -26,14 +26,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB0eDdiK1QrVXpuQlFLSkRt
-            RkRVd0l6Q1FRQmhvVjRIemxnUG91RG1KT3pzCkhjQjhvVHBwRGg0MDlBcS8zRytJ
-            dmorMnZWZ1NHTys0bExNNVd5OTh6Sm8KLS0tIFVpbXpzdzMyTGFiZThhVk9wOEJN
-            K3YrUkxxTnpOREFEMG56U2hIN1BKVW8K/LrMvXOT6ZykPOadWJjK//s2BoNHl4ZH
-            w0U57miKR3WSLDxj5lh61mE8hC+mwny2ln3J6aVOoPkvsSC8BnqPow==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzVkVxamEwZHArTTgzTzBB
+            ejllYlNuZSs1bkJsMGxTa3pwTEJ4MjAzSWdBCi9WMTZKOTB5cmNlWW8rSTNkNFZi
+            K2oxTHlOazMybVdDdWM3b3BDR1c3VFkKLS0tIEJ6RkRkOWc1MHlJWDdhSnlSbDZS
+            SkNXbWxySWFYZ0gwKzBoT0l5bUhSSzgKbZJroZLufwOBup9217ecSxN9I5sK77u2
+            tIITHxwmi66Ejy/n3ZmBgJXPiSZcB+X+5ZGNtA7cmt3a6C48I/BWQw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:OUBCf7Rh+pbRpqvqzg0t2eR5CNQFqmbg+nLU/T0VduUPKlmPkGnN3q7B38Ho1D/FN8W2GRHERWYD1cRVH0t9fvpNnEXKo2VXJFmjC7SazwzVWecywfYnZkNpHyiVlKuUA05ywWOvr3G68fG8plAi8DD69VFulHPp+Kad3M9Lx8Q=,iv:SQtThrUPZO0afnaNVAZbQBAAqkUbcNL+7Eabtw5fAYI=,tag:lTxiov2SUswA0F4HjdDH4A==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:006z25I6vAASa3B370q1WVrWBcgxYw6kR1+FKeeyFQ7+CmRLxHrrf6eIoHMyLIzy7yVony0V0coNjTmwnpjKTwSc1OqNujs95T+FB61Q+ZVv2ZOpYKDmp6FC4yThgP3qV6wNcIqMwKRWI4gZvtbnNEsGg39p0UFBllSc8Zhf9Qk=,iv:oimSP15GL4uSADfI9cW0CzffR6CNVYP08OGzCTSE5ws=,tag:3ATBT0AOvYsleLt+fMJgMA==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1
@@ -56,7 +56,7 @@ spec:
                         key: api-token
               selector:
                 dnsZones:
-                    - ajaykumar.ie
+                    - aknuk.dev
 sops:
     kms: []
     gcp_kms: []
@@ -66,14 +66,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB0eDdiK1QrVXpuQlFLSkRt
-            RkRVd0l6Q1FRQmhvVjRIemxnUG91RG1KT3pzCkhjQjhvVHBwRGg0MDlBcS8zRytJ
-            dmorMnZWZ1NHTys0bExNNVd5OTh6Sm8KLS0tIFVpbXpzdzMyTGFiZThhVk9wOEJN
-            K3YrUkxxTnpOREFEMG56U2hIN1BKVW8K/LrMvXOT6ZykPOadWJjK//s2BoNHl4ZH
-            w0U57miKR3WSLDxj5lh61mE8hC+mwny2ln3J6aVOoPkvsSC8BnqPow==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzVkVxamEwZHArTTgzTzBB
+            ejllYlNuZSs1bkJsMGxTa3pwTEJ4MjAzSWdBCi9WMTZKOTB5cmNlWW8rSTNkNFZi
+            K2oxTHlOazMybVdDdWM3b3BDR1c3VFkKLS0tIEJ6RkRkOWc1MHlJWDdhSnlSbDZS
+            SkNXbWxySWFYZ0gwKzBoT0l5bUhSSzgKbZJroZLufwOBup9217ecSxN9I5sK77u2
+            tIITHxwmi66Ejy/n3ZmBgJXPiSZcB+X+5ZGNtA7cmt3a6C48I/BWQw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:OUBCf7Rh+pbRpqvqzg0t2eR5CNQFqmbg+nLU/T0VduUPKlmPkGnN3q7B38Ho1D/FN8W2GRHERWYD1cRVH0t9fvpNnEXKo2VXJFmjC7SazwzVWecywfYnZkNpHyiVlKuUA05ywWOvr3G68fG8plAi8DD69VFulHPp+Kad3M9Lx8Q=,iv:SQtThrUPZO0afnaNVAZbQBAAqkUbcNL+7Eabtw5fAYI=,tag:lTxiov2SUswA0F4HjdDH4A==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:006z25I6vAASa3B370q1WVrWBcgxYw6kR1+FKeeyFQ7+CmRLxHrrf6eIoHMyLIzy7yVony0V0coNjTmwnpjKTwSc1OqNujs95T+FB61Q+ZVv2ZOpYKDmp6FC4yThgP3qV6wNcIqMwKRWI4gZvtbnNEsGg39p0UFBllSc8Zhf9Qk=,iv:oimSP15GL4uSADfI9cW0CzffR6CNVYP08OGzCTSE5ws=,tag:3ATBT0AOvYsleLt+fMJgMA==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

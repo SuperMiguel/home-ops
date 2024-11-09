@@ -80,7 +80,7 @@ hubble:
             enabled: true
             className: internal
             hosts:
-                - hubble.ajaykumar.ie
+                - hubble.aknuk.dev
 operator:
     replicas: 1
     rollOutPods: true
@@ -110,14 +110,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEZml5S1RTbVRsS2hzR1BG
-            a1k5M0h4enZFbnk3ZXk2S1R0ZGNMSWx6VURZCk5MUjdIR0hTZFJTUnpqaUhDM05C
-            RjBwU3VUblo3U2ZJUEY5eEtjQzVycEEKLS0tIGUwMmdYTkxVL1ZHdkZWbmlLSlVR
-            TVJ6K1RHTG9kSHhBS0pQYUlzZ3hjbGsK/0J6bPP3yKLtXF7vE8NcrLh2f+ufPaao
-            Sxf+v05vTv7hkMNg1yNEWatTgHc2uSIpCkvhFfD3rDOmbEKBkZojkw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBYd05ZT0NXUHBGV2FuSys0
+            M1BmSStRK2dQUEZUQlVvMHVOVGdwQkVUS0drCmh2MHB1M0dlVVMvbjdxbmpUSnFJ
+            L3ZwbUFXTmQ2MHhmWWJuQnE2eTFiakUKLS0tIEsyNlJkQlpXcGE5QVBKMlR3TE1U
+            ek1LdGFiblROQ3VtSkdmNlJWdXExdHcKGkzMXusJAEGvO5lh/4yuRwa6DU+mY2ba
+            GH32pHKhQhzVE4/9nKpnG5E1QLWqDskpEBZ+SRaR+bck5ycOh+PSBg==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-04T23:28:32Z"
-    mac: ENC[AES256_GCM,data:8Kfr0wG5Q7zFU8k09dv6z0x5llM5nYZvvRk6EozbV+4nDsL9wSMhka79FUlaNMv/+siOGrHqPjTPFRxwX515wXhioeRIzjtE6gh4V1/FhYgMmvji6kTEToY6hdRsgA8INXnuz9B1jVSlzhi6yN4BqOmL+Fhx2pgwmm4Qb9Oxc54=,iv:SqjdodhTn4KKFavso6h60e1iyiYjTrmNbQ3KixuvySI=,tag:mAZKUAbwf6IVxJUUVPB++Q==,type:str]
+    lastmodified: "2024-11-09T00:22:10Z"
+    mac: ENC[AES256_GCM,data:SBzS0Bi82tPQZt2HVaHGlswRBdfgnoCVMFFja6x9ztkTdGCf6WSO2IuNvPOumIGLlgiDKBI4xmIvvFO40qtg9D5BKo9xwoZ5JsF38NTaJ/2qlcaWPEUzSne3CJtmAWfkcIEa0MrIQNSSvsEPezS5vpJlzFazdVHPzLxYrA6dF9g=,iv:2ebRsfbdsju1TNYBTQzfpgp+FqAxkBPpuKKFDVMrJoI=,tag:alJ/LsrSocb5wvF1oY3dVA==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

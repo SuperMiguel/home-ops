@@ -17,8 +17,8 @@ configs:
               clusters:
                 - "*"
     secret:
-        argocdServerAdminPassword: $2a$10$sI.lEvb9I9bCG4ng4lGKG.Zf11BzJVVQTC11CJXCwRNCN6lnW5p4a
-        argocdServerAdminPasswordMtime: 2024-11-09T00:22:10
+        argocdServerAdminPassword: $2a$10$VS18cczTtbUep4iBCs0FdORY9tWiBZ/ew4m62ciotMBWrWeyC.JNO
+        argocdServerAdminPasswordMtime: 2024-11-09T13:06:26
         githubSecret: bd77b8ded03b9fdc259013f221d5c244
 controller:
     metrics:
@@ -149,14 +149,14 @@ sops:
         - recipient: age1vntqr796ff4ql0rd0j5y7z8e2750uejm4v6kymleqlyeldt9yyvs4xv7e0
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBoUU9EaDhLT1dDdkxlL0ov
-            Nk9KUElZa0lyUjdBYVFKS1NGRE9iVzRGWVY4CmtRVCtJOGFOQVZmTHlkUzBMT3ps
-            YWF2RVhnZ0U3blh0Q1FlYnYzUncvaWsKLS0tIDYrZnplU08vYXFxTmRIT2QycDZI
-            Ym9tdHBBMDBjcG5mV0hDNzRSdU9MRUkKOCQ0MFVcEifGV045e6FZiT688PsCCnrH
-            TL6L6mwR6uwfYVMI+sMazrT/WBBZqaAah1R5ceI7zJjKFSinyq96SQ==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBkeVZmTkJVVEZDK25iMmJx
+            QTVidU5WV3BOZmpCR0VJNUNYZ1UyaURmNkVNCkpZR1Bsb3ZuQVhsQ1VlL3NpK09p
+            RmlVV3NwMEp5SnlmdUoxQkV1WWcwc3MKLS0tIEJURlF0QWM5Zmk3ODBnUGZja0dI
+            L1NUOGxqNlBjRUhsNzBYMFRJalc1UUEKvZwD3MXRV9ETUrkCSsi5wT4H0WHa5NqJ
+            +w2QzIXIY9pE1N1T0LieMzuPrqKNGY5C092YuL2ev1iAutaSE2dazg==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-11-09T00:22:10Z"
-    mac: ENC[AES256_GCM,data:iImcV9iszOVySYd/NvJLNHCHbX6kzyV52V1Yu5JUv01LO5kPkLBZSh0+zcMvvUz8+catHY5wxbT5sXcp/lFv9ngcTXqfDhsOptj9C7XAIQ78m69dKVAlSo3S4B3WvwMBouKh6fR0yA8KRks644AN3eFWUoRqsq2D/WWjlQP03s4=,iv:WHLI+naUSC6WIa2dSgfyS1L8Vb5o3e7VTNxVq2olnwE=,tag:dc6jNId+QjDyBYuY3KCGFg==,type:str]
+    lastmodified: "2024-11-09T13:06:26Z"
+    mac: ENC[AES256_GCM,data:21Tiyi+MZQeO4a13tc0WRwgoqmARykORiSNDiV20vlwd+ARE1AnjOCMMK0ZGTQ36NLcq5f01b5wtrWqKNjpfMDJduT3SWdK4AxUBxKp1KwHyQTaLKYrGMMqL0/aNzxqGgK7Z7SbarpwjDSuAfwOUM4AghcLkorDLwxNQwaR7xVM=,iv:FtB0u9XvPYYrLrBqvD1UoNPFzhV81R2N2QR7Fd7enBI=,tag:QPFieI71rwju8M0NvsEk0w==,type:str]
     pgp: []
     encrypted_regex: ^(data|stringData)$
     version: 3.9.1

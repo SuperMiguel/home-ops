@@ -29,7 +29,7 @@ nodes:
   - hostname: "rpi01"
     ipAddress: "192.168.8.4"
     installDisk: "/dev/mmcblk0"
-    talosImageURL: factory.talos.dev/installer/04d4078b3c5d84c71491d9d7acfb48423098225eb2037448a56c0da12cf379a6
+    talosImageURL: factory.talos.dev/installer/ee21ef4a5ef808a9b7484cc0dda0f25075021691c8c09a276591eedb638ea1f9
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -43,18 +43,10 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.8.200"
-    extensionServices:
-      - name: tailscale
-        configFiles:
-        environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
-          - TS_ROUTES=${TS_ROUTES}
-          - TS_ACCEPT_DNS=true
-          - TS_AUTH_ONCE=true
   - hostname: "rpi02"
     ipAddress: "192.168.8.5"
     installDisk: "/dev/mmcblk0"
-    talosImageURL: factory.talos.dev/installer/04d4078b3c5d84c71491d9d7acfb48423098225eb2037448a56c0da12cf379a6
+    talosImageURL: factory.talos.dev/installer/ee21ef4a5ef808a9b7484cc0dda0f25075021691c8c09a276591eedb638ea1f9
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -68,18 +60,10 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.8.200"
-    extensionServices:
-      - name: tailscale
-        configFiles:
-        environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
-          - TS_ROUTES=${TS_ROUTES}
-          - TS_ACCEPT_DNS=true
-          - TS_AUTH_ONCE=true
   - hostname: "rpi03"
     ipAddress: "192.168.8.6"
     installDisk: "/dev/mmcblk0"
-    talosImageURL: factory.talos.dev/installer/04d4078b3c5d84c71491d9d7acfb48423098225eb2037448a56c0da12cf379a6
+    talosImageURL: factory.talos.dev/installer/ee21ef4a5ef808a9b7484cc0dda0f25075021691c8c09a276591eedb638ea1f9
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -93,18 +77,10 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.8.200"
-    extensionServices:
-      - name: tailscale
-        configFiles:
-        environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
-          - TS_ROUTES=${TS_ROUTES}
-          - TS_ACCEPT_DNS=true
-          - TS_AUTH_ONCE=true
   - hostname: "jetson01"
     ipAddress: "192.168.8.7"
     installDisk: "/dev/mmcblk1"
-    talosImageURL: factory.talos.dev/installer/cc93087ce425dbefb9648afca095901bc6d080f20a631848432f99757000bc0d
+    talosImageURL: factory.talos.dev/installer/c7d6f36c6bdfb45fd63178b202a67cff0dd270262269c64886b43f76880ecf1e
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -118,18 +94,10 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.8.200"
-    extensionServices:
-      - name: tailscale
-        configFiles:
-        environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
-          - TS_ROUTES=${TS_ROUTES}
-          - TS_ACCEPT_DNS=true
-          - TS_AUTH_ONCE=true
   - hostname: "jetson02"
     ipAddress: "192.168.8.8"
     installDisk: "/dev/mmcblk1"
-    talosImageURL: factory.talos.dev/installer/cc93087ce425dbefb9648afca095901bc6d080f20a631848432f99757000bc0d
+    talosImageURL: factory.talos.dev/installer/c7d6f36c6bdfb45fd63178b202a67cff0dd270262269c64886b43f76880ecf1e
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -143,14 +111,6 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.8.200"
-    extensionServices:
-      - name: tailscale
-        configFiles:
-        environment:
-          - TS_AUTHKEY=${TS_AUTHKEY}
-          - TS_ROUTES=${TS_ROUTES}
-          - TS_ACCEPT_DNS=true
-          - TS_AUTH_ONCE=true
 
 # Global patches
 patches:

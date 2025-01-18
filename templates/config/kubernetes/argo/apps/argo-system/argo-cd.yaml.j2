@@ -9,15 +9,15 @@ metadata:
   labels:
     argocd.argoproj.io/instance: argo
 spec:
-  project: home-kubernetes
+  project: kubernetes
   sources:
     - repoURL: #{ github.address }#
-      path: kubernetes/apps/argo-system/argo
+      path: kubernetes/apps/argo-system/argo-cd
       targetRevision: #{ github.branch }#
       ref: repo
     - repoURL: ghcr.io/argoproj/argo-helm
       chart: argo-cd
-      targetRevision: 7.7.15
+      targetRevision: 7.7.16
       helm:
         releaseName: argo-cd
         valueFiles:

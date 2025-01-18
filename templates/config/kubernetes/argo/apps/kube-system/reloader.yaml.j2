@@ -7,7 +7,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '0'
 spec:
-  project: home-kubernetes
+  project: kubernetes
   sources:
     - repoURL: #{ github.address }#
       path: kubernetes/apps/kube-system/reloader
@@ -15,7 +15,7 @@ spec:
       ref: repo
     - repoURL: ghcr.io/stakater/charts
       chart: reloader
-      targetRevision: 1.2.0
+      targetRevision: 1.2.1
       helm:
         releaseName: reloader
         valueFiles:

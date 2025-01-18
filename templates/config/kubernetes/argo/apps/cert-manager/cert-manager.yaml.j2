@@ -7,7 +7,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '0'
 spec:
-  project: home-kubernetes
+  project: kubernetes
   sources:
     - repoURL: #{ github.address }#
       path: kubernetes/apps/cert-manager/cert-manager
@@ -15,7 +15,7 @@ spec:
       ref: repo
     - repoURL: https://charts.jetstack.io
       chart: cert-manager
-      targetRevision: v1.16.2
+      targetRevision: v1.16.3
       helm:
         releaseName: cert-manager
         valueFiles:

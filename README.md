@@ -186,7 +186,7 @@ task talos:reset # --force
 task talos:generate-config
 # Apply the config to the node
 task talos:apply-node IP=? MODE=?
-# e.g. task talos:apply-config IP=10.10.10.10 MODE=auto
+# e.g. task talos:apply-node IP=10.10.10.10 MODE=auto
 ```
 
 ### ⬆️ Updating Talos and Kubernetes versions
@@ -197,7 +197,7 @@ task talos:apply-node IP=? MODE=?
 ```sh
 # Upgrade node to a newer Talos version
 task talos:upgrade-node IP=?
-# e.g. task talos:upgrade IP=10.10.10.10
+# e.g. task talos:upgrade-node IP=10.10.10.10
 ```
 
 ```sh

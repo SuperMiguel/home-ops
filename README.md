@@ -216,21 +216,21 @@ The base Renovate configuration in your repository can be viewed at [.github/ren
 
 ## 🐛 Debugging
 
-Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
+Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state. Most of these steps do not include a way to fix the problem as the problem could be one of many different things.
 
-1. Start by checking all Argo Applications and verify they are healthy.
+1. Verify all Argo Applications  are up-to-date and in a ready state.
 
     ```sh
       kubectl get applications -n argo-system
     ```
 
-2. Then check the if the pod is present.
+2. Do you see the pod of the workload you are debugging?
 
     ```sh
     kubectl -n <namespace> get pods -o wide
     ```
 
-3. Then check the logs of the pod if its there.
+3. Check the logs of the pod if its there.
 
     ```sh
     kubectl -n <namespace> logs <pod-name> -f
@@ -248,7 +248,7 @@ Below is a general guide on trying to debug an issue with an resource or applica
     kubectl -n <namespace> get events --sort-by='.metadata.creationTimestamp'
     ```
 
-Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
+Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on a NFS server. If you are unable to figure out your problem see the support sections below.
 
 ## 🧹 Tidy up
 

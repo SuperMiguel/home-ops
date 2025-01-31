@@ -58,8 +58,8 @@ tls_sans: []
 # (REQUIRED) GitHub details for Argo - Argo is used to manage the cluster configuration.
 github:
   # (REQUIRED) GitHub repository URL
-  #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
-  #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
+  #   For a public repo use the 'https://' URL (e.g. "https://github.com/ajaykumar4/cluster-template.git")
+  #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/ajaykumar4/cluster-template.git")
   #     If using a private repo make sure to following the instructions with the 'github.private_key' option below.
   address: ""
   # (REQUIRED) GitHub repository branch

@@ -23,7 +23,7 @@ function wait_for_nodes() {
     done
 }
 
-# The application namespaces are created before applying the resources
+# Namespaces to be applied before the SOPS secrets are installed
 function apply_namespaces() {
     log debug "Applying namespaces"
 
@@ -78,6 +78,30 @@ function apply_sops_secrets() {
             log info "Secret resource applied successfully" "resource=$(basename "${secret}" ".sops.yaml")"
         else
             log error "Failed to apply secret resource" "resource=$(basename "${secret}" ".sops.yaml")"
+        fi
+    done
+}
+
+# CRDs to be applied before the helmfile charts are installed
+function apply_crds() {
+    log debug "Applying CRDs"
+
+    local -r crds=(
+        # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.81.0/stripped-down-crds.yaml
+        # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
+        https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.16.1/docs/sources/crd/crd-manifest.yaml
+    )
+
+    for crd in "${crds[@]}"; do
+        if kubectl diff --filename "${crd}" &>/dev/null; then
+            log info "CRDs are up-to-date" "crd=${crd}"
+            continue
+        fi
+        if kubectl apply --server-side --filename "${crd}" &>/dev/null; then
+            log info "CRDs applied" "crd=${crd}"
+        else
+            log error "Failed to apply CRDs" "crd=${crd}"
         fi
     done
 }
@@ -137,6 +161,7 @@ function main() {
     wait_for_nodes
     apply_namespaces
     apply_sops_secrets
+    apply_crds
     apply_helm_releases
     apply_argo_bootstrapping
 

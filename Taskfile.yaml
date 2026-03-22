@@ -11,6 +11,9 @@ vars:
   TALOS_DIR: '{{.ROOT_DIR}}/talos'
   PRIVATE_DIR: '{{.ROOT_DIR}}/.private'
   TALOSCONFIG: '{{.ROOT_DIR}}/talos/clusterconfig/talosconfig'
+  # Argo CD UI host from cluster.yaml (same as README: argo.${cloudflare_domain})
+  CLOUDFLARE_DOMAIN:
+    sh: yq -r '.cloudflare_domain // ""' "{{.ROOT_DIR}}/cluster.yaml"
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
@@ -27,8 +30,43 @@ tasks:
   default: task --list
 
   reconcile:
-    desc: Force Argo to pull in changes from your Git repository
-    cmd: argocd app list --project kubernetes -o name | xargs -I {} argocd app wait {} --sync --timeout 300
+    desc: |
+      Force Argo CD sync.
+      Recommended (no port-forward): `task argocd-login-core` once, then `ARGOCD_USE_CORE=1 task reconcile`.
+      Core mode reads the Argo CD install namespace from your kubectl *current context* default namespace (not an argocd flag).
+      This task sets `kubectl config set-context --current --namespace=$ARGOCD_NAMESPACE` when using core. Override ARGOCD_NAMESPACE=...
+    cmds:
+      - |
+        set -euo pipefail
+        AC_NS="${ARGOCD_NAMESPACE:-argo-system}"
+        if [ -n "${ARGOCD_USE_CORE:-}" ]; then
+          unset ARGOCD_SERVER || true
+          kubectl config set-context --current --namespace="$AC_NS"
+          argocd app list --project kubernetes -o name | xargs -I {} argocd app wait {} --sync --timeout 300
+        else
+          DOMAIN="$(yq -r '.cloudflare_domain // ""' "{{.ROOT_DIR}}/cluster.yaml")"
+          test -n "$DOMAIN"
+          if [ -z "${ARGOCD_SERVER:-}" ]; then
+            export ARGOCD_SERVER="argo.$DOMAIN"
+          fi
+          argocd app list --project kubernetes -o name | xargs -I {} argocd app wait {} --sync --timeout 300
+        fi
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which argocd
+      - which yq
+
+  argocd-login-core:
+    desc: |
+      Log in argocd CLI via kube API (--core). Sets kubectl current context default namespace to ARGOCD_NAMESPACE (argocd has no --namespace flag; it uses kubeconfig context namespace).
+    cmds:
+      - |
+        NS="${ARGOCD_NAMESPACE:-argo-system}"
+        kubectl config set-context --current --namespace="$NS"
+      - argocd login --core
+
+  argocd-port-forward:
+    desc: |
+      Last resort: forward argocd-server pod port 8080 (not Service). If this still resets, use `task argocd-login-core`.
+    cmds:
+      - kubectl port-forward --address 127.0.0.1 -n argo-system deployment/argocd-server 8080:8080

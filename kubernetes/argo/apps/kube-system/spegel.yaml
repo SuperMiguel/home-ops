@@ -10,7 +10,6 @@ spec:
   project: kubernetes
   sources:
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
-      path: kubernetes/apps/kube-system/spegel
       targetRevision: main
       ref: repo
     - repoURL: ghcr.io/spegel-org/helm-charts

@@ -9,8 +9,8 @@ metadata:
 spec:
   project: kubernetes
   sources:
+    # Ref only (no path): avoids Argo treating values.yaml in that folder as plain manifests.
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
-      path: kubernetes/apps/kube-system/longhorn
       targetRevision: main
       ref: repo
     - repoURL: https://charts.longhorn.io

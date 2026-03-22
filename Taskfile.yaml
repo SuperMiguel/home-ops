@@ -63,9 +63,7 @@ tasks:
       - |
         NS="${ARGOCD_NAMESPACE:-argo-system}"
         kubectl config set-context --current --namespace="$NS"
-      - argocd login --core
-
-  argocd-port-forward:
+      - argocd login --core  argocd-port-forward:
     desc: |
       Last resort: forward argocd-server pod port 8080 (not Service). If this still resets, use `task argocd-login-core`.
     cmds:

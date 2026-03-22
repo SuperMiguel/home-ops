@@ -1,5 +1,4 @@
-# API key: shared Secret media-arr-api (kubernetes/apps/media/cluster-secrets). Edit with sops
-# if Radarr already used a different key (Settings → General → Security).
+# API key: Secret media-arr-api (ExternalSecret → 1Password item media-arr-api, field RADARR_API_KEY).
 # Prowlarr ↔ Radarr indexers (pick one):
 # - Recommended: Prowlarr → Settings → Apps → Add Radarr — URL http://radarr.media.svc.cluster.local:7878
 #   and API key from Radarr → Settings → General → Security (Prowlarr syncs indexers into Radarr).

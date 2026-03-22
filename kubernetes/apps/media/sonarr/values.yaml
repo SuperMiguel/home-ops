@@ -1,5 +1,5 @@
-# API key: shared Secret media-arr-api (see kubernetes/apps/media/cluster-secrets). If Sonarr
-# already existed with another key, edit that file with sops so it matches Settings → General → Security.
+# API key: Secret media-arr-api (ExternalSecret → 1Password item media-arr-api, field SONARR_API_KEY).
+# If Sonarr already used another key, update that field in 1Password to match Settings → General → Security.
 controllers:
   sonarr:
     strategy: RollingUpdate

@@ -1,5 +1,5 @@
 # Buildarr — https://buildarr.github.io/
-# API keys come from shared Secret `media-arr-api` (kubernetes/apps/media/cluster-secrets, KSOPS + SOPS).
+# API keys: Secret `media-arr-api` (ExternalSecret syncs from 1Password item media-arr-api).
 controllers:
   main:
     type: cronjob

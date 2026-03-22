@@ -46,9 +46,8 @@ controllers:
             memory: 1Gi
 defaultPodOptions:
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
+    runAsGroup: 0
     fsGroup: 1000
 persistence:
   config:
@@ -60,6 +59,7 @@ persistence:
     globalMounts:
       - path: /config
   # Library: direct NFS mount into the pod (UniFi / UNAS export).
+  # If kubelet shows "access denied by server", allow NFS clients for your Talos nodes on the NAS (e.g. 10.0.20.32–34 or 10.0.20.0/24).
   media:
     enabled: true
     type: nfs

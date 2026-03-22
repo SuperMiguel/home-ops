@@ -1,11 +1,13 @@
+# linuxserver/s6: must start as root; PUID/PGID map app data ownership.
+# Tag 2.15.3-ls163 is not published on lscr.io; use a real tag (verified: 2.16.1).
 controllers:
-  prowlarr:
+  tautulli:
     strategy: RollingUpdate
     containers:
       app:
         image:
-          repository: lscr.io/linuxserver/prowlarr
-          tag: 1.37.0
+          repository: lscr.io/linuxserver/tautulli
+          tag: 2.16.1
         env:
           TZ: America/New_York
           PUID: "1000"
@@ -17,7 +19,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 9696
+                port: 8181
               initialDelaySeconds: 45
               periodSeconds: 10
               timeoutSeconds: 5
@@ -28,7 +30,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 9696
+                port: 8181
               initialDelaySeconds: 30
               periodSeconds: 10
               timeoutSeconds: 5
@@ -46,9 +48,8 @@ controllers:
             memory: 768Mi
 defaultPodOptions:
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
+    runAsGroup: 0
     fsGroup: 1000
 persistence:
   config:
@@ -63,11 +64,11 @@ service:
   app:
     ports:
       http:
-        port: 9696
+        port: 8181
 route:
   app:
     hostnames:
-      - prowlarr.veliz.cc
+      - tautulli.veliz.cc
     parentRefs:
       - name: envoy-external
         namespace: network
@@ -75,20 +76,4 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 9696
-sops:
-  age:
-    - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB1K1VnMklSbFRFTnVmcjBX
-        am11aDlIUk4vb0xJTUI3aGlTSiszMi9CckNFCjA0REVxTTVBcGkzQU1SUFBjMHBE
-        NFlJZnhLb1JTYW12SW1YRWtTN3VaejAKLS0tIEpCU1ZSVldKRDdRSXBJa3FRNmJO
-        TW84M2ZrRWVrbkNMWktYSjhRYzJadlkKv8g1RVkJQqF/wS7lDQnDCQ32vphvLA+G
-        x4ZhSFBkxXgZ5GlKPgwYU7OiZmeddglCjZOTwsKPE6744CjIBzcPPA==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-03-22T19:29:29Z"
-  mac: ENC[AES256_GCM,data:ssZEcK/LwjCB7g0NuHF8mIdS8oKYstH08eDpnvp+nFbJyewhy19iAPGiFRn8jWk09qON6Qljmm3x2tWhxdTd85nPo3h3Evc+3/xhar3knUu/e2NP1NR6Ipsfi+2Lc9dXOAIQT10hqcy4qOvhC57vP3VF9YkdsEPb1cNGf9fWx+I=,iv:ymArBYqmMxNMIuLmAOxtXSmZYVIGEf3nJegkO6IBoVw=,tag:v2zUQ2JYHY8cjk6MoT0fFA==,type:str]
-  encrypted_regex: ^(data|stringData)$
-  mac_only_encrypted: true
-  version: 3.11.0
+            port: 8181

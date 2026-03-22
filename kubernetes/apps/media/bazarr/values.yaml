@@ -44,9 +44,8 @@ controllers:
             memory: 768Mi
 defaultPodOptions:
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
+    runAsGroup: 0
     fsGroup: 1000
 persistence:
   config:
@@ -57,7 +56,7 @@ persistence:
     storageClass: longhorn
     globalMounts:
       - path: /config
-  # Same NFS export as Sonarr/Radarr.
+  # Same NFS export as Sonarr/Radarr. If mounts fail with "access denied by server", allow NFS clients for your nodes on the UNAS.
   media:
     enabled: true
     type: nfs

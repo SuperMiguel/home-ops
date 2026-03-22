@@ -18,7 +18,7 @@ spec:
       helm:
         releaseName: prowlarr
         valueFiles:
-          - $repo/kubernetes/apps/media/prowlarr/values.sops.yaml
+          - $repo/kubernetes/apps/media/prowlarr/values.yaml
   destination:
     name: in-cluster
     namespace: media

@@ -10,10 +10,9 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
-          # https://wiki.servarr.com/radarr/environment-variables — tighten later (Settings → General → Security).
-          RADARR__AUTH__METHOD: "None"
-          RADARR__AUTH__REQUIRED: "Disabled"
-          RADARR__AUTH__ENABLED: "false"
+          # Forms auth; bootstrap seeds config.xml → DB on startup (admin / changeme — rotate in UI). First install: restart once after config.xml exists if needed.
+          # https://wiki.servarr.com/radarr/environment-variables
+          RADARR__AUTH__ENABLED: "true"
         probes:
           liveness:
             enabled: true
@@ -51,12 +50,35 @@ controllers:
             cpu: 50m
           limits:
             memory: 1Gi
+configMaps:
+  radarr-bootstrap:
+    data:
+      99-bootstrap.sh: |
+        #!/bin/sh
+        set -e
+        CONFIG=/config/config.xml
+        [ -f "$CONFIG" ] || exit 0
+        if grep -q '<Username>' "$CONFIG"; then
+          exit 0
+        fi
+        TMP="$(mktemp)"
+        awk '/<Config>/{ print; print "  <Username>admin</Username>"; print "  <Password>changeme</Password>"; next }1' "$CONFIG" > "$TMP"
+        mv "$TMP" "$CONFIG"
 defaultPodOptions:
   securityContext:
     runAsUser: 0
     runAsGroup: 0
     fsGroup: 1000
 persistence:
+  cont-init:
+    enabled: true
+    type: configMap
+    identifier: radarr-bootstrap
+    # LinuxServer runs custom-cont-init.d scripts only if executable; ConfigMap default is 0644.
+    defaultMode: 493
+    globalMounts:
+      - path: /custom-cont-init.d/99-bootstrap.sh
+        subPath: 99-bootstrap.sh
   config:
     enabled: true
     type: persistentVolumeClaim

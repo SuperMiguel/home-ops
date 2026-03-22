@@ -1,0 +1,98 @@
+controllers:
+  cloudflare-tunnel:
+    strategy: RollingUpdate
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      app:
+        image:
+          repository: docker.io/cloudflare/cloudflared
+          tag: 2026.3.0
+        env:
+          NO_AUTOUPDATE: true
+          TUNNEL_METRICS: 0.0.0.0:8080
+          # disable when using http2
+          TUNNEL_POST_QUANTUM: true
+          # or http2
+          TUNNEL_TRANSPORT_PROTOCOL: quic
+        envFrom:
+          - secretRef:
+              name: cloudflare-tunnel-secret
+        args:
+          - tunnel
+          - run
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ready
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ready
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 256Mi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+service:
+  app:
+    ports:
+      http:
+        port: 8080
+serviceMonitor:
+  app:
+    endpoints:
+      - port: http
+configMaps:
+  config:
+    data:
+      config.yaml: ENC[AES256_GCM,data:NwqR+zURadBav4axxh6BS1lGDHDwDhJW4qqoTpjxot7fV1EvpHApJqPd54qkfD+ScmuAxZBu3XBumAlWKYBj9nCLVTfVJNRXiFa99EUwzaz7DNgr/VsR7iVZjJux8EC7FYKWrfJBRU7v56vxFavnRySAxBbwHsoX8IefQs8Tv/8wTCQR1VGClUSODOkjjcUtK75Ua1shAPUIcMb9QWiOaM4dC+NXVyPiO+xbxIp3VAUSJX2lwcu3a8bUrW6FhKhSzWoQP75iyGma2dj/6id+Puk1gwCQDzNXpA==,iv:HgWTn9K4NJiXkZPC6gRSRZtzQcEda+lSZyLwqsnuU2Q=,tag:leHs3dIsR8z+OMm0lQSTmw==,type:str]
+persistence:
+  config-file:
+    type: configMap
+    identifier: config
+    globalMounts:
+      - path: /etc/cloudflared/config.yaml
+        subPath: config.yaml
+sops:
+  age:
+    - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB3eENyR0JXTmFKc1k4RW45
+        KzE1ZlljNWlQUDZDeUd3SGgveUZKWEo0aldZCkRUK0xDaFpsTmF2VTFMWGFYSEtl
+        ZTJURW8vZlVBaXZ5SThCN2RiVGFtQWsKLS0tIEtpdFppYlBuWDZMeEZmakRySHhY
+        eTNYRnV5RDZDSmNlNi9TM1BTVE5xSzgKdfcsaaEUlBjB86uFSW1wzHkAGfDVPVUA
+        SFVavT8yycdnzNu0gMZbYBj4eGqZMg72X8QGqDP4i0tJTFUE9rEyFw==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-22T04:13:18Z"
+  mac: ENC[AES256_GCM,data:OEjLck/aaMz3NYF/qdzf7Chd4YG5Az6mRUna6KSxXzMKMK0Yl2+XDiFES2EgltEDLfKCTe+qNEINZCzNJN9LjTrn+dtEYPXeMZB32V0qDjZhu9kqNkjqIPE68MMT76yJUtjJrddHeJjJsA/YXaQ2qlqIayCahsnw9HMQtf0pSWU=,iv:Ob0NoULn0IL/WW/TnXcDHJMhCT/DcgLyRcVF1RvoUgc=,tag:71CvQp1EoEwliJ9obTDulw==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.2

@@ -1,0 +1,28 @@
+fullnameOverride: k8s-gateway
+domain: veliz.cc
+ttl: 1
+service:
+  type: LoadBalancer
+  port: 53
+  annotations:
+    io.cilium/lb-ipam-ips: 10.0.20.3
+  externalTrafficPolicy: Cluster
+watchedResources:
+  - HTTPRoute
+  - Service
+sops:
+  age:
+    - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBuTUlIM0dSRmlYZ3o4a3BB
+        a0o3cXhBWDhrR1QyN2NSQUoxRWtGR2hjRURrCnNVcmRFclRCcWFVSTdlUXpIR0Rz
+        Y3U3NHBLTVpkbHF5K3BMajIzb0hSS00KLS0tIHlNejJvY2VDUHVJMlZLSERub3ZJ
+        UUVwRE1RMm9hV05TTEoxSExkTlhzcXcKIHtOFciop1Z+NvOxY6shkDmrQtnWcgE0
+        iXKTf2wyGHF9nBi3m+D9RhKNq9PkYHnMdksUHI+uW1ehlus2ik4GEw==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-22T04:13:18Z"
+  mac: ENC[AES256_GCM,data:+1TsH6LI05a75/m0VSekmHJaiwubmSIcFPLybHsvPBU091RrTHWG5cBRc6HswHB9rwmUFDZbbym8Ma7pCc224XhxmhDNhxz1UcIbUzzuawSrNcj+l0IWyPNFfBgsR9I8oUTKdvtjrAXsN1vy/1yt1jmjsgnFZnf0shYDZwGFcg4=,iv:51nm4qtGSMZ1WVDCwG5ecIlIXFj1am8GU6sc6xuOJZM=,tag:9/jnkMj/ZtvuCr5tu6mbsA==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.2

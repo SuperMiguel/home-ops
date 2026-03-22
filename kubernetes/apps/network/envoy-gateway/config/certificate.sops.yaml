@@ -1,0 +1,33 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: veliz-cc-production
+spec:
+  dnsNames:
+    - veliz.cc
+    - '*.veliz.cc'
+  duration: 160h
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+  secretName: veliz-cc-production-tls
+  usages:
+    - digital signature
+sops:
+  age:
+    - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB2MmdDdkJsUU9xV0lFdUtC
+        ZFQ0Z2YxWWxXQ0NOSjVWRFlGbWlobmZZUlJrCjJvbjlHbmszSlNOTUZoZ01Uc1Jo
+        a3V6SVNXQnozL1JaRGVZZ2w1cCs3YTQKLS0tIEdhQy9vMll2dGFGYUdaL1RnSyti
+        M3BVSlp6MkFIQXJTVjhGMEZ4KysrVG8K3VXkoZO4yt6ofEAb9OOvWxtPjRAqC8Ec
+        1y9DslZYgRypXWOb25OSRljRf+IhPsO2T4IjN7iQkDCG9HWV780pbg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-22T04:13:18Z"
+  mac: ENC[AES256_GCM,data:q3zuo27PM+M6ifvhPCtRODOulGlQZ3ic3+hNz27rla1oIxXezMRziTlOKqAO7IF+N12pYIijca7UkqJfl6WD2vJDdXLnOMIBnMscS7RHbFMP2te1kyadM+hsd53elGkZ9j4zaNJUFXZNgG3mmC10xS/P9j3zQ7DNRZfXmIWM/UM=,iv:KtWwhBSTGM10ObLk0yuerfU7t0PBTOSyTt8NLpEdhaY=,tag:7QY24lTtWFeVjrnQ0pw4iA==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.12.2

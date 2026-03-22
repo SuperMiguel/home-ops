@@ -1,0 +1,102 @@
+controllers:
+  homepage:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: v1.1.0
+        env:
+          HOMEPAGE_ALLOWED_HOSTS: home.veliz.cc
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 25m
+          limits:
+            memory: 512Mi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+service:
+  app:
+    ports:
+      http:
+        port: 3000
+configMaps:
+  services:
+    data:
+      services.yaml: ENC[AES256_GCM,data:YlfIoXtHfHh4HbsZ51ACnlGR5PXVl9dHev+lb9RZmP91aZXtjDLrpC6j95q/PIF+SlkCkztPj70Lc0TJHAnB2KwTxwAZh7hu7agSvqKXm1ATs9CYs0bZZDp/Omcg2g73Q3y2bpECHxm7HGt7UBzXJi7vkEEue+WMKeHuy1Jl3+pzSisqdvAdM2AreGvzWHyKeO5hv4S5LLBwXUH/JrTG617Ia1gW2ktyXtQKGL8uWeZrkzWTT/igQPe9n7IefjVgTF1zwyoCj0q8P//66e/i2a7DP2TmFRCKRKZvb5cseu5t4vubEhOmE9RWKhEdFcSQ9rNo1cY/n/KKll3YWzgJ+O1Z4px+5+Jufg/SlDbHT4f7XuPiq0MMogqx9RepEnUdIGPE3xYb8ScaZuS/ZhKdeMawL2xJ7A2ZfRZPPASnfFMmvTMYPYWf6mi4VzzifUjqZyTg2EJ3dc79qWFDyamtIjrr/eA=,iv:0Z3FQOGZOemrMze2jyrYOyHzuDniM0S3dhDViJYXIEI=,tag:VzdHpkzMeylKFnAkOK9DkA==,type:str]
+      settings.yaml: ENC[AES256_GCM,data:ccGEI7RC3Szub9MgcKfl+w==,iv:woVJYxaWvTCN7epfz+jBhmWn5QTVjZKCeWUHigNNgUg=,tag:8EF49T1qbaPM5i8NzuWOGQ==,type:str]
+persistence:
+  config-workspace:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /app/config
+  services:
+    type: configMap
+    identifier: services
+    globalMounts:
+      - path: /app/config/services.yaml
+        subPath: services.yaml
+      - path: /app/config/settings.yaml
+        subPath: settings.yaml
+route:
+  app:
+    hostnames:
+      - home.veliz.cc
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 3000
+sops:
+  age:
+    - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBERStIdnFWRnl4TTRrSjlE
+        dmJXZGQrSVRrMHB5SFpaYnJaSFRrRTltb0VBCmpWTUR1SVl6ZHVHZHh1bHZDTk9x
+        QnpxWVhzL0VNa2dERThrWHRYNnR2bEUKLS0tIDZKOEZvelVrc2RMb2tHeFdub3B5
+        S2JxbzdBOWJTUkFmZGxDZFcvNmtIOUUKi2Py3L8zpsaCUwiZ8mFI1Zp+6b5FbmaX
+        zv4Mh0ZzCqlgoXotw52Lk90/nl2iT4VoN7qL4U13IprvxxJ2mX3mjA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-22T05:41:32Z"
+  mac: ENC[AES256_GCM,data:v1d8VmLe5Ssc05g0OgHUgvEWJ3uAvVo3pYncv60NzDVzRMDBqxKKAUuWbz5v6MtbaIQeuBa6fJmUO4uXDH9Jeit4tLohpqhZLIB6X92On+mJrQJa0/pWd+jvuJXv1kP89w7J7w02O6ycwsm+COLF61iycwnqZkrm2qJWuFj2SGI=,iv:MZdDb6yfjQ+SSoSh68Z7f1hi9wp3dEKu56btgid4PZA=,tag:8ZmH4NigS1ED9/7HJuM3Lg==,type:str]
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.11.0

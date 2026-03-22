@@ -10,6 +10,10 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          # https://wiki.servarr.com/radarr/environment-variables — tighten later (Settings → General → Security).
+          RADARR__AUTH__METHOD: "None"
+          RADARR__AUTH__REQUIRED: "Disabled"
+          RADARR__AUTH__ENABLED: "false"
         probes:
           liveness:
             enabled: true

@@ -59,6 +59,14 @@ persistence:
     storageClass: longhorn
     globalMounts:
       - path: /config
+  # Library: UniFi NAS NFS (same as Proxmox radarr VM fstab → 10.0.20.10:.../Media/.data).
+  media:
+    enabled: true
+    type: nfs
+    server: "10.0.20.10"
+    path: "/volume/06037eaa-69f3-455a-ba49-735e4dcbcc7e/.srv/.unifi-drive/Media/.data"
+    globalMounts:
+      - path: /media
 service:
   app:
     ports:

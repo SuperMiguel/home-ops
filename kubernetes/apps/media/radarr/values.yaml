@@ -61,9 +61,12 @@ configMaps:
         if grep -q '<Username>' "$CONFIG"; then
           exit 0
         fi
-        TMP="$(mktemp)"
+        # mktemp in /tmp is 0600 root — Radarr (PUID) cannot read after mv. Same-dir temp + chmod/chown.
+        TMP="$(mktemp -p /config .bootstrap.XXXXXX)"
         awk '/<Config>/{ print; print "  <Username>admin</Username>"; print "  <Password>changeme</Password>"; next }1' "$CONFIG" > "$TMP"
-        mv "$TMP" "$CONFIG"
+        chmod 644 "$TMP"
+        chown "${PUID:-1000}:${PGID:-1000}" "$TMP" 2>/dev/null || chmod 666 "$TMP"
+        mv -f "$TMP" "$CONFIG"
 defaultPodOptions:
   securityContext:
     runAsUser: 0

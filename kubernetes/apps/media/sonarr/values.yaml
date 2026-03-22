@@ -1,0 +1,78 @@
+controllers:
+  sonarr:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/sonarr
+          tag: 4.0.17.2952-ls305
+        env:
+          TZ: America/New_York
+          PUID: "1000"
+          PGID: "1000"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8989
+              initialDelaySeconds: 45
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8989
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+service:
+  app:
+    ports:
+      http:
+        port: 8989
+route:
+  app:
+    hostnames:
+      - sonarr.veliz.cc
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8989

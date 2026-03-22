@@ -78,6 +78,36 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
+          - name: prowlarr
+            group: media
+            url: https://prowlarr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: sonarr
+            group: media
+            url: https://sonarr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: radarr
+            group: media
+            url: https://radarr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: bazarr
+            group: media
+            url: https://bazarr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: tautulli
+            group: media
+            url: https://tautulli.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
 persistence:
   config:
     type: configMap

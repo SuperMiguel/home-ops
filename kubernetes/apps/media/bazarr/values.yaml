@@ -15,24 +15,22 @@ controllers:
             enabled: true
             custom: true
             spec:
-              httpGet:
-                path: /
+              tcpSocket:
                 port: 6767
-              initialDelaySeconds: 45
-              periodSeconds: 10
+              initialDelaySeconds: 90
+              periodSeconds: 15
               timeoutSeconds: 5
               failureThreshold: 5
           readiness:
             enabled: true
             custom: true
             spec:
-              httpGet:
-                path: /
+              tcpSocket:
                 port: 6767
-              initialDelaySeconds: 30
+              initialDelaySeconds: 60
               periodSeconds: 10
               timeoutSeconds: 5
-              failureThreshold: 5
+              failureThreshold: 6
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -59,12 +57,12 @@ persistence:
     storageClass: longhorn
     globalMounts:
       - path: /config
-  # Same NFS as Sonarr/Radarr (UniFi NAS Media .data export).
+  # Same NFS export as Sonarr/Radarr.
   media:
     enabled: true
     type: nfs
-    server: "10.0.20.10"
-    path: "/volume/06037eaa-69f3-455a-ba49-735e4dcbcc7e/.srv/.unifi-drive/Media/.data"
+    server: 10.0.20.10
+    path: /volume/06037eaa-69f3-455a-ba49-735e4dcbcc7e/.srv/.unifi-drive/Media/.data
     globalMounts:
       - path: /media
 service:

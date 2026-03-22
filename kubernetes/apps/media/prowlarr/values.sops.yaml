@@ -1,11 +1,11 @@
 controllers:
-  tautulli:
+  prowlarr:
     strategy: RollingUpdate
     containers:
       app:
         image:
-          repository: lscr.io/linuxserver/tautulli
-          tag: 2.15.3-ls163
+          repository: lscr.io/linuxserver/prowlarr
+          tag: 1.37.0
         env:
           TZ: America/New_York
           PUID: "1000"
@@ -17,7 +17,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 8181
+                port: 9696
               initialDelaySeconds: 45
               periodSeconds: 10
               timeoutSeconds: 5
@@ -28,7 +28,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 8181
+                port: 9696
               initialDelaySeconds: 30
               periodSeconds: 10
               timeoutSeconds: 5
@@ -63,11 +63,11 @@ service:
   app:
     ports:
       http:
-        port: 8181
+        port: 9696
 route:
   app:
     hostnames:
-      - tautulli.veliz.cc
+      - prowlarr.veliz.cc
     parentRefs:
       - name: envoy-external
         namespace: network
@@ -75,20 +75,20 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 8181
+            port: 9696
 sops:
   age:
     - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4Qk1KamdicGxKR3FxMDhu
-        bnZEZHJPNFY2d0FhM2ZNQkdDK0E2SkJzMkJvCjByelBCeGk3RGVnVllEeU1LRFB0
-        eTR5S3pOQVhsakZCa2ZmKzBrNjZUTmMKLS0tIFh1ZCtQdkUwOVZycWI0TG1oR0xK
-        NmtjSjFmeHdPSDJQWkp2ODljWlh6elUKaAD6soqmqCYcWxLmS33kNinj6gKDPdNl
-        xrdZbSTlJslO9lVMf/GLeLb/I7Bny9BU4/L2UMSHSTmBnf04a6B21Q==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB1K1VnMklSbFRFTnVmcjBX
+        am11aDlIUk4vb0xJTUI3aGlTSiszMi9CckNFCjA0REVxTTVBcGkzQU1SUFBjMHBE
+        NFlJZnhLb1JTYW12SW1YRWtTN3VaejAKLS0tIEpCU1ZSVldKRDdRSXBJa3FRNmJO
+        TW84M2ZrRWVrbkNMWktYSjhRYzJadlkKv8g1RVkJQqF/wS7lDQnDCQ32vphvLA+G
+        x4ZhSFBkxXgZ5GlKPgwYU7OiZmeddglCjZOTwsKPE6744CjIBzcPPA==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-03-22T12:25:48Z"
-  mac: ENC[AES256_GCM,data:gemGBHZIlIhOVg1lSlL5mUlXlVdJtuMTqkGjeOWBTnJnqlUIPGaDV6PXiAS9gAQsduhQZhgFIcDy/IwX8Mgy96hefFnGEjx0YyYEQOrcERRNzVjRkM3q8KFwBNC4yd3U71bSmbrHKBvpp6InHFNFoCQ5v2vkZjGt8kQt74/TtMc=,iv:0wTuB+zwYpgH8kCNVTnZW4Zs1RzpXBm07lM37FD+i8w=,tag:7c0yamnwT8bV3RKnftCbMw==,type:str]
+  lastmodified: "2026-03-22T19:29:29Z"
+  mac: ENC[AES256_GCM,data:ssZEcK/LwjCB7g0NuHF8mIdS8oKYstH08eDpnvp+nFbJyewhy19iAPGiFRn8jWk09qON6Qljmm3x2tWhxdTd85nPo3h3Evc+3/xhar3knUu/e2NP1NR6Ipsfi+2Lc9dXOAIQT10hqcy4qOvhC57vP3VF9YkdsEPb1cNGf9fWx+I=,iv:ymArBYqmMxNMIuLmAOxtXSmZYVIGEf3nJegkO6IBoVw=,tag:v2zUQ2JYHY8cjk6MoT0fFA==,type:str]
   encrypted_regex: ^(data|stringData)$
   mac_only_encrypted: true
   version: 3.11.0

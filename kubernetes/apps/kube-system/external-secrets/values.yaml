@@ -1,0 +1,31 @@
+# External Secrets Operator — https://external-secrets.io/
+# After install: create a 1Password service account token + Secret (see comment below).
+installCRDs: true
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+
+# ClusterSecretStore for 1Password SDK (one vault per store; see ESO docs).
+# 1) Create a vault in 1Password (e.g. Homelab) and a Secrets Automation / service account token.
+# 2) kubectl create secret generic onepassword-service-account -n external-secrets \
+#      --from-literal=token='ops_...your_service_account_token...'
+# 3) If your vault name is not "Homelab", edit the vault field below and commit.
+extraObjects:
+  - apiVersion: external-secrets.io/v1
+    kind: ClusterSecretStore
+    metadata:
+      name: onepassword
+    spec:
+      provider:
+        onepasswordSDK:
+          vault: Homelab
+          auth:
+            serviceAccountSecretRef:
+              name: onepassword-service-account
+              namespace: external-secrets
+              key: token

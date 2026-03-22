@@ -1,3 +1,10 @@
+# API key: shared Secret media-arr-api (kubernetes/apps/media/cluster-secrets). Edit with sops
+# if Radarr already used a different key (Settings → General → Security).
+# Prowlarr ↔ Radarr indexers (pick one):
+# - Recommended: Prowlarr → Settings → Apps → Add Radarr — URL http://radarr.media.svc.cluster.local:7878
+#   and API key from Radarr → Settings → General → Security (Prowlarr syncs indexers into Radarr).
+# - Or Radarr → Settings → Indexers → + → Prowlarr — Prowlarr URL http://prowlarr.media.svc.cluster.local:9696
+#   and API key from Prowlarr → Settings → General → Security.
 controllers:
   radarr:
     strategy: RollingUpdate
@@ -10,6 +17,11 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          RADARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: RADARR_API_KEY
         probes:
           liveness:
             enabled: true

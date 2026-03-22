@@ -1,4 +1,7 @@
+# API key: shared Secret media-arr-api (kubernetes/apps/media/cluster-secrets). Edit with sops
+# if Prowlarr already used a different key (Settings → General → Security).
 # linuxserver/s6: must start as root; PUID/PGID map app data ownership. Do not use runAsNonRoot + UID 1000.
+# To feed Radarr indexers: Settings → Apps → Add Radarr — http://radarr.media.svc.cluster.local:7878 + Radarr API key.
 controllers:
   prowlarr:
     strategy: RollingUpdate
@@ -11,6 +14,11 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          PROWLARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: PROWLARR_API_KEY
         probes:
           liveness:
             enabled: true

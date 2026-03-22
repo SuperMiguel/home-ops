@@ -1,3 +1,5 @@
+# API key: shared Secret media-arr-api (see kubernetes/apps/media/cluster-secrets). If Sonarr
+# already existed with another key, edit that file with sops so it matches Settings → General → Security.
 controllers:
   sonarr:
     strategy: RollingUpdate
@@ -10,6 +12,11 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          SONARR__AUTH__APIKEY:
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SONARR_API_KEY
         probes:
           liveness:
             enabled: true

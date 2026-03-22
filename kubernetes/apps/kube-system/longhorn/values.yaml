@@ -1,0 +1,17 @@
+# Longhorn Helm chart (see kubernetes/argo/apps/kube-system/longhorn.yaml).
+# Chart defaults: StorageClass longhorn, replica count 3 (matches 3-node control plane).
+
+preUpgradeChecker:
+  # Required for Argo CD / GitOps (chart README).
+  jobEnabled: false
+  upgradeVersionCheck: false
+
+extraObjects:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: longhorn-system
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged

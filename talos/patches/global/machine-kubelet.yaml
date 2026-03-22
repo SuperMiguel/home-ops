@@ -5,3 +5,12 @@ machine:
     nodeIP:
       validSubnets:
         - 10.0.20.0/24
+    extraMounts:
+      # Longhorn: kubelet must see host /var/lib/longhorn (disk mounted via machine.disks).
+      - destination: /var/lib/longhorn
+        type: bind
+        source: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw

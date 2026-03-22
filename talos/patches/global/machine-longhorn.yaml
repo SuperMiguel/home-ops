@@ -1,0 +1,12 @@
+# Longhorn: secondary SSD → /var/lib/longhorn
+# Verified on hl-k8s-32/33/34: extra disk is /dev/sda (120GB PNY); OS is /dev/nvme0n1.
+# talhelper genconfig does not accept deviceSelector.match here (strict schema); use explicit device.
+# Prerequisites: Image Factory installer with siderolabs/iscsi-tools + siderolabs/util-linux-tools
+# Ref: https://longhorn.io/docs/latest/advanced-resources/os-distro-specific/talos-linux-support/
+
+machine:
+  disks:
+    - device: /dev/sda
+      partitions:
+        - mountpoint: /var/lib/longhorn
+          size: 0

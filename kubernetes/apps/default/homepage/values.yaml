@@ -8,6 +8,7 @@ controllers:
         configmap.reloader.stakater.com/reload: homepage-config
     containers:
       app:
+        # Homepage (gethomepage/homepage) has no ghcr.io/home-operations/ build — see home-operations/containers apps/.
         image:
           repository: ghcr.io/gethomepage/homepage
           tag: v1.1.0

@@ -19,7 +19,7 @@ spec:
       helm:
         releaseName: homepage
         valueFiles:
-          - $repo/kubernetes/apps/default/homepage/values.sops.yaml
+          - $repo/kubernetes/apps/default/homepage/values.yaml
   destination:
     name: in-cluster
     namespace: default

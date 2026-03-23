@@ -48,7 +48,8 @@ controllers:
                       host: ${SABNZBD_HOST}
                       port: ${SABNZBD_PORT}
                       use_ssl: false
-                      category: prowlarr
+                      # Must match an existing SABnzbd category (Config → Categories). Empty = default queue.
+                      category: ""
                       api_key: ${SABNZBD_API_KEY}
                 notifications:
                   delete_unmanaged: false

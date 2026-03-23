@@ -109,7 +109,7 @@ configMaps:
           instances:
             Sonarr:
               hostname: sonarr.media.svc.cluster.local
-              port: 8989
+              port: 80
               protocol: http
 
         radarr:
@@ -121,7 +121,7 @@ configMaps:
 
         prowlarr:
           hostname: prowlarr.media.svc.cluster.local
-          port: 9696
+          port: 80
           protocol: http
           settings:
             apps:
@@ -131,14 +131,14 @@ configMaps:
                   Radarr:
                     type: radarr
                     instance_name: Radarr
-                    prowlarr_url: http://prowlarr.media.svc.cluster.local:9696
+                    prowlarr_url: http://prowlarr.media.svc.cluster.local:80
                     base_url: http://radarr.media.svc.cluster.local:80
                     sync_level: full-sync
                   Sonarr:
                     type: sonarr
                     instance_name: Sonarr
-                    prowlarr_url: http://prowlarr.media.svc.cluster.local:9696
-                    base_url: http://sonarr.media.svc.cluster.local:8989
+                    prowlarr_url: http://prowlarr.media.svc.cluster.local:80
+                    base_url: http://sonarr.media.svc.cluster.local:80
                     sync_level: full-sync
 persistence:
   config:

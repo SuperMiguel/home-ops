@@ -2,7 +2,7 @@
 # Prowlarr ↔ Radarr indexers (pick one):
 # - Recommended: Prowlarr → Settings → Apps → Add Radarr — URL http://radarr.media.svc.cluster.local:80
 #   and API key from Radarr → Settings → General → Security (Prowlarr syncs indexers into Radarr).
-# - Or Radarr → Settings → Indexers → + → Prowlarr — Prowlarr URL http://prowlarr.media.svc.cluster.local:9696
+# - Or Radarr → Settings → Indexers → + → Prowlarr — Prowlarr URL http://prowlarr.media.svc.cluster.local:80
 #   and API key from Prowlarr → Settings → General → Security.
 controllers:
   radarr:

@@ -13,6 +13,14 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          PROWLARR__APP__INSTANCENAME: Prowlarr
+          PROWLARR__APP__THEME: dark
+          PROWLARR__AUTH__METHOD: External
+          PROWLARR__AUTH__REQUIRED: DisabledForLocalAddresses
+          PROWLARR__LOG__DBENABLED: "False"
+          PROWLARR__LOG__LEVEL: info
+          PROWLARR__SERVER__PORT: "80"
+          PROWLARR__UPDATE__BRANCH: develop
           PROWLARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:
@@ -25,7 +33,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 9696
+                port: 80
               initialDelaySeconds: 45
               periodSeconds: 10
               timeoutSeconds: 5
@@ -36,7 +44,7 @@ controllers:
             spec:
               httpGet:
                 path: /
-                port: 9696
+                port: 80
               initialDelaySeconds: 30
               periodSeconds: 10
               timeoutSeconds: 5
@@ -73,7 +81,7 @@ service:
   app:
     ports:
       http:
-        port: 9696
+        port: 80
 route:
   app:
     hostnames:
@@ -85,4 +93,4 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 9696
+            port: 80

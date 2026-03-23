@@ -31,32 +31,32 @@ controllers:
           HOMEPAGE_VAR_SONARR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: SONARR_API_KEY
           HOMEPAGE_VAR_RADARR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: RADARR_API_KEY
           HOMEPAGE_VAR_PROWLARR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: PROWLARR_API_KEY
           HOMEPAGE_VAR_SABNZBD_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: SABNZBD_API_KEY
           HOMEPAGE_VAR_TAUTULLI_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: TAUTULLI_API_KEY
           HOMEPAGE_VAR_OVERSEERR_API_KEY:
             valueFrom:
               secretKeyRef:
-                name: media-arr-api
+                name: homepage-secrets
                 key: OVERSEERR_API_KEY
         probes:
           liveness:

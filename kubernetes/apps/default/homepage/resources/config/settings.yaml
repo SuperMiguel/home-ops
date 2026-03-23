@@ -11,17 +11,9 @@ fiveColumns: true
 layout:
     Proxmox Cluster:
       style: row
-      columns: 7
-    Infrastructure:
+      columns: 4
+    Kubernetes:
       style: column
     Media:
       style: row
-      columns: 4
-    Home Automation:
-      style: column
-
-
-# providers:
-#   openweathermap: openweathermapapikey
-#   weatherapi: weatherapiapikey
-
+      columns: 3

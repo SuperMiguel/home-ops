@@ -1,12 +1,11 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/latest/configs/services
+#
+# Trimmed to hosts and workloads aligned with this cluster / Argo apps.
+# Add entries back here as you deploy more services.
 
-# Widgets examples, please see:
-# https://gethomepage.dev/latest/widgets/services/
-
-# Icons names:
-# https://gethomepage.dev/latest/configs/services/#icons
+# Icons:
 # https://github.com/walkxcode/dashboard-icons
 
 - Proxmox Cluster:
@@ -28,33 +27,6 @@
           username: api-homepage@pam!homepage
           password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
           node: HL-PVE-31
-    - HL-PVE-32:
-        icon: proxmox.png
-        ping: 10.0.20.32
-        widget:
-          type: proxmox
-          url: https://10.0.20.32:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-          node: HL-PVE-32
-    - HL-PVE-33:
-        icon: proxmox.png
-        ping: 10.0.20.33
-        widget:
-          type: proxmox
-          url: https://10.0.20.33:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-          node: HL-PVE-33
-    - HL-PVE-34:
-        icon: proxmox.png
-        ping: 10.0.20.34
-        widget:
-          type: proxmox
-          url: https://10.0.20.34:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-          node: HL-PVE-34
     - HL-PVE-35:
         icon: proxmox.png
         ping: 10.0.20.35
@@ -74,164 +46,18 @@
           password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
           node: HL-PVE-36
 
-- Infrastructure:
-    - Wiki.js:
-        icon: wikijs.png
-        href: https://wiki.veliz.io
-        description: Documentation wiki
-    - UniFi:
-        icon: unifi.png
-        href: https://unifi.veliz.io
-        description: UniFi Network Controller
-        ping: 10.0.20.1
-        widget:
-          type: unifi
-          url: https://unifi.veliz.io
-          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}
-          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
-    - Tailscale:
-        icon: tailscale.png
-        widget:
-          type: tailscale
-          deviceid: 
-          key: 
-    - Tailscale-2:
-        icon: tailscale.png
-        description: Tailscale Secondary
-        ping: 10.0.20.62
-    - Proxmox:
-        icon: proxmox.png
-        href: https://proxmox.veliz.io
-        widget:
-          type: proxmox
-          url: https://10.0.20.30:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-    - Proxmox Backup Server:
-        icon: proxmox.png
-        href: https://pbs.veliz.io
-        widget:
-          type: proxmoxbackupserver
-          url: https://pbs.veliz.io
-          username: root@pam!homepage
-          password: 
-    - AdGuard:
-        icon: adguard-home.png
-        href: https://adguard.veliz.io
-        widget:
-          type: adguard
-          url: https://adguard.veliz.io
-          username: root
-          password: 
-    - TrueNAS:
-        icon: truenas.png
-        href: https://truenas.veliz.io
-        description: TrueNAS server
-        widget:
-          type: truenas
-          url: https://truenas.veliz.io
-          key: 
-    - Nginx Proxy Manager:
-        icon: nginx.png
-        href: https://proxy.veliz.io
-        description: Proxy server
-        widget:
-          type: npm
-          url: https://proxy.veliz.io
-          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}
-          password: 
-    - Pi.Alert:
-        icon: pialert.png
-        href: https://pialert.veliz.io
-        description: Pi Alert
-        widget:
-          type: pialert
-          url: https://pialert.veliz.io
-    - Uptime Kuma:
-        icon: uptime-kuma.png
-        href: https://uptime.veliz.io
-        description: Uptime Kuma
-        widget:
-          type: uptimekuma
-          url: https://uptime.veliz.io
-          slug: statuspageslug
+- Kubernetes:
+    - Argo CD:
+        icon: argocd.png
+        href: https://argo.veliz.cc
+        description: GitOps
     - Gatus:
         icon: mdi-heart-pulse
         href: https://gatus.veliz.cc
-        description: Service health (K8s)
+        description: Service health
         siteMonitor: https://gatus.veliz.cc
-    - InfluxDB:
-        icon: influxdb.png
-        href: https://influxdb.veliz.io
-        description: Time Series Database
-        ping: 10.0.20.63
-    - Grafana:
-        icon: grafana.png
-        href: https://grafana.veliz.io
-        description: Monitoring & Dashboards
-        ping: 10.0.20.64
-        widget:
-          type: grafana
-          url: https://grafana.veliz.io
-          username: admin
-          password: 
-    - Prometheus:
-        icon: prometheus.png
-        href: https://prometheus.veliz.io
-        description: Metrics Collection
-        ping: 10.0.20.65
-    - Elasticsearch:
-        icon: elasticsearch.png
-        href: http://10.0.20.70:9200
-        description: Search & Analytics
-        ping: 10.0.20.70
-    - Kibana:
-        icon: kibana.png
-        href: https://kibana.veliz.io
-        description: Elasticsearch UI
-        ping: 10.0.20.71
-    - Zabbix:
-        icon: zabbix.png
-        href: http://10.0.20.72/zabbix
-        description: Network Monitoring
-        ping: 10.0.20.72
-    - UnPoller:
-        icon: unpoller.png
-        href: http://10.0.20.73:37288
-        description: UniFi Poller
-        ping: 10.0.20.73
-    - AMP Server:
-        icon: amp.png
-        href: http://10.0.20.75
-        description: Game Server Management
-        ping: 10.0.20.75
-    - Minecraft:
-        icon: minecraft.png
-        href: http://10.0.20.80:25565
-        description: Minecraft Server
-        ping: 10.0.20.80
-
-
-
 
 - Media:
-    - Plex:
-        icon: plex.png
-        href: https://plex.veliz.io
-        description: Media Server
-        widget:
-          type: tautulli
-          url: https://tautulli.veliz.cc
-          key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}
-    - Tautulli:
-        icon: tautulli.png
-        href: https://tautulli.veliz.cc
-        description: Plex Monitoring
-        siteMonitor: https://tautulli.veliz.cc
-        widget:
-          type: tautulli
-          url: https://tautulli.veliz.cc
-          key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}
     - Sonarr:
         icon: sonarr.png
         href: https://sonarr.veliz.cc
@@ -249,124 +75,36 @@
           type: radarr
           url: https://radarr.veliz.cc
           key: {{HOMEPAGE_VAR_RADARR_API_KEY}}
+    - Tautulli:
+        icon: tautulli.png
+        href: https://tautulli.veliz.cc
+        description: Plex stats
+        siteMonitor: https://tautulli.veliz.cc
+        widget:
+          type: tautulli
+          url: https://tautulli.veliz.cc
+          key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}
     - Sabnzbd:
         icon: sabnzbd.png
-        href: https://sabnzbd.veliz.io
-        description: Download Manager
-        ping: 10.0.20.60
+        href: https://sabnzbd.veliz.cc
+        description: Download client
         widget:
           type: sabnzbd
-          url: https://sabnzbd.veliz.io
+          url: https://sabnzbd.veliz.cc
           key: {{HOMEPAGE_VAR_SABNZBD_API_KEY}}
     - Prowlarr:
         icon: prowlarr.png
         href: https://prowlarr.veliz.cc
-        description: Indexer Manager
+        description: Indexer manager
         widget:
           type: prowlarr
           url: https://prowlarr.veliz.cc
           key: {{HOMEPAGE_VAR_PROWLARR_API_KEY}}
-    - Overseerr:
-        icon: overseerr.png
-        href: https://overseerr.veliz.io
-        description: Media Request Manager
-        ping: 10.0.20.51
-        widget:
-          type: overseerr
-          url: https://overseerr.veliz.io
-          key: {{HOMEPAGE_VAR_OVERSEERR_API_KEY}}
     - Bazarr:
         icon: bazarr.png
         href: https://bazarr.veliz.cc
-        description: Subtitle Manager
+        description: Subtitles
         widget:
           type: bazarr
           url: https://bazarr.veliz.cc
           key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
-    - Lidarr:
-        icon: lidarr.png
-        href: https://lidarr.veliz.io
-        description: Music Management
-        ping: 10.0.20.55
-        widget:
-          type: lidarr
-          url: https://lidarr.veliz.io
-          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
-    - Readarr:
-        icon: readarr.png
-        href: https://readarr.veliz.io
-        description: Book Management
-        ping: 10.0.20.56
-        widget:
-          type: readarr
-          url: https://readarr.veliz.io
-          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
-    - Tdarr:
-        icon: tdarr.png
-        href: https://tdarr.veliz.io
-        description: Media Transcoding
-        ping: 10.0.20.57
-
-
-- Home Automation:
-    - home-assistant:
-        icon: home-assistant.png
-        href: https://hass.veliz.io
-        description: Home Assistant
-        ping: 10.0.20.40
-    - home-assistant-2:
-        icon: home-assistant.png
-        href: http://10.0.20.67:8123
-        description: Home Assistant Secondary
-        ping: 10.0.20.67
-    - NodeRED:
-        icon: node-red.png
-        href: https://nodered.veliz.io
-        description: Node-RED Flow Editor
-        ping: 10.0.20.46
-    - Homebridge Downstairs:
-        icon: homebridge.png
-        href: https://homebridge-downstairs.veliz.io
-        description: homebridge-downstairs
-        ping: 10.0.20.42
-        widget:
-          type: homebridge
-          url: https://homebridge-downstairs.veliz.io
-          username: admin
-          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
-    - Homebridge Upstairs:
-        icon: homebridge.png
-        href: https://homebridge-upstairs.veliz.io
-        description: homebridge-upstairs
-        ping: 10.0.20.43
-        widget:
-          type: homebridge
-          url: https://homebridge-upstairs.veliz.io
-          username: admin
-          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
-    - Homebridge Cameras:
-        icon: homebridge.png
-        href: https://homebridge-cameras.veliz.io
-        description: homebridge-cameras
-        ping: 10.0.20.45
-        widget:
-          type: homebridge
-          url: https://homebridge-cameras.veliz.io
-          username: admin
-          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
-    - Homebridge Alarm:
-        icon: homebridge.png
-        href: https://homebridge-alarm.veliz.io
-        description: homebridge Alarm
-        ping: 10.0.20.44
-        widget:
-          type: homebridge
-          url: https://homebridge-alarm.veliz.io
-          username: admin
-          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
-    - MQTT:
-        icon: mqtt.png
-        href: http://10.0.20.41:1883
-        description: MQTT Broker
-        ping: 10.0.20.41
- 

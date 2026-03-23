@@ -104,9 +104,9 @@ controllers:
                 name: media-arr-api
                 key: PUSHOVER_APP_KEY
           - name: SABNZBD_HOST
-            value: sabnzbd.lan
+            value: sabnzbd.media.svc.cluster.local
           - name: SABNZBD_PORT
-            value: "8080"
+            value: "80"
           - name: NEWZNAB_BASE_URL
             value: "https://api.nzbgeek.info"
         securityContext:

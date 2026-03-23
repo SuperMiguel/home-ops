@@ -1,24 +1,20 @@
-# linuxserver/s6: must start as root; PUID/PGID map app data ownership.
-# Tag 2.15.3-ls163 is not published on lscr.io; use a real tag (verified: 2.16.1).
+# Image: ghcr.io/home-operations/tautulli — see https://github.com/home-operations/containers
 controllers:
   tautulli:
     strategy: RollingUpdate
     containers:
       app:
         image:
-          repository: lscr.io/linuxserver/tautulli
+          repository: ghcr.io/home-operations/tautulli
+          # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 2.16.1).
           tag: 2.16.1
         env:
           TZ: America/New_York
-          PUID: "1000"
-          PGID: "1000"
-          # Public URL (Envoy terminates TLS). Maps to config HTTP_BASE_URL — see
-          # https://github.com/Tautulli/Tautulli/blob/master/plexpy/config.py (TAUTULLI_* env overrides).
+          # Public URL (Envoy terminates TLS). See Tautulli config / TAUTULLI_* env overrides.
           TAUTULLI_HTTP_BASE_URL: https://tautulli.veliz.cc
           # Behind reverse proxy / TLS at the edge.
           TAUTULLI_HTTP_PROXY: "1"
-          # Internal listen port stays 8181 (Service + probes); do not set TAUTULLI_HTTP_PORT: 80 unless
-          # you change container/service ports to match.
+          TAUTULLI_HTTP_PORT: &port 80
           TAUTULLI_API_KEY:
             valueFrom:
               secretKeyRef:
@@ -30,8 +26,8 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /
-                port: 8181
+                path: /status
+                port: *port
               initialDelaySeconds: 45
               periodSeconds: 10
               timeoutSeconds: 5
@@ -41,8 +37,8 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /
-                port: 8181
+                path: /status
+                port: *port
               initialDelaySeconds: 30
               periodSeconds: 10
               timeoutSeconds: 5
@@ -53,9 +49,6 @@ controllers:
           capabilities:
             drop:
               - ALL
-            add:
-              - SETUID
-              - SETGID
         resources:
           requests:
             cpu: 50m
@@ -63,8 +56,9 @@ controllers:
             memory: 768Mi
 defaultPodOptions:
   securityContext:
-    runAsUser: 0
-    runAsGroup: 0
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
     fsGroup: 1000
 persistence:
   config:
@@ -79,7 +73,7 @@ service:
   app:
     ports:
       http:
-        port: 8181
+        port: *port
 route:
   app:
     hostnames:
@@ -91,4 +85,4 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 8181
+            port: *port

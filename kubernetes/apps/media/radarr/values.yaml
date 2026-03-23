@@ -10,19 +10,18 @@ controllers:
     containers:
       app:
         image:
-          repository: lscr.io/linuxserver/radarr
-          tag: 6.0.4.10291-ls295
+          repository: ghcr.io/home-operations/radarr
+          # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 6.1.1.10317).
+          tag: 6.1.1.10317
         env:
           TZ: America/New_York
-          PUID: "1000"
-          PGID: "1000"
           RADARR__APP__INSTANCENAME: Radarr
           RADARR__APP__THEME: dark
           RADARR__AUTH__METHOD: External
           RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
           RADARR__LOG__DBENABLED: "False"
           RADARR__LOG__LEVEL: info
-          RADARR__SERVER__PORT: "80"
+          RADARR__SERVER__PORT: &port 80
           RADARR__UPDATE__BRANCH: develop
           RADARR__AUTH__APIKEY:
             valueFrom:
@@ -36,7 +35,7 @@ controllers:
             spec:
               httpGet:
                 path: /ping
-                port: 80
+                port: *port
               initialDelaySeconds: 90
               periodSeconds: 15
               timeoutSeconds: 5
@@ -47,7 +46,7 @@ controllers:
             spec:
               httpGet:
                 path: /ping
-                port: 80
+                port: *port
               initialDelaySeconds: 60
               periodSeconds: 10
               timeoutSeconds: 5
@@ -58,9 +57,6 @@ controllers:
           capabilities:
             drop:
               - ALL
-            add:
-              - SETUID
-              - SETGID
         resources:
           requests:
             cpu: 50m
@@ -68,8 +64,9 @@ controllers:
             memory: 1Gi
 defaultPodOptions:
   securityContext:
-    runAsUser: 0
-    runAsGroup: 0
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
     fsGroup: 1000
 persistence:
   config:
@@ -93,7 +90,7 @@ service:
   app:
     ports:
       http:
-        port: 80
+        port: *port
 route:
   app:
     hostnames:
@@ -105,4 +102,4 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 80
+            port: *port

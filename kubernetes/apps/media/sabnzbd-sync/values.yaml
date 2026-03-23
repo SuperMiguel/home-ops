@@ -20,21 +20,56 @@ controllers:
           - -c
           - |
             set -e
-            API_BASE="http://sabnzbd.media.svc.cluster.local:80/api?output=json&apikey=${SABNZBD_API_KEY}"
+            API_URL="http://sabnzbd.media.svc.cluster.local:80/api"
 
-            # Update existing SAB server by name; this is idempotent.
-            curl -fsS "${API_BASE}&mode=set_config&section=servers&name=${SAB_SERVER_NAME}&connections=${SAB_SERVER_CONNECTIONS}" >/dev/null
+            # Enforce full server config (idempotent). If the server is missing, this recreates it.
+            curl -fsS -G "${API_URL}" \
+              --data-urlencode "output=json" \
+              --data-urlencode "apikey=${SABNZBD_API_KEY}" \
+              --data-urlencode "mode=set_config" \
+              --data-urlencode "section=servers" \
+              --data-urlencode "name=${SAB_SERVER_NAME}" \
+              --data-urlencode "host=${SAB_SERVER_HOST}" \
+              --data-urlencode "port=${SAB_SERVER_PORT}" \
+              --data-urlencode "ssl=${SAB_SERVER_SSL}" \
+              --data-urlencode "username=${SABNZBD_SERVER_USERNAME}" \
+              --data-urlencode "password=${SABNZBD_SERVER_PASSWORD}" \
+              --data-urlencode "connections=${SAB_SERVER_CONNECTIONS}" \
+              --data-urlencode "enable=1" \
+              --data-urlencode "priority=0" \
+              >/dev/null
 
             echo "Applied SAB server settings:"
-            curl -fsS "${API_BASE}&mode=get_config&section=servers&keyword=${SAB_SERVER_NAME}"
+            curl -fsS -G "${API_URL}" \
+              --data-urlencode "output=json" \
+              --data-urlencode "apikey=${SABNZBD_API_KEY}" \
+              --data-urlencode "mode=get_config" \
+              --data-urlencode "section=servers" \
+              --data-urlencode "keyword=${SAB_SERVER_NAME}"
         env:
           - name: SABNZBD_API_KEY
             valueFrom:
               secretKeyRef:
                 name: media-arr-api
                 key: SABNZBD_API_KEY
+          - name: SABNZBD_SERVER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SABNZBD_SERVER_USERNAME
+          - name: SABNZBD_SERVER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SABNZBD_SERVER_PASSWORD
           - name: SAB_SERVER_NAME
             value: news.newshosting.com
+          - name: SAB_SERVER_HOST
+            value: news.newshosting.com
+          - name: SAB_SERVER_PORT
+            value: "563"
+          - name: SAB_SERVER_SSL
+            value: "1"
           - name: SAB_SERVER_CONNECTIONS
             value: "50"
         resources:

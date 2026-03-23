@@ -1,0 +1,50 @@
+# Enforce selected SABnzbd server settings by API (GitOps drift guard).
+controllers:
+  main:
+    type: cronjob
+    cronjob:
+      schedule: "*/15 * * * *"
+      timeZone: America/New_York
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 2
+    pod:
+      restartPolicy: OnFailure
+    containers:
+      app:
+        image:
+          repository: curlimages/curl
+          tag: 8.12.1
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            API_BASE="http://sabnzbd.media.svc.cluster.local:80/api?output=json&apikey=${SABNZBD_API_KEY}"
+
+            # Update existing SAB server by name; this is idempotent.
+            curl -fsS "${API_BASE}&mode=set_config&section=servers&name=${SAB_SERVER_NAME}&connections=${SAB_SERVER_CONNECTIONS}" >/dev/null
+
+            echo "Applied SAB server settings:"
+            curl -fsS "${API_BASE}&mode=get_config&section=servers&keyword=${SAB_SERVER_NAME}"
+        env:
+          - name: SABNZBD_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SABNZBD_API_KEY
+          - name: SAB_SERVER_NAME
+            value: news.newshosting.com
+          - name: SAB_SERVER_CONNECTIONS
+            value: "50"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000

@@ -1,5 +1,8 @@
 # Buildarr — https://buildarr.github.io/
-# API keys: Secret `media-arr-api` (ExternalSecret syncs from 1Password item media-arr-api).
+# Secrets: `media-arr-api` (1Password item media-arr-api) — see cluster-secrets/externalsecret.yaml.
+# Non-secret endpoints for Prowlarr (SABnzbd host, Newznab base URL): edit env defaults on initContainer `copy-config` below.
+# After changing Prowlarr resources, run a Buildarr job; if an indexer type fails validation, use
+# `buildarr prowlarr dump-config http://prowlarr:80` against your old instance and align `type` / `fields`.
 controllers:
   main:
     type: cronjob
@@ -37,7 +40,47 @@ controllers:
               echo "prowlarr:"
               echo "  api_key: ${PROWLARR_API_KEY}"
             } > /config/buildarr-secret.yml
-            chmod 644 /config/buildarr.yml /config/buildarr-secret.yml
+            cat > /config/buildarr-runtime.yml <<EOF
+            prowlarr:
+              settings:
+                download_clients:
+                  delete_unmanaged: false
+                  definitions:
+                    SABnzbd:
+                      type: sabnzbd
+                      enable: true
+                      host: ${SABNZBD_HOST}
+                      port: ${SABNZBD_PORT}
+                      use_ssl: false
+                      category: prowlarr
+                      api_key: ${SABNZBD_API_KEY}
+                notifications:
+                  delete_unmanaged: false
+                  definitions:
+                    Pushover:
+                      type: pushover
+                      notification_triggers:
+                        on_health_issue: true
+                        include_health_warnings: true
+                        on_application_update: true
+                      user_key: ${PUSHOVER_USER_KEY}
+                      api_key: ${PUSHOVER_APP_KEY}
+                indexers:
+                  indexers:
+                    delete_unmanaged: false
+                    definitions:
+                      NZBgeek:
+                        type: newznab
+                        enable: true
+                        sync_profile: Standard
+                        fields:
+                          baseUrl: ${NEWZNAB_BASE_URL}
+                          apiPath: /api
+                          vipExpiration: "2027-01-17"
+                        secret_fields:
+                          apiKey: ${NEWZNAB_API_KEY}
+            EOF
+            chmod 644 /config/buildarr.yml /config/buildarr-secret.yml /config/buildarr-runtime.yml
         env:
           - name: SONARR_API_KEY
             valueFrom:
@@ -54,6 +97,32 @@ controllers:
               secretKeyRef:
                 name: media-arr-api
                 key: PROWLARR_API_KEY
+          - name: SABNZBD_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SABNZBD_API_KEY
+          - name: NEWZNAB_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: NEWZNAB_API_KEY
+          - name: PUSHOVER_USER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: PUSHOVER_USER_KEY
+          - name: PUSHOVER_APP_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: PUSHOVER_APP_KEY
+          - name: SABNZBD_HOST
+            value: sabnzbd.lan
+          - name: SABNZBD_PORT
+            value: "8080"
+          - name: NEWZNAB_BASE_URL
+            value: "https://api.nzbgeek.info"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -104,6 +173,7 @@ configMaps:
 
         includes:
           - buildarr-secret.yml
+          - buildarr-runtime.yml
 
         sonarr:
           instances:
@@ -125,6 +195,14 @@ configMaps:
           protocol: http
           settings:
             apps:
+              sync_profiles:
+                delete_unmanaged: false
+                definitions:
+                  Standard:
+                    enable_rss: true
+                    enable_automatic_search: true
+                    enable_interactive_search: true
+                    minimum_seeders: 1
               applications:
                 delete_unmanaged: false
                 definitions:

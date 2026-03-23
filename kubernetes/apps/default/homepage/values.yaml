@@ -1,6 +1,11 @@
 controllers:
   homepage:
     strategy: RollingUpdate
+    # ConfigMap keys are mounted with subPath; kubelet does not refresh them when the CM changes.
+    # Reloader rolls the pod when homepage-config updates so the UI matches Git.
+    pod:
+      annotations:
+        configmap.reloader.stakater.com/reload: homepage-config
     containers:
       app:
         image:

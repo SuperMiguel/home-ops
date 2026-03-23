@@ -10,7 +10,6 @@ spec:
   project: kubernetes
   sources:
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
-      path: kubernetes/apps/default/homepage
       targetRevision: main
       ref: repo
     - repoURL: ghcr.io/bjw-s-labs/helm

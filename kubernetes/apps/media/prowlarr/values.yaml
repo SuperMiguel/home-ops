@@ -94,3 +94,7 @@ route:
       - backendRefs:
           - identifier: app
             port: 80
+        matches:
+          - path:
+              type: PathPrefix
+              value: /

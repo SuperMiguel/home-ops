@@ -1,9 +1,53 @@
 # No ghcr.io/home-operations/overseerr — upstream image is ghcr.io/sct/overseerr.
-# After first login: Settings → General — copy API key into 1Password media-arr-api/OVERSEERR_API_KEY (must match for Homepage + overseerr-sync CronJob).
-# Radarr/Sonarr: GitOps CronJob `overseerr-sync` POSTs to Overseerr API (daily 4am ET); run once manually: kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync-main
+# Overseerr stores the API key in /app/config/settings.json (not process.env). Init container syncs
+# Secret media-arr-api/OVERSEERR_API_KEY → settings.json so GitOps, Homepage, and overseerr-sync match 1Password.
+# Radarr/Sonarr: CronJob `overseerr-sync` (daily 4am ET); manual: kubectl create job -n media run-sync --from=cronjob/overseerr-sync
 controllers:
   overseerr:
     strategy: RollingUpdate
+    initContainers:
+      sync-api-key:
+        image:
+          repository: docker.io/library/alpine
+          tag: "3.20"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -eu
+            apk add --no-cache jq >/dev/null
+            f=/app/config/settings.json
+            if [ -z "${OVERSEERR_API_KEY:-}" ]; then
+              echo "OVERSEERR_API_KEY empty; skip settings patch (set media-arr-api/OVERSEERR_API_KEY in 1Password)." >&2
+              exit 0
+            fi
+            mkdir -p /app/config
+            if [ ! -f "$f" ]; then
+              jq -n --arg k "$OVERSEERR_API_KEY" '{main:{apiKey:$k}}' > "$f"
+              echo "Created settings.json with API key from secret."
+              exit 0
+            fi
+            tmp=$(mktemp)
+            jq --arg k "$OVERSEERR_API_KEY" '.main.apiKey = $k' "$f" > "$tmp"
+            mv "$tmp" "$f"
+            echo "Synced main.apiKey from secret into settings.json."
+        env:
+          - name: OVERSEERR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: OVERSEERR_API_KEY
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
     containers:
       app:
         image:
@@ -14,6 +58,12 @@ controllers:
           # https://github.com/sct/overseerr/blob/develop/server/index.ts
           PORT: &port 5055
           LOG_LEVEL: info
+          # Same value as written to settings.json by init (Overseerr reads disk, not this var).
+          OVERSEERR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: OVERSEERR_API_KEY
         probes:
           liveness:
             enabled: true

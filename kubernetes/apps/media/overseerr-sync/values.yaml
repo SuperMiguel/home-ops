@@ -1,7 +1,6 @@
 # Idempotent: ensure Overseerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
 # Schedule: daily — first successful run after deploy may be next window; for immediate apply:
-#   kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync-main
-# (CronJob name from app-template is typically <release>-<controller>.)
+#   kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync
 controllers:
   main:
     type: cronjob
@@ -33,7 +32,10 @@ controllers:
             RADARR_HOST="${RADARR_HOST:-radarr.media.svc.cluster.local}"
             SONARR_HOST="${SONARR_HOST:-sonarr.media.svc.cluster.local}"
             # Must match settings.main.apiKey (see server/middleware/auth.ts — X-API-Key).
-            HDR=( -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" )
+            # POSIX sh (Alpine /bin/sh): no bash arrays — use a helper.
+            api_curl() {
+              curl -fsS -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" "$@"
+            }
 
             echo "Waiting for Overseerr..."
             for i in $(seq 1 90); do
@@ -47,8 +49,15 @@ controllers:
               exit 1
             fi
 
+            sc=$(curl -sS -o /dev/null -w "%{http_code}" -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" "${API}/settings/radarr" || true)
+            if [ "$sc" != "200" ]; then
+              echo "Overseerr API returned HTTP ${sc} on GET /settings/radarr." >&2
+              echo "Update 1Password media-arr-api/OVERSEERR_API_KEY to match Overseerr → Settings → General → API Key, then wait for ExternalSecret or restart sync." >&2
+              exit 1
+            fi
+
             # --- Radarr ---
-            radarr_n=$(curl -fsS "${API}/settings/radarr" "${HDR[@]}" | jq --arg h "$RADARR_HOST" '[.[] | select(.hostname == $h)] | length')
+            radarr_n=$(api_curl "${API}/settings/radarr" | jq --arg h "$RADARR_HOST" '[.[] | select(.hostname == $h)] | length')
             if [ "$radarr_n" -gt 0 ]; then
               echo "Radarr already configured for ${RADARR_HOST}, skipping."
             else
@@ -57,7 +66,7 @@ controllers:
                 --arg h "$RADARR_HOST" \
                 --arg k "$RADARR_API_KEY" \
                 '{hostname:$h, port:80, apiKey:$k, useSsl:false}')
-              resp=$(curl -fsS -X POST "${API}/settings/radarr/test" "${HDR[@]}" -d "$test_body")
+              resp=$(api_curl -X POST "${API}/settings/radarr/test" -d "$test_body")
               profile=$(echo "$resp" | jq '.profiles[0]')
               root=$(echo "$resp" | jq '.rootFolders[0]')
               urlBase=$(echo "$resp" | jq -r '.urlBase // ""')
@@ -95,12 +104,12 @@ controllers:
                   tagRequests: false,
                   minimumAvailability: "Released"
                 }')
-              curl -fsS -X POST "${API}/settings/radarr" "${HDR[@]}" -d "$create" >/dev/null
+              api_curl -X POST "${API}/settings/radarr" -d "$create" >/dev/null
               echo "Radarr added."
             fi
 
             # --- Sonarr ---
-            sonarr_n=$(curl -fsS "${API}/settings/sonarr" "${HDR[@]}" | jq --arg h "$SONARR_HOST" '[.[] | select(.hostname == $h)] | length')
+            sonarr_n=$(api_curl "${API}/settings/sonarr" | jq --arg h "$SONARR_HOST" '[.[] | select(.hostname == $h)] | length')
             if [ "$sonarr_n" -gt 0 ]; then
               echo "Sonarr already configured for ${SONARR_HOST}, skipping."
             else
@@ -109,7 +118,7 @@ controllers:
                 --arg h "$SONARR_HOST" \
                 --arg k "$SONARR_API_KEY" \
                 '{hostname:$h, port:80, apiKey:$k, useSsl:false}')
-              resp=$(curl -fsS -X POST "${API}/settings/sonarr/test" "${HDR[@]}" -d "$test_body")
+              resp=$(api_curl -X POST "${API}/settings/sonarr/test" -d "$test_body")
               profile=$(echo "$resp" | jq '.profiles[0]')
               root=$(echo "$resp" | jq '.rootFolders[0]')
               lang=$(echo "$resp" | jq '.languageProfiles[0]')
@@ -153,7 +162,7 @@ controllers:
                   preventSearch: false,
                   tagRequests: false
                 }')
-              curl -fsS -X POST "${API}/settings/sonarr" "${HDR[@]}" -d "$create" >/dev/null
+              api_curl -X POST "${API}/settings/sonarr" -d "$create" >/dev/null
               echo "Sonarr added."
             fi
 

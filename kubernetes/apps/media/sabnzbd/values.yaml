@@ -7,7 +7,8 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/sabnzbd
-          tag: latest
+          # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 4.5.5).
+          tag: rolling
         env:
           TZ: America/New_York
           SABNZBD__PORT: &port 80

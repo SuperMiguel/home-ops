@@ -3,8 +3,10 @@
 # Non-secret endpoints for Prowlarr (SABnzbd host, Newznab base URL): edit env defaults on initContainer `copy-config` below.
 # After changing Prowlarr resources, run a Buildarr job; if an indexer type fails validation, use
 # `buildarr prowlarr dump-config http://prowlarr:80` against your old instance and align `type` / `fields`.
-# Prowlarr-only: Sonarr/Radarr sync is disabled here because Buildarr 0.7.x lags current *arr APIs. Re-add
-# `sonarr` / `radarr` blocks (and secret keys in copy-config) when you want full-stack sync again.
+# Prowlarr-only: Sonarr/Radarr *instances* are omitted (Buildarr lags their APIs). Prowlarr `applications`
+# definitions that reference Radarr/Sonarr instances are omitted too — Buildarr requires matching `radarr` /
+# `sonarr` plugin blocks. Manage *arr app links in the Prowlarr UI; this job syncs profiles + indexers +
+# download clients + notifications only.
 controllers:
   main:
     type: cronjob
@@ -177,19 +179,7 @@ configMaps:
                     minimum_seeders: 1
               applications:
                 delete_unmanaged: false
-                definitions:
-                  Radarr:
-                    type: radarr
-                    instance_name: Radarr
-                    prowlarr_url: http://prowlarr.media.svc.cluster.local:80
-                    base_url: http://radarr.media.svc.cluster.local:80
-                    sync_level: full-sync
-                  Sonarr:
-                    type: sonarr
-                    instance_name: Sonarr
-                    prowlarr_url: http://prowlarr.media.svc.cluster.local:80
-                    base_url: http://sonarr.media.svc.cluster.local:80
-                    sync_level: full-sync
+                definitions: {}
 persistence:
   config:
     enabled: true

@@ -13,8 +13,8 @@
       hour12: true
 
 - openmeteo:
-    label: SuperHome 
-    latitude: 0.000000
-    longitude: 0.000000
+    label: SuperHome
+    latitude: {{HOMEPAGE_VAR_OPENMETEO_LATITUDE}}
+    longitude: {{HOMEPAGE_VAR_OPENMETEO_LONGITUDE}}
     units: imperial
     cache: 30 # Time in minutes to cache API responses, to stay within limits

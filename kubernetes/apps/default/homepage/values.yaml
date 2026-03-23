@@ -28,6 +28,16 @@ controllers:
               secretKeyRef:
                 name: homepage-secrets
                 key: HOMEBRIDGE_PASSWORD
+          HOMEPAGE_VAR_OPENMETEO_LATITUDE:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-secrets
+                key: OPENMETEO_LATITUDE
+          HOMEPAGE_VAR_OPENMETEO_LONGITUDE:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-secrets
+                key: OPENMETEO_LONGITUDE
           HOMEPAGE_VAR_SONARR_API_KEY:
             valueFrom:
               secretKeyRef:

@@ -3,6 +3,23 @@
 controllers:
   sabnzbd:
     strategy: RollingUpdate
+    initContainers:
+      set-folders:
+        image:
+          repository: ghcr.io/home-operations/sabnzbd
+          tag: rolling
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            if [ ! -f /config/sabnzbd.ini ]; then
+              cp /defaults/sabnzbd.ini /config/sabnzbd.ini
+            fi
+            sed -i \
+              -e 's|^download_dir *=.*$|download_dir = /media/Downloads/incomplete|g' \
+              -e 's|^complete_dir *=.*$|complete_dir = /media/Downloads/complete|g' \
+              /config/sabnzbd.ini
     containers:
       app:
         image:

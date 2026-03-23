@@ -136,17 +136,21 @@ controllers:
         image:
           repository: docker.io/callum027/buildarr
           tag: "0.7.8"
-        # Bypass LinuxServer /init (adduser/su-exec). Use the module entrypoint — `buildarr` is not always on PATH for uid 1000.
+        # Image ENTRYPOINT is /bootstrap.sh (pip + su-exec + buildarr). We skip it (su-exec fails under dropped caps).
+        # Replicate only the pip step for BUILDARR_INSTALL_PACKAGES, then run Buildarr as PID 1 (see upstream bootstrap.sh).
         command:
-          - python3
-        args:
-          - -m
-          - buildarr
-          - run
-          - /config/buildarr.yml
+          - /bin/sh
+          - -c
+          - |
+            set -eu
+            if [ -n "${BUILDARR_INSTALL_PACKAGES:-}" ]; then
+              echo "pip install: ${BUILDARR_INSTALL_PACKAGES}"
+              python3 -m pip install --no-cache-dir ${BUILDARR_INSTALL_PACKAGES}
+            fi
+            exec python3 -m buildarr run /config/buildarr.yml
         env:
           TZ: America/New_York
-          # Upgrade Radarr OpenAPI client so Radarr v6 naming enums (e.g. colonReplacementFormat) parse; runs pip on startup when set.
+          # Extra pip packages (e.g. newer radarr OpenAPI client for Radarr v6). Applied by shell above, not by image ENTRYPOINT.
           BUILDARR_INSTALL_PACKAGES: "radarr==1.2.1"
         probes:
           liveness:

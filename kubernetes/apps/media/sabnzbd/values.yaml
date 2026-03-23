@@ -12,6 +12,8 @@ controllers:
         env:
           TZ: America/New_York
           SABNZBD__PORT: &port 80
+          # Hostnames only (not URLs); entrypoint merges with pod HOSTNAME. See sabnzbd.org/wiki/extra/hostname-check
+          SABNZBD__HOST_WHITELIST_ENTRIES: sabnzbd.veliz.cc
           SABNZBD__API_KEY:
             valueFrom:
               secretKeyRef:

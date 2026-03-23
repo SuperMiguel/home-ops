@@ -136,13 +136,14 @@ controllers:
         image:
           repository: docker.io/callum027/buildarr
           tag: "0.7.8"
+        # Bypass LinuxServer /init (adduser/su-exec); it fails under dropped caps. Invoke CLI directly.
+        command:
+          - buildarr
         args:
           - run
           - /config/buildarr.yml
         env:
           TZ: America/New_York
-          PUID: "1000"
-          PGID: "1000"
         probes:
           liveness:
             enabled: false
@@ -153,6 +154,9 @@ controllers:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
           capabilities:
             drop:
               - ALL

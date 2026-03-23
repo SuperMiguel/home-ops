@@ -155,12 +155,11 @@
           type: uptimekuma
           url: https://uptime.veliz.io
           slug: statuspageslug
-- Gatus:
-    icon: mdi-heart-pulse
-    href: https://gatus.veliz.cc
-    description: Service health (K8s)
-    siteMonitor: https://gatus.veliz.cc
-
+    - Gatus:
+        icon: mdi-heart-pulse
+        href: https://gatus.veliz.cc
+        description: Service health (K8s)
+        siteMonitor: https://gatus.veliz.cc
     - InfluxDB:
         icon: influxdb.png
         href: https://influxdb.veliz.io

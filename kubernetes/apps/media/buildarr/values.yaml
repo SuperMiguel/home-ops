@@ -136,16 +136,13 @@ controllers:
         image:
           repository: docker.io/callum027/buildarr
           tag: "0.7.8"
-        # Skip image ENTRYPOINT (/bootstrap.sh: pip + su-exec); su-exec fails under dropped caps. Use module CLI directly.
-        # Do NOT pip install radarr>=1.2 here: radarr 1.x requires pydantic v2; Buildarr 0.7.x uses pydantic v1 — upgrading breaks imports.
-        # If Radarr v6 errors on colonReplacementFormat, fix Colon replacement in Radarr UI (Delete/Dash/…) or wait for a newer Buildarr image.
+        # Skip ENTRYPOINT (/bootstrap.sh: pip + su-exec). `python3 -m buildarr` fails — the wheel has no __main__.py (see setuptools console_scripts: buildarr.cli.main:main).
+        # Do NOT pip install radarr>=1.2 (pydantic v2 vs Buildarr’s pydantic v1). Fix Radarr colon replacement in UI if needed.
         command:
-          - python3
-        args:
-          - -m
-          - buildarr
-          - run
-          - /config/buildarr.yml
+          - /bin/sh
+          - -c
+          - |
+            exec python3 -c 'import sys; sys.argv = ["buildarr", "run", "/config/buildarr.yml"]; from buildarr.cli.main import main; main()'
         env:
           TZ: America/New_York
         probes:

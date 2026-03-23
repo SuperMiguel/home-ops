@@ -12,6 +12,18 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          # Public URL (Envoy terminates TLS). Maps to config HTTP_BASE_URL — see
+          # https://github.com/Tautulli/Tautulli/blob/master/plexpy/config.py (TAUTULLI_* env overrides).
+          TAUTULLI_HTTP_BASE_URL: https://tautulli.veliz.cc
+          # Behind reverse proxy / TLS at the edge.
+          TAUTULLI_HTTP_PROXY: "1"
+          # Internal listen port stays 8181 (Service + probes); do not set TAUTULLI_HTTP_PORT: 80 unless
+          # you change container/service ports to match.
+          TAUTULLI_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: TAUTULLI_API_KEY
         probes:
           liveness:
             enabled: true

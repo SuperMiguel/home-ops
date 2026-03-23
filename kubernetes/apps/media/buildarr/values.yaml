@@ -136,14 +136,18 @@ controllers:
         image:
           repository: docker.io/callum027/buildarr
           tag: "0.7.8"
-        # Bypass LinuxServer /init (adduser/su-exec); it fails under dropped caps. Invoke CLI directly.
+        # Bypass LinuxServer /init (adduser/su-exec). Use the module entrypoint — `buildarr` is not always on PATH for uid 1000.
         command:
-          - buildarr
+          - python3
         args:
+          - -m
+          - buildarr
           - run
           - /config/buildarr.yml
         env:
           TZ: America/New_York
+          # Upgrade Radarr OpenAPI client so Radarr v6 naming enums (e.g. colonReplacementFormat) parse; runs pip on startup when set.
+          BUILDARR_INSTALL_PACKAGES: "radarr==1.2.1"
         probes:
           liveness:
             enabled: false
@@ -154,9 +158,6 @@ controllers:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
           capabilities:
             drop:
               - ALL
@@ -165,7 +166,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 768Mi
 defaultPodOptions:
   securityContext:
     fsGroup: 1000

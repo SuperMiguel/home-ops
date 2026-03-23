@@ -48,8 +48,8 @@ controllers:
                       host: ${SABNZBD_HOST}
                       port: ${SABNZBD_PORT}
                       use_ssl: false
-                      # Must match an existing SABnzbd category (Config → Categories). Empty = default queue.
-                      category: ""
+                      # Prowlarr requires a non-empty category that already exists in SABnzbd (Config → Categories).
+                      category: prowlarr
                       api_key: ${SABNZBD_API_KEY}
                 notifications:
                   delete_unmanaged: false

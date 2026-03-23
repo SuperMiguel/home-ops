@@ -68,6 +68,11 @@ controllers:
               secretKeyRef:
                 name: homepage-secrets
                 key: TAUTULLI_API_KEY
+          HOMEPAGE_VAR_BAZARR_API_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-secrets
+                key: BAZARR_API_KEY
           HOMEPAGE_VAR_OVERSEERR_API_KEY:
             valueFrom:
               secretKeyRef:

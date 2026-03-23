@@ -1,6 +1,6 @@
 # API key: Secret media-arr-api (ExternalSecret → 1Password item media-arr-api, field RADARR_API_KEY).
 # Prowlarr ↔ Radarr indexers (pick one):
-# - Recommended: Prowlarr → Settings → Apps → Add Radarr — URL http://radarr.media.svc.cluster.local:7878
+# - Recommended: Prowlarr → Settings → Apps → Add Radarr — URL http://radarr.media.svc.cluster.local:80
 #   and API key from Radarr → Settings → General → Security (Prowlarr syncs indexers into Radarr).
 # - Or Radarr → Settings → Indexers → + → Prowlarr — Prowlarr URL http://prowlarr.media.svc.cluster.local:9696
 #   and API key from Prowlarr → Settings → General → Security.
@@ -16,6 +16,14 @@ controllers:
           TZ: America/New_York
           PUID: "1000"
           PGID: "1000"
+          RADARR__APP__INSTANCENAME: Radarr
+          RADARR__APP__THEME: dark
+          RADARR__AUTH__METHOD: External
+          RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
+          RADARR__LOG__DBENABLED: "False"
+          RADARR__LOG__LEVEL: info
+          RADARR__SERVER__PORT: "80"
+          RADARR__UPDATE__BRANCH: develop
           RADARR__AUTH__APIKEY:
             valueFrom:
               secretKeyRef:
@@ -28,7 +36,7 @@ controllers:
             spec:
               httpGet:
                 path: /ping
-                port: 7878
+                port: 80
               initialDelaySeconds: 90
               periodSeconds: 15
               timeoutSeconds: 5
@@ -39,7 +47,7 @@ controllers:
             spec:
               httpGet:
                 path: /ping
-                port: 7878
+                port: 80
               initialDelaySeconds: 60
               periodSeconds: 10
               timeoutSeconds: 5
@@ -85,7 +93,7 @@ service:
   app:
     ports:
       http:
-        port: 7878
+        port: 80
 route:
   app:
     hostnames:
@@ -97,4 +105,4 @@ route:
     rules:
       - backendRefs:
           - identifier: app
-            port: 7878
+            port: 80

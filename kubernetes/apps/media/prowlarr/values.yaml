@@ -1,6 +1,6 @@
 # API key: Secret media-arr-api (ExternalSecret → 1Password item media-arr-api, field PROWLARR_API_KEY).
 # linuxserver/s6: must start as root; PUID/PGID map app data ownership. Do not use runAsNonRoot + UID 1000.
-# To feed Radarr indexers: Settings → Apps → Add Radarr — http://radarr.media.svc.cluster.local:7878 + Radarr API key.
+# To feed Radarr indexers: Settings → Apps → Add Radarr — http://radarr.media.svc.cluster.local:80 + Radarr API key.
 controllers:
   prowlarr:
     strategy: RollingUpdate

@@ -136,22 +136,18 @@ controllers:
         image:
           repository: docker.io/callum027/buildarr
           tag: "0.7.8"
-        # Image ENTRYPOINT is /bootstrap.sh (pip + su-exec + buildarr). We skip it (su-exec fails under dropped caps).
-        # Replicate only the pip step for BUILDARR_INSTALL_PACKAGES, then run Buildarr as PID 1 (see upstream bootstrap.sh).
+        # Skip image ENTRYPOINT (/bootstrap.sh: pip + su-exec); su-exec fails under dropped caps. Use module CLI directly.
+        # Do NOT pip install radarr>=1.2 here: radarr 1.x requires pydantic v2; Buildarr 0.7.x uses pydantic v1 — upgrading breaks imports.
+        # If Radarr v6 errors on colonReplacementFormat, fix Colon replacement in Radarr UI (Delete/Dash/…) or wait for a newer Buildarr image.
         command:
-          - /bin/sh
-          - -c
-          - |
-            set -eu
-            if [ -n "${BUILDARR_INSTALL_PACKAGES:-}" ]; then
-              echo "pip install: ${BUILDARR_INSTALL_PACKAGES}"
-              python3 -m pip install --no-cache-dir ${BUILDARR_INSTALL_PACKAGES}
-            fi
-            exec python3 -m buildarr run /config/buildarr.yml
+          - python3
+        args:
+          - -m
+          - buildarr
+          - run
+          - /config/buildarr.yml
         env:
           TZ: America/New_York
-          # Extra pip packages (e.g. newer radarr OpenAPI client for Radarr v6). Applied by shell above, not by image ENTRYPOINT.
-          BUILDARR_INSTALL_PACKAGES: "radarr==1.2.1"
         probes:
           liveness:
             enabled: false
@@ -170,7 +166,7 @@ controllers:
             cpu: 50m
             memory: 256Mi
           limits:
-            memory: 768Mi
+            memory: 512Mi
 defaultPodOptions:
   securityContext:
     fsGroup: 1000

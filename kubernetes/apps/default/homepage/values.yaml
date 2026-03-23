@@ -109,66 +109,17 @@ service:
     ports:
       http:
         port: 3000
-configMaps:
-  services:
-    data:
-      services.yaml: "---\n# For configuration options and examples, please see:\n# https://gethomepage.dev/latest/configs/services\n\n# Widgets examples, please see:\n# https://gethomepage.dev/latest/widgets/services/\n\n# Icons names:\n# https://gethomepage.dev/latest/configs/services/#icons\n# https://github.com/walkxcode/dashboard-icons\n\n- Proxmox Cluster:\n    - HL-PVE-30:\n        icon: proxmox.png\n        ping: 10.0.20.30\n        widget:\n          type: proxmox\n          url: https://10.0.20.30:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-30\n    - HL-PVE-31:\n        icon: proxmox.png\n        ping: 10.0.20.31\n        widget:\n          type: proxmox\n          url: https://10.0.20.31:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-31\n    - HL-PVE-32:\n        icon: proxmox.png\n        ping: 10.0.20.32\n        widget:\n          type: proxmox\n          url: https://10.0.20.32:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-32\n    - HL-PVE-33:\n        icon: proxmox.png\n        ping: 10.0.20.33\n        widget:\n          type: proxmox\n          url: https://10.0.20.33:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-33\n    - HL-PVE-34:\n        icon: proxmox.png\n        ping: 10.0.20.34\n        widget:\n          type: proxmox\n          url: https://10.0.20.34:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-34\n    - HL-PVE-35:\n        icon: proxmox.png\n        ping: 10.0.20.35\n        widget:\n          type: proxmox\n          url: https://10.0.20.35:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-35\n    - HL-PVE-36:\n        icon: proxmox.png\n        ping: 10.0.20.36\n        widget:\n          type: proxmox\n          url: https://10.0.20.36:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n          node: HL-PVE-36\n\n- Infrastructure:\n    - Wiki.js:\n        icon: wikijs.png\n        href: https://wiki.veliz.io\n        description: Documentation wiki\n    - UniFi:\n        icon: unifi.png\n        href: https://unifi.veliz.io\n        description: UniFi Network Controller\n        ping: 10.0.20.1\n        widget:\n          type: unifi\n          url: https://unifi.veliz.io\n          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}\n          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}\n    - Tailscale:\n        icon: tailscale.png\n        widget:\n          type: tailscale\n          deviceid: \n          key: \n    - Tailscale-2:\n        icon: tailscale.png\n        description: Tailscale Secondary\n        ping: 10.0.20.62\n    - Proxmox:\n        icon: proxmox.png\n        href: https://proxmox.veliz.io\n        widget:\n          type: proxmox\n          url: https://10.0.20.30:8006\n          username: api-homepage@pam!homepage\n          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}\n    - Proxmox Backup Server:\n        icon: proxmox.png\n        href: https://pbs.veliz.io\n        widget:\n          type: proxmoxbackupserver\n          url: https://pbs.veliz.io\n          username: root@pam!homepage\n          password: \n    - AdGuard:\n        icon: adguard-home.png\n        href: https://adguard.veliz.io\n        widget:\n          type: adguard\n          url: https://adguard.veliz.io\n          username: root\n          password: \n    - TrueNAS:\n        icon: truenas.png\n        href: https://truenas.veliz.io\n        description: TrueNAS server\n        widget:\n          type: truenas\n          url: https://truenas.veliz.io\n          key: \n    - Nginx Proxy Manager:\n        icon: nginx.png\n        href: https://proxy.veliz.io\n        description: Proxy server\n        widget:\n          type: npm\n          url: https://proxy.veliz.io\n          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}\n          password: \n    - Pi.Alert:\n        icon: pialert.png\n        href: https://pialert.veliz.io\n        description: Pi Alert\n        widget:\n          type: pialert\n          url: https://pialert.veliz.io\n    - Uptime Kuma:\n        icon: uptime-kuma.png\n        href: https://uptime.veliz.io\n        description: Uptime Kuma\n        widget:\n          type: uptimekuma\n          url: https://uptime.veliz.io\n          slug: statuspageslug\n- Gatus:\n    icon: mdi-heart-pulse\n    href: https://gatus.veliz.cc\n    description: Service health (K8s)\n    siteMonitor: https://gatus.veliz.cc\n\n    - InfluxDB:\n        icon: influxdb.png\n        href: https://influxdb.veliz.io\n        description: Time Series Database\n        ping: 10.0.20.63\n    - Grafana:\n        icon: grafana.png\n        href: https://grafana.veliz.io\n        description: Monitoring & Dashboards\n        ping: 10.0.20.64\n        widget:\n          type: grafana\n          url: https://grafana.veliz.io\n          username: admin\n          password: \n    - Prometheus:\n        icon: prometheus.png\n        href: https://prometheus.veliz.io\n        description: Metrics Collection\n        ping: 10.0.20.65\n    - Elasticsearch:\n        icon: elasticsearch.png\n        href: http://10.0.20.70:9200\n        description: Search & Analytics\n        ping: 10.0.20.70\n    - Kibana:\n        icon: kibana.png\n        href: https://kibana.veliz.io\n        description: Elasticsearch UI\n        ping: 10.0.20.71\n    - Zabbix:\n        icon: zabbix.png\n        href: http://10.0.20.72/zabbix\n        description: Network Monitoring\n        ping: 10.0.20.72\n    - UnPoller:\n        icon: unpoller.png\n        href: http://10.0.20.73:37288\n        description: UniFi Poller\n        ping: 10.0.20.73\n    - AMP Server:\n        icon: amp.png\n        href: http://10.0.20.75\n        description: Game Server Management\n        ping: 10.0.20.75\n    - Minecraft:\n        icon: minecraft.png\n        href: http://10.0.20.80:25565\n        description: Minecraft Server\n        ping: 10.0.20.80\n\n\n\n\n- Media:\n    - Plex:\n        icon: plex.png\n        href: https://plex.veliz.io\n        description: Media Server\n        widget:\n          type: tautulli\n          url: https://tautulli.veliz.cc\n          key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}\n    - Tautulli:\n        icon: tautulli.png\n        href: https://tautulli.veliz.cc\n        description: Plex Monitoring\n        siteMonitor: https://tautulli.veliz.cc\n        widget:\n          type: tautulli\n          url: https://tautulli.veliz.cc\n          key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}\n    - Sonarr:\n        icon: sonarr.png\n        href: https://sonarr.veliz.cc\n        description: Series management\n        siteMonitor: https://sonarr.veliz.cc\n        widget:\n          type: sonarr\n          url: https://sonarr.veliz.cc\n          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}\n    - Radarr:\n        icon: radarr.png\n        href: https://radarr.veliz.cc\n        description: Movie management\n        widget:\n          type: radarr\n          url: https://radarr.veliz.cc\n          key: {{HOMEPAGE_VAR_RADARR_API_KEY}}\n    - Sabnzbd:\n        icon: sabnzbd.png\n        href: https://sabnzbd.veliz.io\n        description: Download Manager\n        ping: 10.0.20.60\n        widget:\n          type: sabnzbd\n          url: https://sabnzbd.veliz.io\n          key: {{HOMEPAGE_VAR_SABNZBD_API_KEY}}\n    - Prowlarr:\n        icon: prowlarr.png\n        href: https://prowlarr.veliz.cc\n        description: Indexer Manager\n        widget:\n          type: prowlarr\n          url: https://prowlarr.veliz.cc\n          key: {{HOMEPAGE_VAR_PROWLARR_API_KEY}}\n    - Overseerr:\n        icon: overseerr.png\n        href: https://overseerr.veliz.io\n        description: Media Request Manager\n        ping: 10.0.20.51\n        widget:\n          type: overseerr\n          url: https://overseerr.veliz.io\n          key: {{HOMEPAGE_VAR_OVERSEERR_API_KEY}}\n    - Bazarr:\n        icon: bazarr.png\n        href: https://bazarr.veliz.cc\n        description: Subtitle Manager\n        widget:\n          type: bazarr\n          url: https://bazarr.veliz.cc\n          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}\n    - Lidarr:\n        icon: lidarr.png\n        href: https://lidarr.veliz.io\n        description: Music Management\n        ping: 10.0.20.55\n        widget:\n          type: lidarr\n          url: https://lidarr.veliz.io\n          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}\n    - Readarr:\n        icon: readarr.png\n        href: https://readarr.veliz.io\n        description: Book Management\n        ping: 10.0.20.56\n        widget:\n          type: readarr\n          url: https://readarr.veliz.io\n          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}\n    - Tdarr:\n        icon: tdarr.png\n        href: https://tdarr.veliz.io\n        description: Media Transcoding\n        ping: 10.0.20.57\n\n\n- Home Automation:\n    - home-assistant:\n        icon: home-assistant.png\n        href: https://hass.veliz.io\n        description: Home Assistant\n        ping: 10.0.20.40\n    - home-assistant-2:\n        icon: home-assistant.png\n        href: http://10.0.20.67:8123\n        description: Home Assistant Secondary\n        ping: 10.0.20.67\n    - NodeRED:\n        icon: node-red.png\n        href: https://nodered.veliz.io\n        description: Node-RED Flow Editor\n        ping: 10.0.20.46\n    - Homebridge Downstairs:\n        icon: homebridge.png\n        href: https://homebridge-downstairs.veliz.io\n        description: homebridge-downstairs\n        ping: 10.0.20.42\n        widget:\n          type: homebridge\n          url: https://homebridge-downstairs.veliz.io\n          username: admin\n          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}\n    - Homebridge Upstairs:\n        icon: homebridge.png\n        href: https://homebridge-upstairs.veliz.io\n        description: homebridge-upstairs\n        ping: 10.0.20.43\n        widget:\n          type: homebridge\n          url: https://homebridge-upstairs.veliz.io\n          username: admin\n          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}\n    - Homebridge Cameras:\n        icon: homebridge.png\n        href: https://homebridge-cameras.veliz.io\n        description: homebridge-cameras\n        ping: 10.0.20.45\n        widget:\n          type: homebridge\n          url: https://homebridge-cameras.veliz.io\n          username: admin\n          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}\n    - Homebridge Alarm:\n        icon: homebridge.png\n        href: https://homebridge-alarm.veliz.io\n        description: homebridge Alarm\n        ping: 10.0.20.44\n        widget:\n          type: homebridge\n          url: https://homebridge-alarm.veliz.io\n          username: admin\n          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}\n    - MQTT:\n        icon: mqtt.png\n        href: http://10.0.20.41:1883\n        description: MQTT Broker\n        ping: 10.0.20.41\n "
-      settings.yaml: |
-        ---
-        # For configuration options and examples, please see:
-        # https://gethomepage.dev/latest/configs/settings
-
-        title: Super Homepage
-        color: stone
-        base: https://home.veliz.cc
-        target: _blank
-        fiveColumns: true
-
-        layout:
-            Proxmox Cluster:
-              style: row
-              columns: 7
-            Infrastructure:
-              style: column
-            Media:
-              style: row
-              columns: 4
-            Home Automation:
-              style: column
-
-
-        # providers:
-        #   openweathermap: openweathermapapikey
-        #   weatherapi: weatherapiapikey
-      widgets.yaml: "---\n# For configuration options and examples, please see:\n# https://gethomepage.dev/latest/configs/service-widgets\n\n- search:\n    provider: duckduckgo\n    target: _blank\n\n- datetime:\n    format:\n      dateStyle: short\n      timeStyle: short\n      hour12: true\n\n- openmeteo:\n    label: SuperHome \n    latitude: 0.000000\n    longitude: 0.000000\n    units: imperial\n    cache: 30 # Time in minutes to cache API responses, to stay within limits"
-      bookmarks.yaml: |
-        ---
-        # For configuration options and examples, please see:
-        # https://gethomepage.dev/latest/configs/bookmarks
-
-        - Developer:
-            - Github:
-                - abbr: GH
-                  href: https://github.com/
-
-        - Social:
-            - Reddit:
-                - abbr: RE
-                  href: https://reddit.com/
-
-        - Entertainment:
-            - YouTube:
-                - abbr: YT
-                  href: https://youtube.com/
 persistence:
   config-workspace:
     enabled: true
     type: emptyDir
     globalMounts:
       - path: /app/config
-  services:
-    type: configMap
-    identifier: services
+  config-files:
+    type: custom
+    volumeSpec:
+      configMap:
+        name: homepage-config
     globalMounts:
       - path: /app/config/services.yaml
         subPath: services.yaml
@@ -190,30 +141,3 @@ route:
       - backendRefs:
           - identifier: app
             port: 3000
-extraObjects:
-  - apiVersion: external-secrets.io/v1
-    kind: ExternalSecret
-    metadata:
-      name: homepage-secrets
-      namespace: default
-    spec:
-      refreshInterval: 1h
-      secretStoreRef:
-        kind: ClusterSecretStore
-        name: onepassword
-      target:
-        name: homepage-secrets
-        creationPolicy: Owner
-      data:
-        - secretKey: PROXMOX_API_PASSWORD
-          remoteRef:
-            key: homepage-secrets/PROXMOX_API_PASSWORD
-        - secretKey: UNIFI_USERNAME
-          remoteRef:
-            key: homepage-secrets/UNIFI_USERNAME
-        - secretKey: UNIFI_PASSWORD
-          remoteRef:
-            key: homepage-secrets/UNIFI_PASSWORD
-        - secretKey: HOMEBRIDGE_PASSWORD
-          remoteRef:
-            key: homepage-secrets/HOMEBRIDGE_PASSWORD

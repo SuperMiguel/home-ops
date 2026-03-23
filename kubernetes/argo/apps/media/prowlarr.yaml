@@ -6,6 +6,8 @@ metadata:
   namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+    # Server-Side Diff dry-run can reject Application.status; see argo-cd.readthedocs.io stable user-guide diff-strategies
+    argocd.argoproj.io/compare-options: ServerSideDiff=false
 spec:
   project: kubernetes
   sources:

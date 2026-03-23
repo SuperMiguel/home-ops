@@ -1,0 +1,81 @@
+# No ghcr.io/home-operations/overseerr — upstream image is ghcr.io/sct/overseerr.
+# After first login: Settings → General → enable API, create key → store in 1Password media-arr-api/OVERSEERR_API_KEY (Homepage widget).
+# Connect Sonarr/Radarr: Settings → Services — http://sonarr.media.svc.cluster.local:80 / http://radarr.media.svc.cluster.local:80
+controllers:
+  overseerr:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/sct/overseerr
+          tag: "1.33.2"
+        env:
+          TZ: America/New_York
+          # https://github.com/sct/overseerr/blob/develop/server/index.ts
+          PORT: &port 5055
+          LOG_LEVEL: info
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 60
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /app/config
+service:
+  app:
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - overseerr.veliz.cc
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

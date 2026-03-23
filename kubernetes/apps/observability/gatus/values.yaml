@@ -96,6 +96,12 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
+          - name: overseerr
+            group: media
+            url: https://overseerr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
           - name: bazarr
             group: media
             url: https://bazarr.veliz.cc

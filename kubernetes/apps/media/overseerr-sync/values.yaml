@@ -1,0 +1,186 @@
+# Idempotent: ensure Overseerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
+# Schedule: daily — first successful run after deploy may be next window; for immediate apply:
+#   kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync-main
+# (CronJob name from app-template is typically <release>-<controller>.)
+controllers:
+  main:
+    type: cronjob
+    cronjob:
+      schedule: "0 4 * * *"
+      timeZone: America/New_York
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 3
+      ttlSecondsAfterFinished: 86400
+      backoffLimit: 2
+      activeDeadlineSeconds: 900
+    pod:
+      restartPolicy: OnFailure
+    containers:
+      app:
+        image:
+          repository: docker.io/library/alpine
+          tag: "3.20"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -eu
+            apk add --no-cache curl jq >/dev/null
+
+            OVERSEERR_URL="${OVERSEERR_URL:-http://overseerr.media.svc.cluster.local:5055}"
+            API="${OVERSEERR_URL}/api/v1"
+            RADARR_HOST="${RADARR_HOST:-radarr.media.svc.cluster.local}"
+            SONARR_HOST="${SONARR_HOST:-sonarr.media.svc.cluster.local}"
+            # Must match settings.main.apiKey (see server/middleware/auth.ts — X-API-Key).
+            HDR=( -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" )
+
+            echo "Waiting for Overseerr..."
+            for i in $(seq 1 90); do
+              code=$(curl -sS -o /dev/null -w "%{http_code}" "${OVERSEERR_URL}/api/v1/status" || true)
+              if [ "$code" = "200" ]; then break; fi
+              sleep 5
+            done
+            code=$(curl -sS -o /dev/null -w "%{http_code}" "${OVERSEERR_URL}/api/v1/status" || true)
+            if [ "$code" != "200" ]; then
+              echo "Overseerr /api/v1/status not ready (last HTTP ${code})" >&2
+              exit 1
+            fi
+
+            # --- Radarr ---
+            radarr_n=$(curl -fsS "${API}/settings/radarr" "${HDR[@]}" | jq --arg h "$RADARR_HOST" '[.[] | select(.hostname == $h)] | length')
+            if [ "$radarr_n" -gt 0 ]; then
+              echo "Radarr already configured for ${RADARR_HOST}, skipping."
+            else
+              echo "Configuring Radarr in Overseerr..."
+              test_body=$(jq -n \
+                --arg h "$RADARR_HOST" \
+                --arg k "$RADARR_API_KEY" \
+                '{hostname:$h, port:80, apiKey:$k, useSsl:false}')
+              resp=$(curl -fsS -X POST "${API}/settings/radarr/test" "${HDR[@]}" -d "$test_body")
+              profile=$(echo "$resp" | jq '.profiles[0]')
+              root=$(echo "$resp" | jq '.rootFolders[0]')
+              urlBase=$(echo "$resp" | jq -r '.urlBase // ""')
+              if [ "$(echo "$profile" | jq 'type')" = "null" ] || [ "$(echo "$root" | jq 'type')" = "null" ]; then
+                echo "Radarr test did not return profile/root folder: ${resp}" >&2
+                exit 1
+              fi
+              pid=$(echo "$profile" | jq '.id')
+              pname=$(echo "$profile" | jq -r '.name')
+              rpath=$(echo "$root" | jq -r '.path')
+              create=$(jq -n \
+                --arg name "Radarr" \
+                --arg h "$RADARR_HOST" \
+                --arg k "$RADARR_API_KEY" \
+                --argjson profileId "$pid" \
+                --arg pname "$pname" \
+                --arg rpath "$rpath" \
+                --arg ub "$urlBase" \
+                '{
+                  name: $name,
+                  hostname: $h,
+                  port: 80,
+                  apiKey: $k,
+                  useSsl: false,
+                  baseUrl: $ub,
+                  activeProfileId: $profileId,
+                  activeProfileName: $pname,
+                  activeDirectory: $rpath,
+                  tags: [],
+                  is4k: false,
+                  isDefault: true,
+                  externalUrl: "https://radarr.veliz.cc",
+                  syncEnabled: true,
+                  preventSearch: false,
+                  tagRequests: false,
+                  minimumAvailability: "Released"
+                }')
+              curl -fsS -X POST "${API}/settings/radarr" "${HDR[@]}" -d "$create" >/dev/null
+              echo "Radarr added."
+            fi
+
+            # --- Sonarr ---
+            sonarr_n=$(curl -fsS "${API}/settings/sonarr" "${HDR[@]}" | jq --arg h "$SONARR_HOST" '[.[] | select(.hostname == $h)] | length')
+            if [ "$sonarr_n" -gt 0 ]; then
+              echo "Sonarr already configured for ${SONARR_HOST}, skipping."
+            else
+              echo "Configuring Sonarr in Overseerr..."
+              test_body=$(jq -n \
+                --arg h "$SONARR_HOST" \
+                --arg k "$SONARR_API_KEY" \
+                '{hostname:$h, port:80, apiKey:$k, useSsl:false}')
+              resp=$(curl -fsS -X POST "${API}/settings/sonarr/test" "${HDR[@]}" -d "$test_body")
+              profile=$(echo "$resp" | jq '.profiles[0]')
+              root=$(echo "$resp" | jq '.rootFolders[0]')
+              lang=$(echo "$resp" | jq '.languageProfiles[0]')
+              urlBase=$(echo "$resp" | jq -r '.urlBase // ""')
+              if [ "$(echo "$profile" | jq 'type')" = "null" ] || [ "$(echo "$root" | jq 'type')" = "null" ] || [ "$(echo "$lang" | jq 'type')" = "null" ]; then
+                echo "Sonarr test did not return profile/root/language: ${resp}" >&2
+                exit 1
+              fi
+              pid=$(echo "$profile" | jq '.id')
+              pname=$(echo "$profile" | jq -r '.name')
+              rpath=$(echo "$root" | jq -r '.path')
+              lid=$(echo "$lang" | jq '.id')
+              create=$(jq -n \
+                --arg name "Sonarr" \
+                --arg h "$SONARR_HOST" \
+                --arg k "$SONARR_API_KEY" \
+                --argjson profileId "$pid" \
+                --arg pname "$pname" \
+                --arg rpath "$rpath" \
+                --argjson langId "$lid" \
+                --arg ub "$urlBase" \
+                '{
+                  name: $name,
+                  hostname: $h,
+                  port: 80,
+                  apiKey: $k,
+                  useSsl: false,
+                  baseUrl: $ub,
+                  activeProfileId: $profileId,
+                  activeProfileName: $pname,
+                  activeDirectory: $rpath,
+                  activeLanguageProfileId: $langId,
+                  seriesType: "standard",
+                  animeSeriesType: "standard",
+                  enableSeasonFolders: true,
+                  tags: [],
+                  is4k: false,
+                  isDefault: true,
+                  externalUrl: "https://sonarr.veliz.cc",
+                  syncEnabled: true,
+                  preventSearch: false,
+                  tagRequests: false
+                }')
+              curl -fsS -X POST "${API}/settings/sonarr" "${HDR[@]}" -d "$create" >/dev/null
+              echo "Sonarr added."
+            fi
+
+            echo "Done."
+        env:
+          - name: OVERSEERR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: OVERSEERR_API_KEY
+          - name: RADARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: RADARR_API_KEY
+          - name: SONARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SONARR_API_KEY
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0

@@ -1,6 +1,6 @@
 # No ghcr.io/home-operations/overseerr — upstream image is ghcr.io/sct/overseerr.
-# After first login: Settings → General → enable API, create key → store in 1Password media-arr-api/OVERSEERR_API_KEY (Homepage widget).
-# Connect Sonarr/Radarr: Settings → Services — http://sonarr.media.svc.cluster.local:80 / http://radarr.media.svc.cluster.local:80
+# After first login: Settings → General — copy API key into 1Password media-arr-api/OVERSEERR_API_KEY (must match for Homepage + overseerr-sync CronJob).
+# Radarr/Sonarr: GitOps CronJob `overseerr-sync` POSTs to Overseerr API (daily 4am ET); run once manually: kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync-main
 controllers:
   overseerr:
     strategy: RollingUpdate

@@ -11,8 +11,11 @@ controllers:
           PUID: "1000"
           PGID: "1000"
           # Bazarr reads settings via Dynaconf — env overrides use DYNACONF_<section>__<key>
-          # (double underscore for nesting). Not BAZARR__* — see https://www.dynaconf.com/environment_variables/
-          DYNACONF_GENERAL__BASE_URL: https://bazarr.veliz.cc
+          # (double underscore for nesting). See https://www.dynaconf.com/environment_variables/
+          #
+          # Do NOT set general.base_url to https://… — that field is the *path prefix* for subfolder
+          # reverse proxies (e.g. /bazarr), not the public URL. A full URL crashes Flask
+          # ("URL rule must start with a slash"). Leave unset for root at https://bazarr.veliz.cc/.
           # Keep 6767: linuxserver s6 checks `nc -z localhost 6767`, Service/HTTPRoute/probes target 6767.
           # Port 80 inside the pod would require root/capabilities and rewriting the image entrypoint.
           DYNACONF_GENERAL__PORT: "6767"

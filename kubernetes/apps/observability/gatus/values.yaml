@@ -1,7 +1,13 @@
 # Gatus — https://github.com/TwiN/gatus
+# Pushover: alerting in config.yaml; tokens from Secret gatus-secret (see cluster-secrets).
+# Docs: https://gatus.io/docs/alerting-pushover
 controllers:
   gatus:
     strategy: RollingUpdate
+    pod:
+      annotations:
+        configmap.reloader.stakater.com/reload: gatus
+        secret.reloader.stakater.com/reload: gatus-secret
     containers:
       app:
         image:
@@ -10,6 +16,9 @@ controllers:
         env:
           TZ: America/New_York
           GATUS_CONFIG_PATH: /config/config.yaml
+        envFrom:
+          - secretRef:
+              name: gatus-secret
         probes:
           liveness:
             enabled: true
@@ -65,86 +74,77 @@ configMaps:
         ui:
           title: Status
           header: Veliz
+        alerting:
+          pushover:
+            application-token: "${PUSHOVER_APP_KEY_GATUS}"
+            user-key: "${PUSHOVER_USER_KEY}"
+            title: "Gatus"
+            default-alert:
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+        # Anchor for DRY endpoints; not a Gatus key — see https://github.com/TwiN/gatus#keeping-your-configuration-small
+        default-endpoint: &defaults
+          interval: 5m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              description: "endpoint unhealthy"
         endpoints:
           - name: home
+            <<: *defaults
             group: core
             url: https://home.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: argo
+            <<: *defaults
             group: core
             url: https://argo.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: prowlarr
+            <<: *defaults
             group: media
             url: https://prowlarr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: sonarr
+            <<: *defaults
             group: media
             url: https://sonarr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: radarr
+            <<: *defaults
             group: media
             url: https://radarr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: sabnzbd
+            <<: *defaults
             group: media
             url: https://sabnzbd.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: seerr
+            <<: *defaults
             group: media
             url: https://seerr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: agregarr
+            <<: *defaults
             group: media
             url: https://agregarr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: autobrr
+            <<: *defaults
             group: media
             url: https://autobrr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: notifier
+            <<: *defaults
             group: media
             url: https://notifier.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: deduparr
+            <<: *defaults
             group: media
             # Deduparr has no HTML UI; `/` is often 404. Health endpoint matches Deployment probes.
             url: https://deduparr.veliz.cc/health/ready
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: bazarr
+            <<: *defaults
             group: media
             url: https://bazarr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: tautulli
+            <<: *defaults
             group: media
             url: https://tautulli.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
 persistence:
   config:
     type: configMap

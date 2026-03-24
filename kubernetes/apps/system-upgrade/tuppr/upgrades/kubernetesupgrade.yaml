@@ -1,0 +1,10 @@
+---
+# Target Kubernetes (kubelet) version — bump when you intend to upgrade the control plane/workers.
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes
+  namespace: system-upgrade
+spec:
+  kubernetes:
+    version: v1.35.2

@@ -14,6 +14,8 @@
 # Kubernetes
 kubeconfig
 talosconfig
+# Helm (local helm pull / template — charts come from OCI in Argo)
+*.tgz
 # Misc.
 .private/
 .task/

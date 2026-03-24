@@ -1,0 +1,41 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: victoria-logs
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/compare-options: ServerSideDiff=false
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/SuperMiguel/home-ops.git"
+      targetRevision: main
+      ref: repo
+    - repoURL: oci://ghcr.io/victoriametrics/helm-charts/victoria-logs-single
+      chart: victoria-logs-single
+      targetRevision: 0.11.29
+      helm:
+        releaseName: victoria-logs
+        valueFiles:
+          - $repo/kubernetes/apps/observability/victoria-logs/values.yaml
+  destination:
+    name: in-cluster
+    namespace: observability
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 2
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

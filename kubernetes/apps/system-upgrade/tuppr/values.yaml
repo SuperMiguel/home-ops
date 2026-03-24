@@ -1,0 +1,8 @@
+# tuppr — Talos + Kubernetes upgrade controller (home-operations/tuppr).
+# Mirrors onedr0p/home-ops kubernetes/apps/system-upgrade/tuppr (Flux → Argo CD).
+# Prerequisites: Talos patch machine-kubernetes-talos-api.yaml applied on all nodes.
+replicaCount: 2
+
+monitoring:
+  serviceMonitor:
+    enabled: true

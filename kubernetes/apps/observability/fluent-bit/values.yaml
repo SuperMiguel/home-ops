@@ -1,0 +1,90 @@
+# Fluent Bit → Victoria Logs (JSON line ingest), matching onedr0p/home-ops observability/fluent-bit.
+# Chart: https://github.com/fluent/helm-charts/tree/main/charts/fluent-bit
+# Requires victoria-logs deployed first (Service victoria-logs-server.observability:9428).
+
+kind: DaemonSet
+
+testFramework:
+  enabled: false
+
+logLevel: warn
+
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+
+serviceMonitor:
+  enabled: true
+
+config:
+  service: |-
+    [SERVICE]
+        Daemon Off
+        Flush {{ .Values.flush }}
+        Log_Level {{ .Values.logLevel }}
+        Parsers_File /fluent-bit/etc/parsers.conf
+        Parsers_File /fluent-bit/etc/conf/custom_parsers.conf
+        HTTP_Server On
+        HTTP_Listen 0.0.0.0
+        HTTP_Port {{ .Values.metricsPort }}
+        Health_Check On
+
+  inputs: |-
+    [INPUT]
+        Name tail
+        Alias kubernetes
+        Path /var/log/containers/*.log
+        Parser containerd
+        Tag kubernetes.*
+        Skip_Empty_Lines On
+        Skip_Long_Lines On
+
+  filters: |-
+    [FILTER]
+        Name kubernetes
+        Match kubernetes.*
+        Merge_Log On
+        Kube_Tag_Prefix kubernetes.var.log.containers.
+        K8S-Logging.Parser On
+        K8S-Logging.Exclude On
+
+    [FILTER]
+        Name nest
+        Match kubernetes.*
+        Operation lift
+        Nested_under kubernetes
+        Add_prefix k_
+
+    [FILTER]
+        Name nest
+        Match kubernetes.*
+        Operation lift
+        Nested_under k_labels
+        Add_prefix k_labels_
+
+    [FILTER]
+        Name modify
+        Match kubernetes.*
+        Rename k_labels_app.kubernetes.io/name app
+        Rename k_labels_app app
+        Rename k_labels_k8s-app app
+
+  outputs: |-
+    [OUTPUT]
+        Name http
+        Match kubernetes.*
+        Host victoria-logs-server.observability.svc.cluster.local
+        Port 9428
+        URI /insert/jsonline?_stream_fields=stream,k_namespace_name,k_pod_name,app&_msg_field=log&_time_field=date
+        Format json_lines
+        Json_date_format iso8601
+        Compress gzip
+        Log_response_payload False
+
+  customParsers: |-
+    [PARSER]
+        Name containerd
+        Format regex
+        Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z

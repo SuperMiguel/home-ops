@@ -1,0 +1,13 @@
+---
+# Target Talos version — bump when you intend to roll the OS; keep in sync with talos/talenv.yaml over time.
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: TalosUpgrade
+metadata:
+  name: talos
+  namespace: system-upgrade
+spec:
+  talos:
+    version: v1.12.5
+  policy:
+    rebootMode: powercycle
+  # No Ceph/VolSync here (unlike onedr0p); add CEL health checks when you have stable signals (e.g. Longhorn).

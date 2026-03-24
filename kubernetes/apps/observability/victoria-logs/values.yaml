@@ -1,0 +1,50 @@
+# Victoria Logs single-node — same pattern as onedr0p/home-ops observability/victoria-logs.
+# Chart: https://github.com/VictoriaMetrics/helm-charts/tree/master/charts/victoria-logs-single
+# Fluent Bit ships container logs to Service victoria-logs-server:9428 (see fluent-bit/values.yaml).
+#
+# UI: HTTPRoute root → redirect to /select/vmui/ (internal gateway). Ensure DNS for the hostname
+# points at the internal Envoy load balancer (or switch parentRefs to envoy-external).
+fullnameOverride: victoria-logs
+
+server:
+  persistentVolume:
+    enabled: true
+    storageClassName: longhorn
+    size: 20Gi
+  retentionPeriod: 14d
+
+  route:
+    enabled: true
+    hostnames:
+      - victoria-logs.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    extraRules:
+      - matches:
+          - path:
+              type: Exact
+              value: /
+        filters:
+          - type: RequestRedirect
+            requestRedirect:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /select/vmui/
+              statusCode: 302
+
+  serviceMonitor:
+    enabled: true
+
+# Also creates GrafanaDashboard "vector-k8s-monitoring" (chart default); ignore or remove in Grafana
+# unless you enable the chart's bundled vector subchart (we use Fluent Bit instead).
+dashboards:
+  enabled: true
+  grafanaOperator:
+    enabled: true
+    spec:
+      allowCrossNamespaceImport: true
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana

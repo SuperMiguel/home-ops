@@ -1,6 +1,5 @@
 # Seerr — https://github.com/seerr-team/seerr
 # API key: `API_KEY` from ExternalSecret seerr-secret (1Password media-arr-api/SEERR_API_KEY).
-# TODO: After first login, copy Settings → API Key into 1Password and uncomment `envFrom` below.
 controllers:
   seerr:
     strategy: RollingUpdate
@@ -13,9 +12,9 @@ controllers:
           TZ: America/New_York
           LOG_LEVEL: info
           PORT: &port 80
-        # envFrom:
-        #   - secretRef:
-        #       name: seerr-secret
+        envFrom:
+          - secretRef:
+              name: seerr-secret
         probes:
           liveness:
             enabled: true

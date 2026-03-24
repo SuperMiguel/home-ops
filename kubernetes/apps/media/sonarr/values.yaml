@@ -1,5 +1,4 @@
 # API key: Secret media-arr-api (ExternalSecret → 1Password item media-arr-api, field SONARR_API_KEY).
-# Pushover Connect is applied by CronJob `arr-pushover-sync` on the radarr Helm release (same namespace).
 # If Sonarr already used another key, update that field in 1Password to match Settings → General → Security.
 # Prowlarr → Settings → Apps → Add Sonarr: http://sonarr.media.svc.cluster.local:80 + API key.
 controllers:

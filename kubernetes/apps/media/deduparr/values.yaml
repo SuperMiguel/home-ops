@@ -1,5 +1,5 @@
 # Deduparr — https://git.enoent.fr/kernald/deduparr
-# API keys: secret deduparr-secret (same values as Radarr/Sonarr from media-arr-api).
+# API keys: secret deduparr-secret (same values as Radarr/Sonarr from homelab-media-api-keys).
 # No browser dashboard: HTTP is for /health/ready (and metrics if enabled). Do not expect `https://deduparr…/` to render a page.
 controllers:
   deduparr:

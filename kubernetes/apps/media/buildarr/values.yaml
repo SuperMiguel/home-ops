@@ -1,5 +1,5 @@
 # Buildarr — https://buildarr.github.io/
-# Secrets: `media-arr-api` (1Password item media-arr-api) — see cluster-secrets/externalsecret.yaml.
+# Secrets: K8s Secret media-arr-api (1Password homelab-media-api-keys + homelab-pushover) — see cluster-secrets/externalsecret.yaml.
 # Non-secret endpoints for Prowlarr (SABnzbd host, Newznab base URL): edit env defaults on initContainer `copy-config` below.
 # After changing Prowlarr resources, run a Buildarr job; if an indexer type fails validation, use
 # `buildarr prowlarr dump-config http://prowlarr:80` against your old instance and align `type` / `fields`.

@@ -1,0 +1,86 @@
+# UniFi Poller — https://unpoller.com/ — exports UniFi metrics to Prometheus (`/metrics` on :9130).
+# Create a read-only UniFi user; credentials in unpoller-secret (see cluster-secrets).
+# Controller URL: UDM/UDM Pro use https://IP without :8443 (see unpoller docs).
+controllers:
+  unpoller:
+    replicas: 1
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/unpoller/unpoller
+          tag: v2.38.0
+        env:
+          - name: TZ
+            value: America/New_York
+          - name: UP_INFLUXDB_DISABLE
+            value: "true"
+          - name: UP_PROMETHEUS_DISABLE
+            value: "false"
+          - name: UP_PROMETHEUS_HTTP_LISTEN
+            value: "0.0.0.0:9130"
+          - name: UP_PROMETHEUS_NAMESPACE
+            value: unpoller
+          - name: UP_UNIFI_DEFAULT_URL
+            value: "https://10.0.20.1"
+          - name: UP_UNIFI_DEFAULT_VERIFY_SSL
+            value: "false"
+          - name: UP_POLLER_DEBUG
+            value: "false"
+          - name: UP_UNIFI_DEFAULT_USER
+            valueFrom:
+              secretKeyRef:
+                name: unpoller-secret
+                key: UNIFI_USER
+          - name: UP_UNIFI_DEFAULT_PASS
+            valueFrom:
+              secretKeyRef:
+                name: UNIFI_PASSWORD
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 9130
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /metrics
+                port: 9130
+              initialDelaySeconds: 10
+              periodSeconds: 15
+              timeoutSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+service:
+  app:
+    controller: unpoller
+    ports:
+      metrics:
+        port: 9130
+serviceMonitor:
+  app:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+    endpoints:
+      - port: metrics
+        interval: 30s
+        path: /metrics
+        scrapeTimeout: 10s

@@ -1,6 +1,6 @@
 # Recyclarr — https://recyclarr.dev/
 # Nightly sync to Trash Guides custom formats. Tune `recyclarr.yml` to match your Sonarr/Radarr quality profile trash_ids.
-# Secrets: recyclarr-secret (RADARR_API_KEY, SONARR_API_KEY from media-arr-api).
+# Secrets: recyclarr-secret (RADARR_API_KEY, SONARR_API_KEY from homelab-media-api-keys).
 controllers:
   recyclarr:
     type: cronjob

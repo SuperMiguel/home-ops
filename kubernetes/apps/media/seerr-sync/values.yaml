@@ -1,4 +1,4 @@
-# Idempotent: ensure Seerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
+# Idempotent: ensure Seerr has Radarr + Sonarr (cluster DNS, port 80). Uses Secret media-arr-api (homelab-media-api-keys).
 # Same JSON API as legacy Overseerr (`/api/v1/settings/radarr`, `/settings/sonarr`).
 # Sonarr v4+: Seerr's POST /settings/sonarr/test returns `languageProfiles: null` (v3 only). Omit activeLanguageProfileId in that case.
 # Schedule: daily — first successful run after deploy may be next window; for immediate apply:
@@ -52,7 +52,7 @@ controllers:
             sc=$(curl -sS -o /dev/null -w "%{http_code}" -H "X-API-Key: ${SEERR_API_KEY}" -H "Content-Type: application/json" "${API}/settings/radarr" || true)
             if [ "$sc" != "200" ]; then
               echo "Seerr API returned HTTP ${sc} on GET /settings/radarr." >&2
-              echo "Update 1Password media-arr-api/SEERR_API_KEY to match Seerr → Settings → General → API Key, then wait for ExternalSecret or restart sync." >&2
+              echo "Update 1Password homelab-media-api-keys/SEERR_API_KEY to match Seerr → Settings → General → API Key, then wait for ExternalSecret or restart sync." >&2
               exit 1
             fi
 

@@ -1,6 +1,10 @@
 # Gatus — https://github.com/TwiN/gatus
 # Pushover: alerting in config.yaml; tokens from Secret gatus-secret (see cluster-secrets).
 # Docs: https://gatus.io/docs/alerting-pushover
+#
+# Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
+# phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
+# Ensure the cluster can route to 10.0.0.0/8, 192.168.120.0/24, 192.168.130.0/24 as needed.
 controllers:
   gatus:
     strategy: RollingUpdate
@@ -46,6 +50,8 @@ controllers:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
+            add:
+              - NET_RAW
             drop:
               - ALL
         resources:
@@ -91,6 +97,13 @@ configMaps:
           alerts:
             - type: pushover
               description: "endpoint unhealthy"
+        lan-icmp: &lan-icmp
+          interval: 5m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              description: "host unreachable"
         endpoints:
           - name: home
             <<: *defaults
@@ -145,6 +158,235 @@ configMaps:
             <<: *defaults
             group: media
             url: https://tautulli.veliz.cc
+          # --- VLAN 1 management (UniFi, switches, APs, PDU, UNAS mgmt) ---
+          - name: udm-pro-max
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.1
+          - name: usw-aggregation
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.2
+          - name: usw-pro-hd24
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.3
+          - name: usw-pro-hd24-poe
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.4
+          - name: ap-uk-ultra-lanai
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.7
+          - name: ap-e7-upstairs
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.8
+          - name: ap-e7-downstairs
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.9
+          - name: usw-24-miguel-office
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.10
+          - name: usw-flex-mini-yanelis-office
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.11
+          - name: usw-flex-mini-gaming-room
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.12
+          - name: usw-flex-mini-living-room
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.13
+          - name: usw-flex-mini-ac-closet
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.14
+          - name: usw-flex-mini-gaming-pcs
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.15
+          - name: usw-flex-mini-miguel-work
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.16
+          - name: usp-pdu-pro
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.20
+          - name: superunas-mgmt-ip
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.30
+          - name: ap-ruckus-large-garage
+            <<: *lan-icmp
+            group: lan-mgmt
+            url: icmp://10.0.0.73
+          # --- VLAN 10 trusted (automation, storage, servers) ---
+          - name: envisalink-alarm
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.5
+          - name: hubitat-downstairs
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.7
+          - name: hubitat-upstairs
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.17
+          - name: superunas-trusted
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.10
+          - name: unraid
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.20
+          - name: super-macmini
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.25
+          - name: k8s-cluster-api
+            <<: *lan-icmp
+            group: trusted
+            url: icmp://10.0.10.90
+          # --- VLAN 20 servers ---
+          - name: unifi-gateway-srv
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.1
+          - name: superunas-srv
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.10
+          - name: hl-pve-30
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.30
+          - name: hl-pve-31
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.31
+          - name: hl-pve-32
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.32
+          - name: hl-pve-33
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.33
+          - name: hl-pve-34
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.34
+          - name: hl-pve-35
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.35
+          - name: hl-pve-36
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.36
+          - name: wikijs
+            <<: *lan-icmp
+            group: servers
+            url: icmp://10.0.20.77
+          # --- VLAN 120 IoT (always-on / security / utilities only) ---
+          - name: brocade-master-switch
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.2
+          - name: myq-small-garage
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.106
+          - name: myq-large-garage
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.128
+          - name: ecobee-downstairs
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.107
+          - name: ecobee-upstairs
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.131
+          - name: emporia-ev-charger
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.110
+          - name: water-softener
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.118
+          - name: zodiac-iaqualink
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.120
+          - name: ring-pro
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.112
+          - name: flo-by-moen
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.147
+          - name: rachio
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.160
+          - name: atomi-bridge-backyard
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.161
+          - name: atomi-bridge-small-garage
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.162
+          - name: atomi-bridge-large-garage
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.163
+          - name: emporia-panel-1
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.141
+          - name: emporia-panel-2
+            <<: *lan-icmp
+            group: iot
+            url: icmp://192.168.120.150
+          # --- VLAN 130 CCTV ---
+          - name: cam-front-door
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.72
+          - name: cam-small-garage
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.78
+          - name: cam-kids-hall
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.80
+          - name: cam-gameroom
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.90
+          - name: cam-gameroom-4mp
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.92
+          - name: cam-lanai
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.201
 persistence:
   config:
     type: configMap

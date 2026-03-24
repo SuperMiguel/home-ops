@@ -2,7 +2,7 @@
 # Based on https://github.com/onedr0p/home-ops/tree/main/kubernetes/apps/default/notifier
 # Webhook URLs (HTTPS via Envoy): https://notifier.veliz.cc/hooks/{radarr-pushover,seerr-pushover,sonarr-pushover}
 # Radarr/Sonarr Connect webhooks are applied by CronJob `arr-webhooks` (cluster URLs to notifier Service).
-# Seerr: add webhook in UI or extend the script (different API). Secrets: notifier-secret (user key + per-app API keys from media-arr-api).
+# Seerr: add webhook in UI or extend the script (different API). Secrets: notifier-secret (homelab-pushover via ExternalSecret).
 # Manual run: kubectl create job -n media notifier-arr-webhooks-manual --from=cronjob/notifier-arr-webhooks
 # Edit hook scripts under resources/ and mirror into configMaps below (Helm has no file include).
 controllers:
@@ -62,7 +62,7 @@ controllers:
             cpu: 50m
           limits:
             memory: 512Mi
-  # Idempotent: POST/PUT Radarr + Sonarr /api/v3/notification (Webhook → notifier hooks). Uses media-arr-api keys.
+  # Idempotent: POST/PUT Radarr + Sonarr /api/v3/notification (Webhook → notifier hooks). Uses Secret media-arr-api for *arr API keys.
   arr-webhooks:
     type: cronjob
     cronjob:

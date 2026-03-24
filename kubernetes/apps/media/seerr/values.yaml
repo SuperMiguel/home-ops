@@ -1,5 +1,5 @@
 # Seerr — https://github.com/seerr-team/seerr
-# API key: `API_KEY` from ExternalSecret seerr-secret (1Password media-arr-api/SEERR_API_KEY).
+# API key: `API_KEY` from ExternalSecret seerr-secret (1Password homelab-media-api-keys/SEERR_API_KEY).
 # Radarr/Sonarr: CronJob `seerr-sync` (daily 4am ET); manual: kubectl create job -n media seerr-sync-now --from=cronjob/seerr-sync
 controllers:
   seerr:

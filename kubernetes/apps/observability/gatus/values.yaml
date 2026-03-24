@@ -102,6 +102,48 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
+          - name: sabnzbd
+            group: media
+            url: https://sabnzbd.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: seerr
+            group: media
+            url: https://seerr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: agregarr
+            group: media
+            url: https://agregarr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: autobrr
+            group: media
+            url: https://autobrr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: deduparr
+            group: media
+            url: https://deduparr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: brrpolice
+            group: media
+            url: https://brrpolice.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+          - name: seasonpackerr
+            group: media
+            url: https://seasonpackerr.veliz.cc
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
           - name: bazarr
             group: media
             url: https://bazarr.veliz.cc

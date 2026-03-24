@@ -1,0 +1,94 @@
+# Seerr — https://github.com/seerr-team/seerr
+# API key: `API_KEY` from ExternalSecret seerr-secret (1Password media-arr-api/SEERR_API_KEY).
+controllers:
+  seerr:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/seerr-team/seerr
+          tag: v3.1.0
+        env:
+          TZ: America/New_York
+          LOG_LEVEL: info
+          PORT: &port 80
+        envFrom:
+          - secretRef:
+              name: seerr-secret
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 5
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              failureThreshold: 30
+              periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 2Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /app/config
+  tmp:
+    type: emptyDir
+service:
+  app:
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - seerr.veliz.cc
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

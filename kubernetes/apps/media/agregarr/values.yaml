@@ -1,0 +1,91 @@
+# Agregarr — https://github.com/agregarr/agregarr
+controllers:
+  agregarr:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/agregarr/agregarr
+          tag: v2.4.2
+        env:
+          PORT: &port 80
+          TZ: America/New_York
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 10
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 5
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/v1/status
+                port: *port
+              failureThreshold: 30
+              periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /app/config
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp
+service:
+  app:
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - agregarr.veliz.cc
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

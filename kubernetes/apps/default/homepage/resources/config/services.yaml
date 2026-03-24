@@ -117,3 +117,41 @@
           type: bazarr
           url: https://bazarr.veliz.cc
           key: {{HOMEPAGE_VAR_BAZARR_API_KEY}}
+    - Seerr:
+        icon: jellyseerr.png
+        href: https://seerr.veliz.cc
+        description: Requests (Seerr)
+        siteMonitor: https://seerr.veliz.cc
+        widget:
+          type: seerr
+          url: https://seerr.veliz.cc
+          key: {{HOMEPAGE_VAR_SEERR_API_KEY}}
+    - Agregarr:
+        icon: mdi-chart-box-outline
+        href: https://agregarr.veliz.cc
+        description: Arr metrics
+        siteMonitor: https://agregarr.veliz.cc
+    - Autobrr:
+        icon: autobrr.png
+        href: https://autobrr.veliz.cc
+        description: Release automation
+        siteMonitor: https://autobrr.veliz.cc
+    - Deduparr:
+        icon: mdi-content-duplicate
+        href: https://deduparr.veliz.cc
+        description: Radarr/Sonarr dedupe
+        siteMonitor: https://deduparr.veliz.cc
+    - Brrpolice:
+        icon: mdi-police-badge
+        href: https://brrpolice.veliz.cc
+        description: qBittorrent rules
+        siteMonitor: https://brrpolice.veliz.cc
+    - Seasonpackarr:
+        icon: mdi-package-variant
+        href: https://seasonpackerr.veliz.cc
+        description: Season pack helper
+        siteMonitor: https://seasonpackerr.veliz.cc
+    - Recyclarr:
+        icon: recyclarr.png
+        href: https://recyclarr.dev
+        description: Trash Guides sync (CronJob)

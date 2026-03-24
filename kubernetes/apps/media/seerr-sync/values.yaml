@@ -1,5 +1,6 @@
 # Idempotent: ensure Seerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
 # Same JSON API as legacy Overseerr (`/api/v1/settings/radarr`, `/settings/sonarr`).
+# Sonarr v4+: Seerr's POST /settings/sonarr/test returns `languageProfiles: null` (v3 only). Omit activeLanguageProfileId in that case.
 # Schedule: daily — first successful run after deploy may be next window; for immediate apply:
 #   kubectl create job -n media seerr-sync-now --from=cronjob/seerr-sync
 controllers:
@@ -120,47 +121,85 @@ controllers:
               resp=$(api_curl -X POST "${API}/settings/sonarr/test" -d "$test_body")
               profile=$(echo "$resp" | jq '.profiles[0]')
               root=$(echo "$resp" | jq '.rootFolders[0]')
-              lang=$(echo "$resp" | jq '.languageProfiles[0]')
               urlBase=$(echo "$resp" | jq -r '.urlBase // ""')
-              if [ "$(echo "$profile" | jq 'type')" = "null" ] || [ "$(echo "$root" | jq 'type')" = "null" ] || [ "$(echo "$lang" | jq 'type')" = "null" ]; then
-                echo "Sonarr test did not return profile/root/language: ${resp}" >&2
+              if [ "$(echo "$profile" | jq 'type')" = "null" ] || [ "$(echo "$root" | jq 'type')" = "null" ]; then
+                echo "Sonarr test did not return profile/root folder: ${resp}" >&2
                 exit 1
               fi
               pid=$(echo "$profile" | jq '.id')
               pname=$(echo "$profile" | jq -r '.name')
               rpath=$(echo "$root" | jq -r '.path')
-              lid=$(echo "$lang" | jq '.id')
-              create=$(jq -n \
-                --arg name "Sonarr" \
-                --arg h "$SONARR_HOST" \
-                --arg k "$SONARR_API_KEY" \
-                --argjson profileId "$pid" \
-                --arg pname "$pname" \
-                --arg rpath "$rpath" \
-                --argjson langId "$lid" \
-                --arg ub "$urlBase" \
-                '{
-                  name: $name,
-                  hostname: $h,
-                  port: 80,
-                  apiKey: $k,
-                  useSsl: false,
-                  baseUrl: $ub,
-                  activeProfileId: $profileId,
-                  activeProfileName: $pname,
-                  activeDirectory: $rpath,
-                  activeLanguageProfileId: $langId,
-                  seriesType: "standard",
-                  animeSeriesType: "standard",
-                  enableSeasonFolders: true,
-                  tags: [],
-                  is4k: false,
-                  isDefault: true,
-                  externalUrl: "https://sonarr.veliz.cc",
-                  syncEnabled: true,
-                  preventSearch: false,
-                  tagRequests: false
-                }')
+              # Sonarr v4+: Seerr returns languageProfiles: null (see seerr server/routes/settings/sonarr.ts).
+              has_lang=$(echo "$resp" | jq -r 'if (.languageProfiles | type) == "array" and ((.languageProfiles | length) > 0) then "true" else "false" end')
+              if [ "$has_lang" = "true" ]; then
+                lid=$(echo "$resp" | jq '.languageProfiles[0].id')
+                create=$(jq -n \
+                  --arg name "Sonarr" \
+                  --arg h "$SONARR_HOST" \
+                  --arg k "$SONARR_API_KEY" \
+                  --argjson profileId "$pid" \
+                  --arg pname "$pname" \
+                  --arg rpath "$rpath" \
+                  --argjson langId "$lid" \
+                  --arg ub "$urlBase" \
+                  '{
+                    name: $name,
+                    hostname: $h,
+                    port: 80,
+                    apiKey: $k,
+                    useSsl: false,
+                    baseUrl: $ub,
+                    activeProfileId: $profileId,
+                    activeProfileName: $pname,
+                    activeDirectory: $rpath,
+                    activeLanguageProfileId: $langId,
+                    seriesType: "standard",
+                    animeSeriesType: "standard",
+                    enableSeasonFolders: true,
+                    monitorNewItems: "all",
+                    overrideRule: [],
+                    tags: [],
+                    is4k: false,
+                    isDefault: true,
+                    externalUrl: "https://sonarr.veliz.cc",
+                    syncEnabled: true,
+                    preventSearch: false,
+                    tagRequests: false
+                  }')
+              else
+                echo "Sonarr v4+ (no language profiles in test response); adding without activeLanguageProfileId."
+                create=$(jq -n \
+                  --arg name "Sonarr" \
+                  --arg h "$SONARR_HOST" \
+                  --arg k "$SONARR_API_KEY" \
+                  --argjson profileId "$pid" \
+                  --arg pname "$pname" \
+                  --arg rpath "$rpath" \
+                  --arg ub "$urlBase" \
+                  '{
+                    name: $name,
+                    hostname: $h,
+                    port: 80,
+                    apiKey: $k,
+                    useSsl: false,
+                    baseUrl: $ub,
+                    activeProfileId: $profileId,
+                    activeProfileName: $pname,
+                    activeDirectory: $rpath,
+                    seriesType: "standard",
+                    animeSeriesType: "standard",
+                    enableSeasonFolders: true,
+                    monitorNewItems: "all",
+                    overrideRule: [],
+                    tags: [],
+                    is4k: false,
+                    isDefault: true,
+                    externalUrl: "https://sonarr.veliz.cc",
+                    syncEnabled: true,
+                    preventSearch: false,
+                    tagRequests: false
+                  }')
+              fi
               api_curl -X POST "${API}/settings/sonarr" -d "$create" >/dev/null
               echo "Sonarr added."
             fi

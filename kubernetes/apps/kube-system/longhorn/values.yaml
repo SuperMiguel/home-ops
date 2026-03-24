@@ -1,5 +1,5 @@
 # Longhorn Helm chart (see kubernetes/argo/apps/kube-system/longhorn.yaml).
-# Chart defaults: StorageClass longhorn, replica count 3 (matches 3-node control plane).
+# Replica count 2: less SSD use per volume vs 3 (logical size × replica count on disk).
 
 preUpgradeChecker:
   # Required for Argo CD / GitOps (chart README).
@@ -28,3 +28,4 @@ httproute:
 # So Manager API / UI links use the public hostname (not in-cluster IPs).
 defaultSettings:
   managerUrl: https://longhorn.veliz.cc
+  defaultReplicaCount: "2"

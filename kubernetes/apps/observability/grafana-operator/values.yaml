@@ -1,0 +1,6 @@
+# Grafana Operator — deploys Grafana CRDs; Grafana instance lives under apps/observability/grafana/instance.
+# Chart: https://github.com/grafana/grafana-operator/tree/master/deploy/helm/grafana-operator
+dashboard:
+  enabled: true
+serviceMonitor:
+  enabled: true

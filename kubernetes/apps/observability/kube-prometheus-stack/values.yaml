@@ -1,0 +1,96 @@
+# kube-prometheus-stack (Grafana disabled; use grafana-operator + Grafana CR).
+# Chart: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+# Routes: Gateway API HTTPRoute (BETA) → envoy-external (see network/envoy-gateway).
+cleanPrometheusOperatorObjectNames: true
+
+kubeProxy:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    externalUrl: https://alertmanager.veliz.cc
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+  route:
+    main:
+      enabled: true
+      hostnames:
+        - alertmanager.veliz.cc
+      parentRefs:
+        - name: envoy-external
+          namespace: network
+          sectionName: https
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    externalUrl: https://prometheus.veliz.cc
+    retention: 14d
+    retentionSize: 15GB
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1500Mi
+      limits:
+        memory: 3Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 25Gi
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+  route:
+    main:
+      enabled: true
+      hostnames:
+        - prometheus.veliz.cc
+      parentRefs:
+        - name: envoy-external
+          namespace: network
+          sectionName: https
+
+grafana:
+  enabled: false
+  forceDeployDashboards: true
+  operator:
+    dashboardsConfigMapRefEnabled: true
+    folder: observability
+    matchLabels:
+      dashboards: grafana
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+
+additionalPrometheusRulesMap:
+  oom-rules:
+    groups:
+      - name: oom
+        rules:
+          - alert: OomKilled
+            annotations:
+              summary: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{ $labels.pod }} has been OOMKilled {{ $value }} times in the last 10 minutes.
+            expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
+            labels:
+              severity: critical

@@ -1,0 +1,40 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-operator
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/compare-options: ServerSideDiff=false
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/SuperMiguel/home-ops.git"
+      targetRevision: main
+      ref: repo
+    - repoURL: oci://ghcr.io/grafana/helm-charts/grafana-operator
+      targetRevision: 5.22.2
+      helm:
+        releaseName: grafana-operator
+        valueFiles:
+          - $repo/kubernetes/apps/observability/grafana-operator/values.yaml
+  destination:
+    name: in-cluster
+    namespace: observability
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 2
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

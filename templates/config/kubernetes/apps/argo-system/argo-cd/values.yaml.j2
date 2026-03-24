@@ -6,7 +6,8 @@ crds:
 configs:
   params:
     server.insecure: true
-    controller.diff.server.side: true
+    # Server-side diff runs SSA dry-run on Application CRs and fails when status merges to null (app-of-apps).
+    controller.diff.server.side: false
   cm:
     statusbadge.enabled: true
     kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"

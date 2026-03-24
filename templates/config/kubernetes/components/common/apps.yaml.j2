@@ -39,3 +39,5 @@ spec:
       kind: Application
       jsonPointers:
         - /spec/syncPolicy
+        # Avoid SSA dry-run failures on child Applications (status is Argo-owned; must not merge to null).
+        - /status

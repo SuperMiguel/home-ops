@@ -222,7 +222,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 > [!TIP]
 > Use the `envoy-external` gateway on `HTTPRoutes` to make applications public to the internet. These are also accessible on your private network once you set up split DNS.
 
-The `external-dns` application created in the `network` namespace will handle creating public DNS records. By default, `echo` and the `argo` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct gateway** like in the HelmRelease for `echo`.
+The `external-dns` application created in the `network` namespace will handle creating public DNS records. By default, `echo` and the `argo` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct gateway** like in the Helm values for `echo` under `kubernetes/apps/network/echo`.
 
 ### 🏠 Home DNS
 

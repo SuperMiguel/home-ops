@@ -1,9 +1,11 @@
 # Enforce selected SABnzbd server settings by API (GitOps drift guard).
+# Daily is enough for drift; 15m was noisy (jobs + alerts). Immediate apply:
+#   kubectl create job -n media sabnzbd-sync-now --from=cronjob/sabnzbd-sync
 controllers:
   main:
     type: cronjob
     cronjob:
-      schedule: "*/15 * * * *"
+      schedule: "0 6 * * *"
       timeZone: America/New_York
       concurrencyPolicy: Forbid
       successfulJobsHistory: 1

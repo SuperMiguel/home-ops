@@ -126,12 +126,6 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
-          - name: brrpolice
-            group: media
-            url: https://brrpolice.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: seasonpackerr
             group: media
             url: https://seasonpackerr.veliz.cc

@@ -1,6 +1,7 @@
-# Idempotent: ensure Overseerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
+# Idempotent: ensure Seerr has Radarr + Sonarr (cluster DNS, port 80). Uses media-arr-api keys.
+# Same JSON API as legacy Overseerr (`/api/v1/settings/radarr`, `/settings/sonarr`).
 # Schedule: daily — first successful run after deploy may be next window; for immediate apply:
-#   kubectl create job -n media overseerr-sync-now --from=cronjob/overseerr-sync
+#   kubectl create job -n media seerr-sync-now --from=cronjob/seerr-sync
 controllers:
   main:
     type: cronjob
@@ -27,32 +28,30 @@ controllers:
             set -eu
             apk add --no-cache curl jq >/dev/null
 
-            OVERSEERR_URL="${OVERSEERR_URL:-http://overseerr.media.svc.cluster.local:5055}"
-            API="${OVERSEERR_URL}/api/v1"
+            SEERR_URL="${SEERR_URL:-http://seerr.media.svc.cluster.local}"
+            API="${SEERR_URL}/api/v1"
             RADARR_HOST="${RADARR_HOST:-radarr.media.svc.cluster.local}"
             SONARR_HOST="${SONARR_HOST:-sonarr.media.svc.cluster.local}"
-            # Must match settings.main.apiKey (see server/middleware/auth.ts — X-API-Key).
-            # POSIX sh (Alpine /bin/sh): no bash arrays — use a helper.
             api_curl() {
-              curl -fsS -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" "$@"
+              curl -fsS -H "X-API-Key: ${SEERR_API_KEY}" -H "Content-Type: application/json" "$@"
             }
 
-            echo "Waiting for Overseerr..."
+            echo "Waiting for Seerr..."
             for i in $(seq 1 90); do
-              code=$(curl -sS -o /dev/null -w "%{http_code}" "${OVERSEERR_URL}/api/v1/status" || true)
+              code=$(curl -sS -o /dev/null -w "%{http_code}" "${SEERR_URL}/api/v1/status" || true)
               if [ "$code" = "200" ]; then break; fi
               sleep 5
             done
-            code=$(curl -sS -o /dev/null -w "%{http_code}" "${OVERSEERR_URL}/api/v1/status" || true)
+            code=$(curl -sS -o /dev/null -w "%{http_code}" "${SEERR_URL}/api/v1/status" || true)
             if [ "$code" != "200" ]; then
-              echo "Overseerr /api/v1/status not ready (last HTTP ${code})" >&2
+              echo "Seerr /api/v1/status not ready (last HTTP ${code})" >&2
               exit 1
             fi
 
-            sc=$(curl -sS -o /dev/null -w "%{http_code}" -H "X-API-Key: ${OVERSEERR_API_KEY}" -H "Content-Type: application/json" "${API}/settings/radarr" || true)
+            sc=$(curl -sS -o /dev/null -w "%{http_code}" -H "X-API-Key: ${SEERR_API_KEY}" -H "Content-Type: application/json" "${API}/settings/radarr" || true)
             if [ "$sc" != "200" ]; then
-              echo "Overseerr API returned HTTP ${sc} on GET /settings/radarr." >&2
-              echo "Update 1Password media-arr-api/OVERSEERR_API_KEY to match Overseerr → Settings → General → API Key, then wait for ExternalSecret or restart sync." >&2
+              echo "Seerr API returned HTTP ${sc} on GET /settings/radarr." >&2
+              echo "Update 1Password media-arr-api/SEERR_API_KEY to match Seerr → Settings → General → API Key, then wait for ExternalSecret or restart sync." >&2
               exit 1
             fi
 
@@ -61,7 +60,7 @@ controllers:
             if [ "$radarr_n" -gt 0 ]; then
               echo "Radarr already configured for ${RADARR_HOST}, skipping."
             else
-              echo "Configuring Radarr in Overseerr..."
+              echo "Configuring Radarr in Seerr..."
               test_body=$(jq -n \
                 --arg h "$RADARR_HOST" \
                 --arg k "$RADARR_API_KEY" \
@@ -113,7 +112,7 @@ controllers:
             if [ "$sonarr_n" -gt 0 ]; then
               echo "Sonarr already configured for ${SONARR_HOST}, skipping."
             else
-              echo "Configuring Sonarr in Overseerr..."
+              echo "Configuring Sonarr in Seerr..."
               test_body=$(jq -n \
                 --arg h "$SONARR_HOST" \
                 --arg k "$SONARR_API_KEY" \
@@ -168,11 +167,11 @@ controllers:
 
             echo "Done."
         env:
-          - name: OVERSEERR_API_KEY
+          - name: SEERR_API_KEY
             valueFrom:
               secretKeyRef:
                 name: media-arr-api
-                key: OVERSEERR_API_KEY
+                key: SEERR_API_KEY
           - name: RADARR_API_KEY
             valueFrom:
               secretKeyRef:

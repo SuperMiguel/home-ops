@@ -75,15 +75,6 @@
           type: radarr
           url: https://radarr.veliz.cc
           key: {{HOMEPAGE_VAR_RADARR_API_KEY}}
-    - Overseerr:
-        icon: overseerr.png
-        href: https://overseerr.veliz.cc
-        description: Requests
-        siteMonitor: https://overseerr.veliz.cc
-        widget:
-          type: overseerr
-          url: https://overseerr.veliz.cc
-          key: {{HOMEPAGE_VAR_OVERSEERR_API_KEY}}
     - Tautulli:
         icon: tautulli.png
         href: https://tautulli.veliz.cc
@@ -120,7 +111,7 @@
     - Seerr:
         icon: jellyseerr.png
         href: https://seerr.veliz.cc
-        description: Requests (Seerr)
+        description: Requests
         siteMonitor: https://seerr.veliz.cc
         widget:
           type: seerr

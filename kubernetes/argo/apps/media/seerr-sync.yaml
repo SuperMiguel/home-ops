@@ -2,10 +2,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: overseerr-sync
+  name: seerr-sync
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: kubernetes
   sources:
@@ -16,9 +16,9 @@ spec:
       chart: app-template
       targetRevision: 4.6.2
       helm:
-        releaseName: overseerr-sync
+        releaseName: seerr-sync
         valueFiles:
-          - $repo/kubernetes/apps/media/overseerr-sync/values.yaml
+          - $repo/kubernetes/apps/media/seerr-sync/values.yaml
   destination:
     name: in-cluster
     namespace: media

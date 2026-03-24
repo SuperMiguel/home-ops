@@ -96,12 +96,6 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
-          - name: overseerr
-            group: media
-            url: https://overseerr.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: sabnzbd
             group: media
             url: https://sabnzbd.veliz.cc

@@ -65,7 +65,12 @@ dex:
   replicas: 2
   metrics:
     enabled: true
-    serviceMonitor: *service-monitor
+    # Dex often does not actually serve /metrics on :5558 (connection refused in-pod); Prometheus
+    # then fires TargetDown. Re-enable ServiceMonitor when metrics work (see argo-helm dex issues).
+    serviceMonitor:
+      enabled: false
+      additionalLabels:
+        release: kube-prometheus-stack
 redis:
   metrics:
     enabled: true

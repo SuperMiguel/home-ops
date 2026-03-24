@@ -37,7 +37,7 @@ prometheus:
   prometheusSpec:
     externalUrl: https://prometheus.veliz.cc
     retention: 14d
-    retentionSize: 15GB
+    retentionSize: 8GB
     resources:
       requests:
         cpu: 100m
@@ -52,7 +52,7 @@ prometheus:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 25Gi
+              storage: 10Gi
     podMonitorSelectorNilUsesHelmValues: false
     probeSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false

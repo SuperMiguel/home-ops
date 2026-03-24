@@ -1,5 +1,10 @@
 # Longhorn Helm chart (see kubernetes/argo/apps/kube-system/longhorn.yaml).
-# Replica count 2: less SSD use per volume vs 3 (logical size × replica count on disk).
+# defaultReplicaCount (below) = Longhorn setting; persistence.defaultClassReplicaCount
+# updates the *StorageClass* `longhorn` (new PVCs). They must match or the SC still
+# keeps 3 replicas from chart default.
+
+persistence:
+  defaultClassReplicaCount: 2
 
 preUpgradeChecker:
   # Required for Argo CD / GitOps (chart README).

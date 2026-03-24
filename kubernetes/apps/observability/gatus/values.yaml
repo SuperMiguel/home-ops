@@ -122,13 +122,15 @@ configMaps:
               - "[STATUS] == 200"
           - name: deduparr
             group: media
-            url: https://deduparr.veliz.cc
+            # Deduparr has no HTML UI; `/` is often 404. Health endpoint matches Deployment probes.
+            url: https://deduparr.veliz.cc/health/ready
             interval: 5m
             conditions:
               - "[STATUS] == 200"
           - name: seasonpackerr
             group: media
-            url: https://seasonpackerr.veliz.cc
+            # No HTML UI at `/`; matches Deployment probes.
+            url: https://seasonpackerr.veliz.cc/api/healthz/readiness
             interval: 5m
             conditions:
               - "[STATUS] == 200"

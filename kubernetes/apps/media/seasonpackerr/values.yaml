@@ -1,5 +1,5 @@
 # Seasonpackarr — https://github.com/nuxencs/seasonpackarr
-# qBittorrent: set SEASONPACKARR__CLIENTS_DEFAULT_HOST/PORT to match your client Web UI/API.
+# No browser dashboard: use `/api/healthz/readiness` to verify HTTP. qBittorrent: set SEASONPACKARR__CLIENTS_DEFAULT_HOST/PORT to match your client Web UI/API.
 # PREIMPORTPATH must exist on the media volume (adjust to your qBittorrent “complete” path).
 controllers:
   seasonpackerr:

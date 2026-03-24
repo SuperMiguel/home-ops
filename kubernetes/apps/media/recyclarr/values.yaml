@@ -18,7 +18,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/recyclarr/recyclarr
-          tag: 8.5.1
+          tag: 8.5.1@sha256:734cecf44ae9be7cf0cb05b2c1bc7da0abef9d938cc11b605e58b3146205e5c0
         env:
           RECYCLARR_DATA_DIR: /tmp
           RECYCLARR_CONFIG_PATH: /config/recyclarr.yml
@@ -44,6 +44,7 @@ defaultPodOptions:
     runAsUser: 1000
     runAsGroup: 1000
     fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
 configMaps:
   recyclarr-config:
     data:
@@ -114,6 +115,14 @@ configMaps:
                 assign_scores_to:
                   - trash_id: 5128baeb2b081b72126bc8482b2a86a0
 persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
   recyclarr-yml:
     type: configMap
     identifier: recyclarr-config

@@ -120,12 +120,6 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
-          - name: notifier
-            group: media
-            url: https://notifier.veliz.cc
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: deduparr
             group: media
             # Deduparr has no HTML UI; `/` is often 404. Health endpoint matches Deployment probes.

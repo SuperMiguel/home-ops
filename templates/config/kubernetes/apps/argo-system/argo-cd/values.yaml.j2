@@ -23,6 +23,32 @@ configs:
           - CiliumIdentity
         clusters:
           - "*"
+    # Gateway API defaults namespace on same-namespace BackendRefs; ESO defaults remoteRef fields — avoids noisy OutOfSync.
+    resource.customizations.ignoreDifferences.gateway.networking.k8s.io_HTTPRoute: |
+      jqPathExpressions:
+        - .spec.rules[].backendRefs[].namespace
+        - .spec.rules[].backendRefs[].group
+        - .spec.rules[].backendRefs[].kind
+        - .spec.rules[].backendRefs[].weight
+        # Gateway controller / API defaults PathPrefix / when omitted from Git.
+        - .spec.rules[].matches
+        # HTTPRoute with RequestRedirect (e.g. chart-managed https-redirect) vs live filter normalization.
+        - .spec.rules[].filters
+        # Multi-parent routes (e.g. https-redirect) or API reordering of parentRefs vs hostnames.
+        - .spec.parentRefs
+    resource.customizations.ignoreDifferences.external-secrets.io_ExternalSecret: |
+      jqPathExpressions:
+        - .spec.data[].remoteRef.conversionStrategy
+        - .spec.data[].remoteRef.decodingStrategy
+        - .spec.data[].remoteRef.metadataPolicy
+        - .metadata.annotations["force-sync"]
+    # Envoy Gateway controller injects infrastructure (LB annotations, etc.) after apply.
+    resource.customizations.ignoreDifferences.gateway.networking.k8s.io_Gateway: |
+      jqPathExpressions:
+        - .spec.infrastructure
+        - .spec.listeners[].allowedRoutes
+        # Chart vs API defaults for TLS listeners (certificateRefs group/kind, mode, etc.).
+        - .spec.listeners[].tls
 controller:
   replicas: 2
   metrics:

@@ -3,16 +3,25 @@ kind: HTTPRoute
 metadata:
   name: argo
 spec:
-  parentRefs:
-    - name: envoy-external
-      namespace: network
-      sectionName: https
   hostnames:
     - argo.veliz.cc
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-external
+      namespace: network
+      sectionName: https
   rules:
-    - backendRefs:
-        - name: argocd-server
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: argocd-server
           port: 80
+          weight: 1
 sops:
   age:
     - recipient: age16zf0xkqzqarwgrnrj8eqv2eaylnsuph2npuqq90esxzh8zt3t3zs5z3y4j

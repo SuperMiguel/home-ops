@@ -1,7 +1,9 @@
 # Notifier — ghcr.io/home-operations/webhook (adnanh/webhook) + Apprise → Pushover.
 # Based on https://github.com/onedr0p/home-ops/tree/main/kubernetes/apps/default/notifier
 # Webhook URLs (HTTPS via Envoy): https://notifier.veliz.cc/hooks/{radarr-pushover,seerr-pushover,sonarr-pushover}
-# Configure those in Radarr/Sonarr/Seerr → Connect/Webhooks. Secrets: notifier-secret (PUSHOVER_* from media-arr-api).
+# Radarr/Sonarr Connect webhooks are applied by CronJob `arr-webhooks` (cluster URLs to notifier Service).
+# Seerr: add webhook in UI or extend the script (different API). Secrets: notifier-secret (PUSHOVER_* from media-arr-api).
+# Manual run: kubectl create job -n media notifier-arr-webhooks-manual --from=cronjob/notifier-arr-webhooks
 # Edit hook scripts under resources/ and mirror into configMaps below (Helm has no file include).
 controllers:
   notifier:
@@ -60,6 +62,209 @@ controllers:
             cpu: 50m
           limits:
             memory: 512Mi
+  # Idempotent: POST/PUT Radarr + Sonarr /api/v3/notification (Webhook → notifier hooks). Uses media-arr-api keys.
+  arr-webhooks:
+    type: cronjob
+    cronjob:
+      schedule: "0 5 * * *"
+      timeZone: America/New_York
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 3
+      ttlSecondsAfterFinished: 86400
+      backoffLimit: 2
+      activeDeadlineSeconds: 900
+    pod:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+    containers:
+      app:
+        image:
+          repository: docker.io/library/alpine
+          tag: "3.20"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -eu
+            apk add --no-cache curl jq >/dev/null
+
+            NOTIFICATION_NAME="Notifier (Pushover webhook)"
+            RADARR_URL="${RADARR_URL:-http://radarr.media.svc.cluster.local:80}"
+            SONARR_URL="${SONARR_URL:-http://sonarr.media.svc.cluster.local:80}"
+            BASE="${NOTIFIER_WEBHOOK_BASE:-http://notifier.media.svc.cluster.local/hooks}"
+            RADARR_HOOK="${BASE}/radarr-pushover"
+            SONARR_HOOK="${BASE}/sonarr-pushover"
+
+            wait_ping() {
+              url="$1"
+              label="$2"
+              for _ in $(seq 1 90); do
+                code=$(curl -sS -o /dev/null -w "%{http_code}" "${url}/ping" || true)
+                if [ "$code" = "200" ]; then
+                  echo "${label} ready."
+                  return 0
+                fi
+                sleep 5
+              done
+              echo "${label} /ping not ready (last HTTP ${code})" >&2
+              exit 1
+            }
+
+            wait_ping "$RADARR_URL" "Radarr"
+            wait_ping "$SONARR_URL" "Sonarr"
+
+            upsert_radarr() {
+              id=$(curl -fsS "${RADARR_URL}/api/v3/notification" -H "X-Api-Key: ${RADARR_API_KEY}" \
+                | jq -r --arg n "$NOTIFICATION_NAME" '.[] | select(.name == $n) | .id // empty' | head -1)
+              if [ -n "$id" ]; then
+                full=$(curl -fsS "${RADARR_URL}/api/v3/notification/${id}" -H "X-Api-Key: ${RADARR_API_KEY}")
+                upd=$(echo "$full" | jq --arg u "$RADARR_HOOK" '
+                  .fields |= map(if ((.name // "") | ascii_downcase) == "url" then .value = $u else . end)
+                  | .onGrab = true
+                  | .onDownload = true
+                  | .onUpgrade = true
+                  | .onRename = false
+                  | .onMovieAdded = false
+                  | .onMovieDelete = false
+                  | .onMovieFileDelete = false
+                  | .onMovieFileDeleteForUpgrade = false
+                  | .onHealthIssue = true
+                  | .includeHealthWarnings = true
+                  | .onHealthRestored = false
+                  | .onApplicationUpdate = true
+                  | .onManualInteractionRequired = true
+                ')
+                curl -fsS -X PUT "${RADARR_URL}/api/v3/notification/${id}" \
+                  -H "X-Api-Key: ${RADARR_API_KEY}" -H "Content-Type: application/json" -d "$upd" >/dev/null
+                echo "Radarr: updated webhook notification id=${id}."
+              else
+                body=$(jq -n --arg u "$RADARR_HOOK" '
+                  {
+                    name: "Notifier (Pushover webhook)",
+                    implementation: "Webhook",
+                    configContract: "WebhookSettings",
+                    onGrab: true,
+                    onDownload: true,
+                    onUpgrade: true,
+                    onRename: false,
+                    onMovieAdded: false,
+                    onMovieDelete: false,
+                    onMovieFileDelete: false,
+                    onMovieFileDeleteForUpgrade: false,
+                    onHealthIssue: true,
+                    includeHealthWarnings: true,
+                    onHealthRestored: false,
+                    onApplicationUpdate: true,
+                    onManualInteractionRequired: true,
+                    fields: [
+                      {name: "url", value: $u},
+                      {name: "method", value: 1},
+                      {name: "username", value: ""},
+                      {name: "password", value: ""}
+                    ]
+                  }
+                ')
+                curl -fsS -X POST "${RADARR_URL}/api/v3/notification" \
+                  -H "X-Api-Key: ${RADARR_API_KEY}" -H "Content-Type: application/json" -d "$body" >/dev/null
+                echo "Radarr: created webhook notification."
+              fi
+            }
+
+            upsert_sonarr() {
+              id=$(curl -fsS "${SONARR_URL}/api/v3/notification" -H "X-Api-Key: ${SONARR_API_KEY}" \
+                | jq -r --arg n "$NOTIFICATION_NAME" '.[] | select(.name == $n) | .id // empty' | head -1)
+              if [ -n "$id" ]; then
+                full=$(curl -fsS "${SONARR_URL}/api/v3/notification/${id}" -H "X-Api-Key: ${SONARR_API_KEY}")
+                upd=$(echo "$full" | jq --arg u "$SONARR_HOOK" '
+                  .fields |= map(if ((.name // "") | ascii_downcase) == "url" then .value = $u else . end)
+                  | .onGrab = true
+                  | .onDownload = true
+                  | .onUpgrade = true
+                  | .onImportComplete = false
+                  | .onRename = false
+                  | .onSeriesAdd = false
+                  | .onSeriesDelete = false
+                  | .onEpisodeFileDelete = false
+                  | .onEpisodeFileDeleteForUpgrade = false
+                  | .onHealthIssue = true
+                  | .includeHealthWarnings = true
+                  | .onHealthRestored = false
+                  | .onApplicationUpdate = true
+                  | .onManualInteractionRequired = true
+                ')
+                curl -fsS -X PUT "${SONARR_URL}/api/v3/notification/${id}" \
+                  -H "X-Api-Key: ${SONARR_API_KEY}" -H "Content-Type: application/json" -d "$upd" >/dev/null
+                echo "Sonarr: updated webhook notification id=${id}."
+              else
+                body=$(jq -n --arg u "$SONARR_HOOK" '
+                  {
+                    name: "Notifier (Pushover webhook)",
+                    implementation: "Webhook",
+                    configContract: "WebhookSettings",
+                    onGrab: true,
+                    onDownload: true,
+                    onUpgrade: true,
+                    onImportComplete: false,
+                    onRename: false,
+                    onSeriesAdd: false,
+                    onSeriesDelete: false,
+                    onEpisodeFileDelete: false,
+                    onEpisodeFileDeleteForUpgrade: false,
+                    onHealthIssue: true,
+                    includeHealthWarnings: true,
+                    onHealthRestored: false,
+                    onApplicationUpdate: true,
+                    onManualInteractionRequired: true,
+                    fields: [
+                      {name: "url", value: $u},
+                      {name: "method", value: 1},
+                      {name: "username", value: ""},
+                      {name: "password", value: ""}
+                    ]
+                  }
+                ')
+                curl -fsS -X POST "${SONARR_URL}/api/v3/notification" \
+                  -H "X-Api-Key: ${SONARR_API_KEY}" -H "Content-Type: application/json" -d "$body" >/dev/null
+                echo "Sonarr: created webhook notification."
+              fi
+            }
+
+            upsert_radarr
+            upsert_sonarr
+            echo "Done."
+        env:
+          - name: RADARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: RADARR_API_KEY
+          - name: SONARR_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: media-arr-api
+                key: SONARR_API_KEY
+          - name: RADARR_URL
+            value: "http://radarr.media.svc.cluster.local:80"
+          - name: SONARR_URL
+            value: "http://sonarr.media.svc.cluster.local:80"
+          - name: NOTIFIER_WEBHOOK_BASE
+            value: "http://notifier.media.svc.cluster.local/hooks"
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
@@ -69,6 +274,7 @@ defaultPodOptions:
     fsGroupChangePolicy: OnRootMismatch
 service:
   app:
+    controller: notifier
     ports:
       http:
         port: *port

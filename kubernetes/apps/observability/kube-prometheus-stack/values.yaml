@@ -12,6 +12,8 @@ kubeEtcd:
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    alertmanagerConfiguration:
+      name: alertmanager
     externalUrl: https://alertmanager.veliz.cc
     storage:
       volumeClaimTemplate:

@@ -133,13 +133,6 @@ configMaps:
             interval: 5m
             conditions:
               - "[STATUS] == 200"
-          - name: seasonpackerr
-            group: media
-            # No HTML UI at `/`; matches Deployment probes.
-            url: https://seasonpackerr.veliz.cc/api/healthz/readiness
-            interval: 5m
-            conditions:
-              - "[STATUS] == 200"
           - name: bazarr
             group: media
             url: https://bazarr.veliz.cc

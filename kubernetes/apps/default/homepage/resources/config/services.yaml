@@ -2,8 +2,8 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/latest/configs/services
 #
-# Trimmed to hosts and workloads aligned with this cluster / Argo apps.
-# Add entries back here as you deploy more services.
+# Aligned with Argo apps: Proxmox nodes, Kubernetes (Argo, Gatus), observability (Grafana, Prometheus,
+# Alertmanager, Victoria Logs), Longhorn, media namespace workloads.
 
 # Icons:
 # https://github.com/walkxcode/dashboard-icons
@@ -56,6 +56,33 @@
         href: https://gatus.veliz.cc
         description: Service health
         siteMonitor: https://gatus.veliz.cc
+
+- Observability & storage:
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.veliz.cc
+        description: Dashboards (Grafana Operator)
+        siteMonitor: https://grafana.veliz.cc/login
+    - Prometheus:
+        icon: prometheus.png
+        href: https://prometheus.veliz.cc
+        description: Metrics (kube-prometheus-stack)
+        siteMonitor: https://prometheus.veliz.cc/-/ready
+    - Alertmanager:
+        icon: mdi-bell-alert
+        href: https://alertmanager.veliz.cc
+        description: Alert UI
+        siteMonitor: https://alertmanager.veliz.cc/-/ready
+    - Victoria Logs:
+        icon: mdi-text-box-search-outline
+        href: https://victoria-logs.veliz.cc/select/vmui/
+        description: Logs (Fluent Bit → Victoria Logs)
+        siteMonitor: https://victoria-logs.veliz.cc/select/vmui/
+    - Longhorn:
+        icon: longhorn.png
+        href: https://longhorn.veliz.cc
+        description: Block storage UI
+        siteMonitor: https://longhorn.veliz.cc
 
 - Media:
     - Sonarr:

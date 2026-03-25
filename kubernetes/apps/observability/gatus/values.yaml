@@ -5,6 +5,9 @@
 # Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
 # phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
 # Ensure the cluster can route to 10.0.0.0/8, 192.168.120.0/24, 192.168.130.0/24 as needed.
+#
+# HTTP routes: align with Argo apps (kube-prometheus-stack, grafana-instance, victoria-logs, longhorn, media).
+# Prometheus / Alertmanager use /-/ready (200). Victoria Logs UI may be internal-gateway-only — drop that row if unreachable from the probe pod.
 controllers:
   gatus:
     # RWO PVC (/data sqlite): RollingUpdate can briefly run two pods on different nodes → second stuck ContainerCreating.
@@ -114,6 +117,26 @@ configMaps:
             <<: *defaults
             group: core
             url: https://argo.veliz.cc
+          - name: grafana
+            <<: *defaults
+            group: observability
+            url: https://grafana.veliz.cc/login
+          - name: prometheus
+            <<: *defaults
+            group: observability
+            url: https://prometheus.veliz.cc/-/ready
+          - name: alertmanager
+            <<: *defaults
+            group: observability
+            url: https://alertmanager.veliz.cc/-/ready
+          - name: victoria-logs
+            <<: *defaults
+            group: observability
+            url: https://victoria-logs.veliz.cc/select/vmui/
+          - name: longhorn
+            <<: *defaults
+            group: storage
+            url: https://longhorn.veliz.cc
           - name: prowlarr
             <<: *defaults
             group: media

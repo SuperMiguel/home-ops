@@ -37,14 +37,6 @@ server:
   serviceMonitor:
     enabled: true
 
-# Also creates GrafanaDashboard "vector-k8s-monitoring" (chart default); ignore or remove in Grafana
-# unless you enable the chart's bundled vector subchart (we use Fluent Bit instead).
+# Chart default GrafanaDashboard is Vector-oriented; we ship logs with Fluent Bit, so keep dashboards off.
 dashboards:
-  enabled: true
-  grafanaOperator:
-    enabled: true
-    spec:
-      allowCrossNamespaceImport: true
-      instanceSelector:
-        matchLabels:
-          dashboards: grafana
+  enabled: false

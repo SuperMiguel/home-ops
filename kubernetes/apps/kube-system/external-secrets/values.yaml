@@ -3,6 +3,13 @@
 installCRDs: true
 replicaCount: 1
 
+serviceMonitor:
+  enabled: true
+
+metrics:
+  service:
+    enabled: true
+
 resources:
   requests:
     cpu: 25m

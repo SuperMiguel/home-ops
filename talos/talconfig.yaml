@@ -18,6 +18,23 @@ cniConfig:
   name: none
 
 nodes:
+  - hostname: "hl-k8s-31"
+    ipAddress: "10.0.20.31"
+    installDisk: "/dev/nvme0n1"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "18:66:da:4b:f0:e8"
+        dhcp: false
+        addresses:
+          - "10.0.20.31/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "10.0.20.1"
+        mtu: 1500
   - hostname: "hl-k8s-32"
     ipAddress: "10.0.20.32"
     installDisk: "/dev/nvme0n1"
@@ -78,16 +95,6 @@ nodes:
 
 # Global patches (after edits: `task talos:generate-config` from repo root with SOPS age key loaded).
 patches:
-  # In-cluster Talos API for https://github.com/home-operations/tuppr (namespace system-upgrade).
-  - |-
-    machine:
-      features:
-        kubernetesTalosAPIAccess:
-          enabled: true
-          allowedKubernetesNamespaces:
-            - system-upgrade
-          allowedRoles:
-            - os:admin
   - "@./patches/global/machine-files.yaml"
   - "@./patches/global/machine-longhorn.yaml"
   - "@./patches/global/machine-kubelet.yaml"
@@ -95,8 +102,17 @@ patches:
   - "@./patches/global/machine-sysctls.yaml"
   - "@./patches/global/machine-time.yaml"
 
-# Controller patches
+# Controller patches (Kubernetes Talos API is control-plane-only; workers must not get this.)
 controlPlane:
   patches:
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedKubernetesNamespaces:
+              - system-upgrade
+            allowedRoles:
+              - os:admin
     - "@./patches/controller/cluster.yaml"
 

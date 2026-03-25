@@ -293,19 +293,19 @@ configMaps:
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.30
-          - name: hl-pve-31
+          - name: hl-k8s-31
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.31
-          - name: hl-pve-32
+          - name: hl-k8s-32
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.32
-          - name: hl-pve-33
+          - name: hl-k8s-33
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.33
-          - name: hl-pve-34
+          - name: hl-k8s-34
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.34

@@ -18,15 +18,10 @@
           username: api-homepage@pam!homepage
           password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
           node: HL-PVE-30
-    - HL-PVE-31:
-        icon: proxmox.png
+    - HL-K8S-31:
+        icon: kubernetes.png
         ping: 10.0.20.31
-        widget:
-          type: proxmox
-          url: https://10.0.20.31:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-          node: HL-PVE-31
+        description: Talos worker (same host as former HL-PVE-31)
     - HL-PVE-35:
         icon: proxmox.png
         ping: 10.0.20.35

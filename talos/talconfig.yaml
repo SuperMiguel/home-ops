@@ -76,9 +76,18 @@ nodes:
         vip:
           ip: "10.0.20.2"
 
-# Global patches
+# Global patches (after edits: `task talos:generate-config` from repo root with SOPS age key loaded).
 patches:
-  - "@./patches/global/machine-kubernetes-talos-api.yaml"
+  # In-cluster Talos API for https://github.com/home-operations/tuppr (namespace system-upgrade).
+  - |-
+    machine:
+      features:
+        kubernetesTalosAPIAccess:
+          enabled: true
+          allowedKubernetesNamespaces:
+            - system-upgrade
+          allowedRoles:
+            - os:admin
   - "@./patches/global/machine-files.yaml"
   - "@./patches/global/machine-longhorn.yaml"
   - "@./patches/global/machine-kubelet.yaml"

@@ -7,7 +7,8 @@
 # Ensure the cluster can route to 10.0.0.0/8, 192.168.120.0/24, 192.168.130.0/24 as needed.
 controllers:
   gatus:
-    strategy: RollingUpdate
+    # RWO PVC (/data sqlite): RollingUpdate can briefly run two pods on different nodes → second stuck ContainerCreating.
+    strategy: Recreate
     pod:
       annotations:
         configmap.reloader.stakater.com/reload: gatus

@@ -1,6 +1,11 @@
 # tuppr — Talos + Kubernetes upgrade controller (home-operations/tuppr).
 # Mirrors onedr0p/home-ops kubernetes/apps/system-upgrade/tuppr (Flux → Argo CD).
 # Prerequisites: Talos patch machine-kubernetes-talos-api.yaml applied on all nodes.
+#
+# If Argo sync fails with talos.dev/ServiceAccount v1alpha1: the cluster needs the Talos
+# Kubernetes Talos API CRDs (e.g. enable kubernetesTalosAPIAccess in machine config and apply,
+# or use talosctl / Talos release manifests for serviceaccounts.talos.dev). Without that CRD,
+# Helm cannot create tuppr-talosconfig.
 replicaCount: 2
 
 monitoring:

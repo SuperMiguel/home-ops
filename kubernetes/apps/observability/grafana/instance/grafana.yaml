@@ -30,6 +30,8 @@ spec:
     server:
       enable_gzip: "true"
       root_url: https://grafana.veliz.cc
+  # Set by / aligned with Grafana Operator image; keeps Argo from fighting the controller.
+  version: 12.4.1
   deployment:
     spec:
       strategy:
@@ -63,11 +65,17 @@ spec:
       hostnames:
         - grafana.veliz.cc
       parentRefs:
-        - name: envoy-external
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: envoy-external
           namespace: network
           sectionName: https
       rules:
-        - backendRefs:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
             - group: ""
               kind: Service
               name: grafana-service

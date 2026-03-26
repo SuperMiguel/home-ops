@@ -1,6 +1,6 @@
 # kube-prometheus-stack (Grafana disabled; use grafana-operator + Grafana CR).
 # Chart: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
-# Routes: Gateway API HTTPRoute (BETA) → envoy-external (see network/envoy-gateway).
+# Routes: Gateway API HTTPRoute (BETA) → envoy-internal (see network/envoy-gateway).
 cleanPrometheusOperatorObjectNames: true
 
 kubeProxy:
@@ -30,7 +30,7 @@ alertmanager:
       hostnames:
         - alertmanager.veliz.cc
       parentRefs:
-        - name: envoy-external
+        - name: envoy-internal
           namespace: network
           sectionName: https
 
@@ -66,7 +66,7 @@ prometheus:
       hostnames:
         - prometheus.veliz.cc
       parentRefs:
-        - name: envoy-external
+        - name: envoy-internal
           namespace: network
           sectionName: https
 

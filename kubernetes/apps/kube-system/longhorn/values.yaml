@@ -30,7 +30,7 @@ httproute:
   hostnames:
     - longhorn.veliz.cc
   parentRefs:
-    - name: envoy-external
+    - name: envoy-internal
       namespace: network
       sectionName: https
 

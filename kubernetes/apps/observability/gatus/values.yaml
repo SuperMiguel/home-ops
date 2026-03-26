@@ -112,76 +112,76 @@ configMaps:
           - name: home
             <<: *defaults
             group: core
-            url: https://home.veliz.cc
+            url: http://homepage.default.svc.cluster.local:3000
           - name: argo
             <<: *defaults
             group: core
-            url: https://argo.veliz.cc
+            url: http://argocd-server.argo-system.svc.cluster.local
           - name: grafana
             <<: *defaults
             group: observability
-            url: https://grafana.veliz.cc/login
+            url: http://grafana-service.observability.svc.cluster.local:3000/login
           - name: prometheus
             <<: *defaults
             group: observability
-            url: https://prometheus.veliz.cc/-/ready
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/-/ready
           - name: alertmanager
             <<: *defaults
             group: observability
-            url: https://alertmanager.veliz.cc/-/ready
+            url: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093/-/ready
           - name: victoria-logs
             <<: *defaults
             group: observability
-            url: https://victoria-logs.veliz.cc/select/vmui/
+            url: http://victoria-logs-server.observability.svc.cluster.local:9428/select/vmui/
           - name: longhorn
             <<: *defaults
             group: storage
-            url: https://longhorn.veliz.cc
+            url: http://longhorn-frontend.longhorn-system.svc.cluster.local
           - name: prowlarr
             <<: *defaults
             group: media
-            url: https://prowlarr.veliz.cc
+            url: http://prowlarr.media.svc.cluster.local
           - name: sonarr
             <<: *defaults
             group: media
-            url: https://sonarr.veliz.cc
+            url: http://sonarr.media.svc.cluster.local
           - name: radarr
             <<: *defaults
             group: media
-            url: https://radarr.veliz.cc
+            url: http://radarr.media.svc.cluster.local
           - name: sabnzbd
             <<: *defaults
             group: media
-            url: https://sabnzbd.veliz.cc
+            url: http://sabnzbd.media.svc.cluster.local
           - name: seerr
             <<: *defaults
             group: media
-            url: https://seerr.veliz.cc
+            url: http://seerr.media.svc.cluster.local
           - name: agregarr
             <<: *defaults
             group: media
-            url: https://agregarr.veliz.cc
+            url: http://agregarr.media.svc.cluster.local
           - name: autobrr
             <<: *defaults
             group: media
-            url: https://autobrr.veliz.cc
+            url: http://autobrr.media.svc.cluster.local
           - name: notifier
             <<: *defaults
             group: media
-            url: https://notifier.veliz.cc
+            url: http://notifier.media.svc.cluster.local
           - name: deduparr
             <<: *defaults
             group: media
             # Deduparr has no HTML UI; `/` is often 404. Health endpoint matches Deployment probes.
-            url: https://deduparr.veliz.cc/health/ready
+            url: http://deduparr.media.svc.cluster.local/health/ready
           - name: bazarr
             <<: *defaults
             group: media
-            url: https://bazarr.veliz.cc
+            url: http://bazarr.media.svc.cluster.local
           - name: tautulli
             <<: *defaults
             group: media
-            url: https://tautulli.veliz.cc
+            url: http://tautulli.media.svc.cluster.local
           # --- VLAN 1 management (UniFi, switches, APs, PDU, UNAS mgmt) ---
           - name: udm-pro-max
             <<: *lan-icmp

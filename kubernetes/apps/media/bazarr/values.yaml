@@ -87,7 +87,7 @@ route:
     hostnames:
       - bazarr.veliz.cc
     parentRefs:
-      - name: envoy-external
+      - name: envoy-internal
         namespace: network
         sectionName: https
     rules:

@@ -1,5 +1,10 @@
 # External Secrets Operator — https://external-secrets.io/
 # After install: create a 1Password service account token + Secret (see comment below).
+#
+# 1Password service-account read_write is capped per rolling window (e.g. 1000 / 24h). Many
+# ExternalSecrets plus ESO reconcile retries after errors can still exhaust that budget; tune
+# refreshInterval per secret if needed. Force one sync after a 1Password change (ESO FAQ):
+# kubectl annotate es NAME -n NAMESPACE force-sync=$(date +%s) --overwrite
 installCRDs: true
 replicaCount: 1
 

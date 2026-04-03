@@ -113,6 +113,10 @@ configMaps:
             <<: *defaults
             group: core
             url: http://homepage.default.svc.cluster.local:3000
+          - name: bookstack
+            <<: *defaults
+            group: core
+            url: http://super-veliz-bookstack-app.default.svc.cluster.local
           - name: argo
             <<: *defaults
             group: core

@@ -2,8 +2,8 @@
 # defaultReplicaCount + persistence.defaultClassReplicaCount must match so new PVCs
 # and the StorageClass stay aligned (see Longhorn docs).
 #
-# Small 120 GiB PNY disks per node: default 30% “storage reserved” + 3 replicas
-# makes the UI look full (high “allocated”) while “usage” stays low (thin volumes).
+# Small 120 GiB PNY disks per node: default 30% "storage reserved" + 3 replicas
+# makes the UI look full (high "allocated") while "usage" stays low (thin volumes).
 # We lower reserved % and use 2 replicas + replica auto-balance to stretch capacity.
 # Existing volumes keep their replica count until you change them in the Longhorn UI.
 
@@ -38,7 +38,7 @@ httproute:
 defaultSettings:
   managerUrl: https://longhorn.veliz.cc
   defaultReplicaCount: "2"
-  # Default chart ~30% per disk is large on 120 GB SSDs; frees schedulable space for replicas.
+  # Default chart ~30% per disk is large on 120 GB SSDs; frees schedulable space for replicas.
   # Raise if rebuilds fail under load (see Longhorn docs).
   storageReservedPercentageForDefaultDisk: "15"
   replicaAutoBalance: best-effort

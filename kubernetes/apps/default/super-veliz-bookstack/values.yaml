@@ -1,0 +1,172 @@
+# BookStack + MariaDB (LinuxServer images). Secrets: ExternalSecret → Secret bookstack-secrets.
+# DB host = Helm release service: super-veliz-bookstack-db
+controllers:
+  db:
+    strategy: Recreate
+    replicas: 1
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/mariadb
+          tag: latest
+        env:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: America/New_York
+          MYSQL_DATABASE: bookstackapp
+          MYSQL_USER: bookstack
+          MYSQL_ROOT_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: bookstack-secrets
+                key: DB_PASSWORD
+          MYSQL_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: bookstack-secrets
+                key: DB_PASSWORD
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 3306
+              initialDelaySeconds: 20
+              periodSeconds: 20
+              timeoutSeconds: 5
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 3306
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+  web:
+    strategy: RollingUpdate
+    replicas: 1
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/bookstack
+          tag: latest
+        env:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: America/New_York
+          APP_URL: https://bookstack.veliz.cc
+          APP_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: bookstack-secrets
+                key: APP_KEY
+          DB_HOST: super-veliz-bookstack-db
+          DB_PORT: "3306"
+          DB_USERNAME: bookstack
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: bookstack-secrets
+                key: DB_PASSWORD
+          DB_DATABASE: bookstackapp
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 80
+              initialDelaySeconds: 60
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+persistence:
+  db-data:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 15Gi
+    storageClass: longhorn
+    advancedMounts:
+      db:
+        app:
+          - path: /config
+  bookstack-config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      web:
+        app:
+          - path: /config
+service:
+  db:
+    controller: db
+    ports:
+      sql:
+        port: 3306
+        protocol: TCP
+  app:
+    controller: web
+    ports:
+      http:
+        port: 80
+route:
+  app:
+    hostnames:
+      - bookstack.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 80

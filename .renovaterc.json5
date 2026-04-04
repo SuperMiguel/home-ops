@@ -31,38 +31,37 @@
   packageRules: [
     {
       description:
-        "Argo CD OCI Helm: argocd manager appends chart to repoURL for docker packageName; overridePackageName fixes GHCR lookup (overrideDepName alone only changes PR display).",
+        "Argo CD OCI Helm: argocd manager uses repoURL+chart as depName; overridePackageName fixes GHCR docker lookup. Do not overrideDepName — argocd update logic must keep the extracted depName or branch updates hit depName mismatch.",
       matchManagers: ["argocd"],
       matchDatasources: ["docker"],
       matchDepNames: ["ghcr.io/fluent/helm-charts/fluent-bit/fluent-bit"],
       overridePackageName: "ghcr.io/fluent/helm-charts/fluent-bit",
-      overrideDepName: "ghcr.io/fluent/helm-charts/fluent-bit",
     },
     {
-      description: "Argo CD OCI Helm: correct GHCR packageName for grafana-operator chart",
+      description:
+        "Argo CD OCI Helm: correct GHCR packageName for grafana-operator (depName unchanged for argocd updates)",
       matchManagers: ["argocd"],
       matchDatasources: ["docker"],
       matchDepNames: ["ghcr.io/grafana/helm-charts/grafana-operator/grafana-operator"],
       overridePackageName: "ghcr.io/grafana/helm-charts/grafana-operator",
-      overrideDepName: "ghcr.io/grafana/helm-charts/grafana-operator",
     },
     {
-      description: "Argo CD OCI Helm: correct GHCR packageName for victoria-logs-single chart",
+      description:
+        "Argo CD OCI Helm: correct GHCR packageName for victoria-logs-single (depName unchanged for argocd updates)",
       matchManagers: ["argocd"],
       matchDatasources: ["docker"],
       matchDepNames: [
         "ghcr.io/victoriametrics/helm-charts/victoria-logs-single/victoria-logs-single",
       ],
       overridePackageName: "ghcr.io/victoriametrics/helm-charts/victoria-logs-single",
-      overrideDepName: "ghcr.io/victoriametrics/helm-charts/victoria-logs-single",
     },
     {
-      description: "Argo CD OCI Helm: correct GHCR packageName for tuppr chart",
+      description:
+        "Argo CD OCI Helm: correct GHCR packageName for tuppr (depName unchanged for argocd updates)",
       matchManagers: ["argocd"],
       matchDatasources: ["docker"],
       matchDepNames: ["ghcr.io/home-operations/charts/tuppr/tuppr"],
       overridePackageName: "ghcr.io/home-operations/charts/tuppr",
-      overrideDepName: "ghcr.io/home-operations/charts/tuppr",
     },
     {
       description: "Override Helmfile Dependency Name",

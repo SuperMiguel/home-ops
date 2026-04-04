@@ -1,4 +1,5 @@
-# Idempotent: ensure Seerr has Radarr + Sonarr (cluster DNS, port 80). Uses Secret media-arr-api (homelab-media-api-keys).
+# Idempotent: ensure Seerr (Jellyseerr) has Radarr + Sonarr (cluster DNS, port 80). Uses Secret media-arr-api.
+# If an old CronJob `overseerr-sync` still exists (legacy Overseerr on :5055), delete it — it duplicates this job and fails against Seerr.
 # Same JSON API as legacy Overseerr (`/api/v1/settings/radarr`, `/settings/sonarr`).
 # Sonarr v4+: Seerr's POST /settings/sonarr/test returns `languageProfiles: null` (v3 only). Omit activeLanguageProfileId in that case.
 # Schedule: daily — first successful run after deploy may be next window; for immediate apply:

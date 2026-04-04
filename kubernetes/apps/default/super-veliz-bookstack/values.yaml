@@ -120,10 +120,10 @@ controllers:
             memory: 256Mi
           limits:
             memory: 1Gi
+# LinuxServer images use s6-overlay: entrypoint must start as root to fix /run and /config perms.
+# Forcing runAsUser: 1000 breaks preinit ("/run belongs to uid 0 ... lacking the privileges to fix it").
 defaultPodOptions:
   securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
     fsGroup: 1000
 persistence:
   db-data:

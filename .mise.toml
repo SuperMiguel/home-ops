@@ -21,7 +21,7 @@ run = [
 # 3.14 freethreaded builds on aarch64-darwin often fail ("missing lib directory"); 3.13 is stable for makejinja/pipx.
 "python" = "3.13.7" # required:template
 "uv" = "0.10.12" # required:template
-"pipx" = "1.10.1" # required:template
+"pipx" = "1.11.1" # required:template
 "pipx:makejinja" = "2.8.2" # required:template
 "aqua:argoproj/argo-cd" = "3.3.6"
 "aqua:budimanjojo/talhelper" = "3.1.7"

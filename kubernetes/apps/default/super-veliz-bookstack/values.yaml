@@ -46,12 +46,10 @@ controllers:
               periodSeconds: 10
               timeoutSeconds: 3
               failureThreshold: 6
+        # LinuxServer init chowns /config and drops to PUID; drop ALL caps breaks chown/setgroups.
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
-          capabilities:
-            drop:
-              - ALL
         resources:
           requests:
             cpu: 50m
@@ -111,9 +109,6 @@ controllers:
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
-          capabilities:
-            drop:
-              - ALL
         resources:
           requests:
             cpu: 50m

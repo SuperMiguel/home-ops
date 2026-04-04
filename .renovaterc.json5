@@ -30,6 +30,37 @@
   },
   packageRules: [
     {
+      description:
+        "Argo CD OCI Helm: Renovate sets docker depName to {repoPath}/{chart} but GHCR charts live at {org}/.../{chart} only (duplicate final segment breaks token scope / lookups).",
+      matchManagers: ["argocd"],
+      matchDatasources: ["docker"],
+      matchDepNames: ["ghcr.io/fluent/helm-charts/fluent-bit/fluent-bit"],
+      overrideDepName: "fluent/helm-charts/fluent-bit",
+    },
+    {
+      description: "Argo CD OCI Helm: correct GHCR path for grafana-operator chart",
+      matchManagers: ["argocd"],
+      matchDatasources: ["docker"],
+      matchDepNames: ["ghcr.io/grafana/helm-charts/grafana-operator/grafana-operator"],
+      overrideDepName: "grafana/helm-charts/grafana-operator",
+    },
+    {
+      description: "Argo CD OCI Helm: correct GHCR path for victoria-logs-single chart",
+      matchManagers: ["argocd"],
+      matchDatasources: ["docker"],
+      matchDepNames: [
+        "ghcr.io/victoriametrics/helm-charts/victoria-logs-single/victoria-logs-single",
+      ],
+      overrideDepName: "victoriametrics/helm-charts/victoria-logs-single",
+    },
+    {
+      description: "Argo CD OCI Helm: correct GHCR path for tuppr chart",
+      matchManagers: ["argocd"],
+      matchDatasources: ["docker"],
+      matchDepNames: ["ghcr.io/home-operations/charts/tuppr/tuppr"],
+      overrideDepName: "home-operations/charts/tuppr",
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],

@@ -9,7 +9,7 @@ controllers:
         image:
           repository: ghcr.io/home-operations/prowlarr
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 2.3.4.5307).
-          tag: 2.3.4.5307
+          tag: 2.3.5.5327
         env:
           TZ: America/New_York
           PROWLARR__APP__INSTANCENAME: Prowlarr

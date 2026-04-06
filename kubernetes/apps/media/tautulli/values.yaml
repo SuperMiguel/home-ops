@@ -7,7 +7,7 @@ controllers:
         image:
           repository: ghcr.io/home-operations/tautulli
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 2.16.1).
-          tag: 2.16.1
+          tag: 2.17.0
         env:
           TZ: America/New_York
           # Public URL (Envoy terminates TLS). See Tautulli config / TAUTULLI_* env overrides.

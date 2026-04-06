@@ -11,7 +11,7 @@ controllers:
         # Homepage (gethomepage/homepage) has no ghcr.io/home-operations/ build — see home-operations/containers apps/.
         image:
           repository: ghcr.io/gethomepage/homepage
-          tag: v1.1.0
+          tag: v1.12.3
         env:
           HOMEPAGE_ALLOWED_HOSTS: home.veliz.cc
           HOMEPAGE_VAR_PROXMOX_API_PASSWORD:

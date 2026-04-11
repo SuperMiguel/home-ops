@@ -34,7 +34,7 @@ run = [
 "aqua:go-task/task" = "3.49.1"
 # Argo CD CLI calls `helm version --client --short` (Helm 4 errors). Run `mise install` in this repo so PATH uses this Helm 3, not e.g. brew.
 "aqua:helm/helm" = "4.1.4"
-"aqua:helmfile/helmfile" = "1.4.3"
+"aqua:helmfile/helmfile" = "1.4.4"
 "aqua:jqlang/jq" = "1.8.1"
 "aqua:kubernetes-sigs/kustomize" = "5.8.0"
 "aqua:kubernetes/kubernetes/kubectl" = "1.35.3"

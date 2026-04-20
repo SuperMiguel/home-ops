@@ -15,7 +15,7 @@ spec:
       ref: repo
     - repoURL: oci://ghcr.io/fluent/helm-charts/fluent-bit
       chart: fluent-bit
-      targetRevision: 0.57.2
+      targetRevision: 0.57.3
       helm:
         releaseName: fluent-bit
         valueFiles:

@@ -3,7 +3,8 @@
 # To feed Radarr indexers: Settings → Apps → Add Radarr — http://radarr.media.svc.cluster.local:80 + Radarr API key.
 controllers:
   prowlarr:
-    strategy: RollingUpdate
+    # RWO PVC + single replica: RollingUpdate can run two pods → Multi-Attach / stuck rollout.
+    strategy: Recreate
     containers:
       app:
         image:

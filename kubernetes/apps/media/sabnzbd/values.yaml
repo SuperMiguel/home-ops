@@ -2,7 +2,8 @@
 # Prowlarr download client: http://sabnzbd.media.svc.cluster.local:80 + same API key.
 controllers:
   sabnzbd:
-    strategy: RollingUpdate
+    # RWO PVC + single replica: RollingUpdate can run two pods → Multi-Attach / stuck rollout.
+    strategy: Recreate
     initContainers:
       set-folders:
         image:

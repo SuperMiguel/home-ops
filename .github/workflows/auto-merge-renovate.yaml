@@ -9,14 +9,34 @@ permissions:
   contents: write
   pull-requests: write
 
+# Avoid overlapping runs on the same PR racing each other.
+concurrency:
+  group: renovate-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   automerge:
     if: github.actor == 'renovate[bot]' || startsWith(github.head_ref, 'renovate/')
     runs-on: ubuntu-latest
     steps:
-      - name: Enable auto-merge
-        uses: peter-evans/enable-pull-request-automerge@a660677d5469627102a1c1e11409dd063606628d # v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ github.event.pull_request.number }}
-          merge-method: squash
+      # When many Renovate PRs land back-to-back, main churns and `gh pr merge --auto`
+      # can fail with: Base branch was modified. Review and try the merge again.
+      # Merge latest base into the PR head, then retry a few times.
+      - name: Sync branch and enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          PR="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+          gh pr update-branch "$PR" --repo "$REPO" || true
+          for attempt in 1 2 3 4 5; do
+            if gh pr merge "$PR" --repo "$REPO" --squash --auto; then
+              exit 0
+            fi
+            echo "::warning::Auto-merge attempt ${attempt} failed (often transient while main moves); resyncing and retrying..."
+            sleep $((attempt * 15))
+            gh pr update-branch "$PR" --repo "$REPO" || true
+          done
+          echo "::error::Could not enable auto-merge after retries"
+          exit 1

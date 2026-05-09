@@ -1,13 +1,14 @@
 # Image: ghcr.io/home-operations/tautulli — see https://github.com/home-operations/containers
 controllers:
   tautulli:
-    strategy: RollingUpdate
+    # RWO PVC + single replica: RollingUpdate can run two pods → Multi-Attach / stuck rollout.
+    strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/home-operations/tautulli
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 2.16.1).
-          tag: 2.17.0
+          tag: 2.17.1
         env:
           TZ: America/New_York
           # Public URL (Envoy terminates TLS). See Tautulli config / TAUTULLI_* env overrides.

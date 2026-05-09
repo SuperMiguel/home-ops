@@ -3,13 +3,14 @@
 # Prowlarr → Settings → Apps → Add Sonarr: http://sonarr.media.svc.cluster.local:80 + API key.
 controllers:
   sonarr:
-    strategy: RollingUpdate
+    # RWO PVC + single replica: RollingUpdate can run two pods → Multi-Attach / stuck rollout.
+    strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/home-operations/sonarr
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 4.0.17.2950).
-          tag: 4.0.17.2953
+          tag: 4.0.17.2967
         env:
           TZ: America/New_York
           SONARR__APP__INSTANCENAME: Sonarr

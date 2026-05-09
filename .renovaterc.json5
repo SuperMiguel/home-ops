@@ -1,4 +1,19 @@
 {
+  // ---------------------------------------------------------------------------
+  // Automerge alignment with Renovate docs:
+  // https://docs.renovatebot.com/key-concepts/automerge/
+  //
+  // - `:automergeBranch` → prefer merging branches straight to the base when
+  //   policy allows; otherwise Renovate falls back to PR automerge.
+  // - `platformAutomerge` → use GitHub’s native auto-merge / merge-queue hooks
+  //   when a PR is used (enable “Allow auto-merge” on the repo; if you use a
+  //   merge queue, add `merge_group` to CI and required checks — see doc).
+  // - Automerge is not instantaneous: Renovate serializes merges (~one meaningful
+  //   automerge per base branch per run); frequent pushes to `main` delay others.
+  // - Required reviews / CODEOWNERS block bot merges unless bypass actors,
+  //   helper approve apps, or repo workflows approve with allowed tokens.
+  // - `ignoreTests` below is scoped only where documented risk is acceptable.
+  // ---------------------------------------------------------------------------
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
     "config:recommended",
@@ -9,6 +24,8 @@
     ":disableRateLimiting",
     ":semanticCommits",
   ],
+  // Explicit default on github.com: native platform automerge when Renovate merges PRs.
+  platformAutomerge: true,
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard :robot:",
   schedule: ["every weekend"],
@@ -64,6 +81,14 @@
       overridePackageName: "ghcr.io/home-operations/charts/tuppr",
     },
     {
+      description:
+        "Argo CD chart version is duplicated in the Application manifest, bootstrap Helmfile, and templates/. Without grouping, Renovate can merge the same bump repeatedly because each location looks like a separate remaining update.",
+      matchManagers: ["argocd", "helmfile"],
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/argoproj/argo-helm/argo-cd"],
+      groupName: "argo-cd-helm-chart",
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],
@@ -80,7 +105,8 @@
       minimumGroupSize: 2,
     },
     {
-      description: "Auto-merge GitHub Actions",
+      description:
+        "Auto-merge GitHub Actions pin bumps (minor/patch/digest). ignoreTests: true because these repos rarely run actionable CI on renovate/** branches unless workflows include those triggers — see Renovate automerge doc § Absence of tests.",
       matchManagers: ["github-actions"],
       automerge: true,
       automergeType: "branch",
@@ -89,7 +115,8 @@
       ignoreTests: true,
     },
     {
-      description: "Auto-merge Mise Tools",
+      description:
+        "Auto-merge Mise tool bumps (minor/patch). ignoreTests: true — tool bumps don’t exercise cluster/app CI on this repo; tighten if you add targeted checks later.",
       matchManagers: ["mise"],
       automerge: true,
       automergeType: "branch",

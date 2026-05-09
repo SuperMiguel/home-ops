@@ -64,6 +64,14 @@
       overridePackageName: "ghcr.io/home-operations/charts/tuppr",
     },
     {
+      description:
+        "Argo CD chart version is duplicated in the Application manifest, bootstrap Helmfile, and templates/. Without grouping, Renovate can merge the same bump repeatedly because each location looks like a separate remaining update.",
+      matchManagers: ["argocd", "helmfile"],
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/argoproj/argo-helm/argo-cd"],
+      groupName: "argo-cd-helm-chart",
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],

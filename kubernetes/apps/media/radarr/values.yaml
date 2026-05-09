@@ -6,7 +6,8 @@
 #   and API key from Prowlarr → Settings → General → Security.
 controllers:
   radarr:
-    strategy: RollingUpdate
+    # RWO PVC + single replica: RollingUpdate can run two pods → Multi-Attach / stuck rollout.
+    strategy: Recreate
     containers:
       app:
         image:

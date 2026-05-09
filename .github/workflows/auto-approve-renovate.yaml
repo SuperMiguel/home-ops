@@ -1,6 +1,13 @@
 ---
 name: "Auto-approve Renovate PRs"
 
+# Approve API requires ONE of:
+# 1) Repo: Settings → Actions → General → Workflow permissions → enable
+#    "Allow GitHub Actions to create and approve pull requests", OR
+# 2) Repo secret RENOVATE_APPROVE_TOKEN: classic PAT (fine-grained ok) for a **different**
+#    identity than the PR author — e.g. a machine user with contents:read + pull_requests:write.
+#
+# If both are missing/wrong you get: GitHub Actions is not permitted to approve pull requests.
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -16,4 +23,4 @@ jobs:
       - name: Auto approve
         uses: hmarr/auto-approve-action@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.RENOVATE_APPROVE_TOKEN || secrets.GITHUB_TOKEN }}

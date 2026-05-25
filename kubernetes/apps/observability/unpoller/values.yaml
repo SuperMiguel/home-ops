@@ -4,13 +4,13 @@
 controllers:
   unpoller:
     replicas: 1
-    # v3.0.0 panics on startup with Prometheus (duplicate metric registration); pin v2 until fixed upstream.
+    # Single replica service; Recreate avoids overlapping old/new pods during image bumps.
     strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/unpoller/unpoller
-          tag: v3.0.0
+          tag: v3.2.0
         env:
           TZ: America/New_York
           UP_INFLUXDB_DISABLE: "true"

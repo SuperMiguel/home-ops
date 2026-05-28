@@ -6,6 +6,7 @@ metadata:
   namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+    # After home-cluster-secrets (wave -5) so init has HUBITAT_*_ACCESS_TOKEN.
 spec:
   project: kubernetes
   sources:

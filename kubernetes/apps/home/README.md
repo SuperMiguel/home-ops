@@ -45,4 +45,6 @@ Synced to Kubernetes Secret `homebridge-secrets` in namespace `home` (`cluster-s
 | Upstairs | `homebridge-upstairs/resources/config.json` | `10.0.10.17` (app 162) | `HUBITAT_UPSTAIRS_ACCESS_TOKEN` |
 | Downstairs | `homebridge-downstairs/resources/config.json` | `10.0.10.7` (app 194) | `HUBITAT_DOWNSTAIRS_ACCESS_TOKEN` |
 
-Init containers seed the PVC and inject the token on every pod start. **Plugins:** copy `node_modules` and `.persist/` from each old VM, or reinstall **homebridge-hubitat-v2** via the UI.
+Init containers **overwrite** `/homebridge/config.json` from Git on every pod start and inject the Hubitat token (UI edits to `config.json` are not kept—change Git instead).
+
+**Plugins:** if Hubitat does not load, copy `node_modules` and `.persist/` from each old VM, or install **homebridge-hubitat-v2** in the UI once (plugins are not in Git).

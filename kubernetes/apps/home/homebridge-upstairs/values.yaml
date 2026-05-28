@@ -19,10 +19,14 @@ controllers:
           - /bin/sh
           - -ec
           - |
+            set -e
             apk add --no-cache jq >/dev/null
-            if [ ! -f /homebridge/config.json ]; then
-              cp /config-template/config.json /homebridge/config.json
+            if [ -z "${HUBITAT_ACCESS_TOKEN}" ]; then
+              echo "HUBITAT_ACCESS_TOKEN is empty — check Secret homebridge-secrets / 1Password" >&2
+              exit 1
             fi
+            # Always apply Git template (Homebridge may have written a default config on first boot).
+            cp /config-template/config.json /homebridge/config.json
             tmp="$(mktemp)"
             jq --arg t "${HUBITAT_ACCESS_TOKEN}" \
               '.platforms |= map(if .platform == "Hubitat-v2" then .access_token = $t else . end)' \

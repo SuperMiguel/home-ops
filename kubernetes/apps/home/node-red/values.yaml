@@ -50,6 +50,37 @@ controllers:
         envFrom:
           - secretRef:
               name: node-red-secrets
+      install-nodes:
+        image:
+          repository: nodered/node-red
+          tag: "3.1.15-18"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            PROJECT_DIR=/data/projects/super
+            cd "${PROJECT_DIR}"
+            if [ ! -f package.json ]; then
+              echo "FATAL: no package.json in project"
+              exit 1
+            fi
+            # (Re)install when missing or package.json changed (palette nodes live in project dir).
+            if [ ! -d node_modules ] || [ package.json -nt node_modules ]; then
+              echo "Running npm install in /data/projects/super ..."
+              npm install --omit=dev --no-audit --no-fund
+            else
+              echo "node_modules up to date"
+            fi
+            # Official image NODE_PATH includes /data/node_modules, not the project subdir.
+            rm -rf /data/node_modules
+            ln -s "${PROJECT_DIR}/node_modules" /data/node_modules
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
     containers:
       app:
         image:
@@ -105,7 +136,7 @@ controllers:
             cpu: 100m
             memory: 512Mi
           limits:
-            memory: 1Gi
+            memory: 1536Mi
 defaultPodOptions:
   securityContext:
     runAsUser: 1000

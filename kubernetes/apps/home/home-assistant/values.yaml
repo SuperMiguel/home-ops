@@ -6,6 +6,41 @@ controllers:
     pod:
       annotations:
         configmap.reloader.stakater.com/reload: home-assistant-config,home-assistant-packages,home-assistant-dashboards
+    initContainers:
+      bootstrap-custom-components:
+        image:
+          repository: alpine
+          tag: "3.21"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            CC=/config/custom_components
+            mkdir -p "${CC}"
+            apk add --no-cache curl unzip >/dev/null
+            if [ ! -f "${CC}/hacs/manifest.json" ]; then
+              echo "Installing HACS 2.0.5..."
+              curl -fsSL -o /tmp/hacs.zip https://github.com/hacs/integration/releases/download/2.0.5/hacs.zip
+              unzip -q /tmp/hacs.zip -d "${CC}"
+            else
+              echo "HACS already present"
+            fi
+            if [ ! -f "${CC}/hubitat/manifest.json" ]; then
+              echo "Installing Hubitat integration v0.10.3..."
+              curl -fsSL -o /tmp/hubitat.zip https://github.com/jason0x43/hacs-hubitat/archive/refs/tags/v0.10.3.zip
+              unzip -q /tmp/hubitat.zip -d /tmp
+              cp -r /tmp/hacs-hubitat-*/custom_components/hubitat "${CC}/"
+            else
+              echo "Hubitat already present"
+            fi
+            chown -R 1000:1000 "${CC}"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
     containers:
       app:
         image:

@@ -23,13 +23,15 @@ Later you can move `config/` to a private **Super-Home-Assistant** repo and add 
 
 ## First-time setup
 
+See **[SETUP.md](./SETUP.md)** for the shortest checklist.
+
+**HACS + Hubitat** are installed automatically (init container) — you do **not** download zips by hand. HACS **GitHub login** is optional (only if you want the HACS store).
+
 1. Edit `resources/config/configuration.yaml` if home coordinates differ from defaults.
 2. Push home-ops → Argo sync `home-assistant` (Helm + `resources/` ConfigMaps).
-3. Open https://hass.veliz.cc — complete **onboarding** if prompted.
-4. **Settings → Devices & services → Add integration:**
-   - **Hubitat** — repeat for Downstairs and Upstairs (Maker API on each hub).
-   - **Ecobee** — OAuth sign-in.
-5. Edit `resources/config/dashboards/tablet.yaml` with your entities (or build in UI → **Raw configuration editor** → copy into Git).
+3. Open https://hass.veliz.cc — complete **onboarding** if prompted → **Restart** once.
+4. **Add integration → Hubitat** (×2) and **Ecobee** (see SETUP.md).
+5. Edit `resources/config/dashboards/tablet.yaml` with your entities.
 6. **Fire tablet kiosk:** install **Fully Kiosk Browser**, start URL:
    ```
    https://hass.veliz.cc/lovelace-tablet?kiosk

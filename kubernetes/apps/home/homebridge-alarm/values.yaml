@@ -1,0 +1,88 @@
+# Homebridge — alarm (hostNetwork + dedicated node for HomeKit/mDNS)
+# Empty Longhorn PVC: configure via UI at https://homebridge-alarm.veliz.cc
+controllers:
+  alarm:
+    type: deployment
+    strategy: Recreate
+    pod:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: hl-k8s-34
+    containers:
+      app:
+        image:
+          repository: homebridge/homebridge
+          tag: latest
+        env:
+          TZ: America/New_York
+          ENABLE_AVAHI: "1"
+          HOMEBRIDGE_CONFIG_UI: "1"
+          HOMEBRIDGE_CONFIG_UI_PORT: "8581"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: &port 8581
+              initialDelaySeconds: 300
+              periodSeconds: 60
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /homebridge
+service:
+  app:
+    controller: alarm
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - homebridge-alarm.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

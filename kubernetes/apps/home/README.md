@@ -1,26 +1,24 @@
 # Home automation (Homebridge)
 
-Two Homebridge instances (downstairs / upstairs). **No config in Git** — use the UI after deploy.
+Three Homebridge instances (downstairs / upstairs / alarm). **No config in Git** — use the UI after deploy.
 
-| Instance | URL | Node |
-|----------|-----|------|
-| Downstairs | https://homebridge-downstairs.veliz.cc | `hl-k8s-32` |
-| Upstairs | https://homebridge-upstairs.veliz.cc | `hl-k8s-33` |
+| Instance | URL | Node | Old PVE IP |
+|----------|-----|------|------------|
+| Downstairs | https://homebridge-downstairs.veliz.cc | `hl-k8s-32` | 10.0.20.42 |
+| Upstairs | https://homebridge-upstairs.veliz.cc | `hl-k8s-33` | 10.0.20.43 |
+| Alarm | https://homebridge-alarm.veliz.cc | `hl-k8s-34` | 10.0.20.44 |
 
 Each uses **hostNetwork** (required for HomeKit/mDNS) and a **Longhorn PVC** at `/homebridge`.
 
+Config backups (with secrets): [Super-Veliz-Network `software/homebridge`](https://github.com/SuperMiguel/Super-Veliz-Network/tree/master/software/homebridge) (private repo).
+
 ## Fresh start (wipe old config)
 
-If a PVC already has a broken or half-migrated config:
-
 ```sh
-kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs --replicas=0
-kubectl -n home delete pvc homebridge-downstairs homebridge-upstairs
-# Sync Argo (or wait for self-heal) to recreate PVCs + pods
-kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs --replicas=1
+kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs homebridge-alarm --replicas=0
+kubectl -n home delete pvc homebridge-downstairs homebridge-upstairs homebridge-alarm
+kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs homebridge-alarm --replicas=1
 ```
-
-Or delete only the PVC you want to reset (deployment name matches release name).
 
 ## Manual setup (UI)
 
@@ -30,20 +28,11 @@ Or delete only the PVC you want to reset (deployment name matches release name).
 4. Paste the platform block from the **Hubitat Homebridge app** config generator.
 5. Restart Homebridge from the UI when prompted.
 
-**Hubitat hubs (reference):**
-
-| Bridge | Hubitat IP |
-|--------|------------|
-| Downstairs | `http://10.0.10.7/apps/api/` |
-| Upstairs | `http://10.0.10.17/apps/api/` |
-
 ## Optional: restore from Proxmox backup
 
-Instead of a fresh UI setup, copy the old VM’s `/homebridge` tree into the pod:
-
 ```sh
-kubectl -n home cp ./homebridge-backup/. home/homebridge-downstairs-0:/homebridge/
-kubectl -n home rollout restart deployment homebridge-downstairs
+kubectl -n home cp ./homebridge-alarm-backup/. home/homebridge-alarm-0:/homebridge/
+kubectl -n home rollout restart deployment homebridge-alarm
 ```
 
-Use the same pattern for upstairs.
+Same pattern for downstairs / upstairs.

@@ -6,16 +6,12 @@ metadata:
   namespace: argo-system
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-    # After home-cluster-secrets (wave -5) so init has HUBITAT_*_ACCESS_TOKEN.
 spec:
   project: kubernetes
   sources:
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
       targetRevision: main
       ref: repo
-    - repoURL: "https://github.com/SuperMiguel/home-ops.git"
-      path: kubernetes/apps/home/homebridge-downstairs/resources
-      targetRevision: main
     - repoURL: ghcr.io/bjw-s-labs/helm
       chart: app-template
       targetRevision: 5.0.1

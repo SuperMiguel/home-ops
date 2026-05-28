@@ -1,50 +1,49 @@
 # Home automation (Homebridge)
 
-Two Homebridge instances (downstairs / upstairs), each on a **dedicated Talos worker** with **hostNetwork** so mDNS/HomeKit works like Docker `network_mode: host`.
+Two Homebridge instances (downstairs / upstairs). **No config in Git** — use the UI after deploy.
 
-## Before first sync
+| Instance | URL | Node |
+|----------|-----|------|
+| Downstairs | https://homebridge-downstairs.veliz.cc | `hl-k8s-32` |
+| Upstairs | https://homebridge-upstairs.veliz.cc | `hl-k8s-33` |
 
-1. Export `/homebridge` from each Proxmox VM (or your backup tarball).
-2. After Argo creates the PVC, copy data into the pod (replace release/pod names):
+Each uses **hostNetwork** (required for HomeKit/mDNS) and a **Longhorn PVC** at `/homebridge`.
 
-   ```sh
-   kubectl -n home cp ./homebridge-downstairs/. \
-     home/homebridge-downstairs-0:/homebridge/
-   kubectl -n home cp ./homebridge-upstairs/. \
-     home/homebridge-upstairs-0:/homebridge/
-   kubectl -n home exec -n home deploy/homebridge-downstairs -- chown -R 1000:1000 /homebridge
-   kubectl -n home exec -n home deploy/homebridge-upstairs -- chown -R 1000:1000 /homebridge
-   ```
+## Fresh start (wipe old config)
 
-3. Confirm UI: `https://homebridge-downstairs.veliz.cc` and `https://homebridge-upstairs.veliz.cc` (internal Envoy gateway).
+If a PVC already has a broken or half-migrated config:
 
-## Node pins
+```sh
+kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs --replicas=0
+kubectl -n home delete pvc homebridge-downstairs homebridge-upstairs
+# Sync Argo (or wait for self-heal) to recreate PVCs + pods
+kubectl -n home scale deployment homebridge-downstairs homebridge-upstairs --replicas=1
+```
 
-| Instance   | `nodeSelector` hostname | Old VLAN 20 IP |
-|------------|-------------------------|----------------|
-| downstairs | `hl-k8s-32`             | 10.0.20.42     |
-| upstairs   | `hl-k8s-33`             | 10.0.20.43     |
+Or delete only the PVC you want to reset (deployment name matches release name).
 
-Adjust hostnames in `values.yaml` if your Talos node names differ.
+## Manual setup (UI)
 
-## 1Password — `homelab-homebridge`
+1. Open the URL for each bridge.
+2. Default login is often **admin** / **admin** (change on first visit).
+3. Install **homebridge-hubitat-tonesto7** (or your Hubitat plugin).
+4. Paste the platform block from the **Hubitat Homebridge app** config generator.
+5. Restart Homebridge from the UI when prompted.
 
-Create one item with two concealed fields (names must match exactly):
+**Hubitat hubs (reference):**
 
-| Field | Used by |
-|-------|---------|
-| `HUBITAT_UPSTAIRS_ACCESS_TOKEN` | `homebridge-upstairs` init |
-| `HUBITAT_DOWNSTAIRS_ACCESS_TOKEN` | `homebridge-downstairs` init |
+| Bridge | Hubitat IP |
+|--------|------------|
+| Downstairs | `http://10.0.10.7/apps/api/` |
+| Upstairs | `http://10.0.10.17/apps/api/` |
 
-Synced to Kubernetes Secret `homebridge-secrets` in namespace `home` (`cluster-secrets/externalsecret-homebridge.yaml`).
+## Optional: restore from Proxmox backup
 
-## Git-managed `config.json` (both bridges)
+Instead of a fresh UI setup, copy the old VM’s `/homebridge` tree into the pod:
 
-| Instance | Config path | Hubitat hub (VLAN 10) | 1Password field |
-|----------|-------------|-------------------------|-----------------|
-| Upstairs | `homebridge-upstairs/resources/config.json` | `10.0.10.17` (app 162) | `HUBITAT_UPSTAIRS_ACCESS_TOKEN` |
-| Downstairs | `homebridge-downstairs/resources/config.json` | `10.0.10.7` (app 194) | `HUBITAT_DOWNSTAIRS_ACCESS_TOKEN` |
+```sh
+kubectl -n home cp ./homebridge-backup/. home/homebridge-downstairs-0:/homebridge/
+kubectl -n home rollout restart deployment homebridge-downstairs
+```
 
-Init containers **overwrite** `/homebridge/config.json` from Git on every pod start and inject the Hubitat token (UI edits to `config.json` are not kept—change Git instead).
-
-**Plugins:** if Hubitat does not load, copy `node_modules` and `.persist/` from each old VM, or install **homebridge-hubitat-v2** in the UI once (plugins are not in Git).
+Use the same pattern for upstairs.

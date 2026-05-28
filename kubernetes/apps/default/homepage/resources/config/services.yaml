@@ -9,15 +9,10 @@
 # https://github.com/walkxcode/dashboard-icons
 
 - Proxmox Cluster:
-    - HL-PVE-30:
-        icon: proxmox.png
+    - HL-K8S-30:
+        icon: kubernetes.png
         ping: 10.0.20.30
-        widget:
-          type: proxmox
-          url: https://10.0.20.30:8006
-          username: api-homepage@pam!homepage
-          password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
-          node: HL-PVE-30
+        description: Talos worker (same host as former HL-PVE-30)
     - HL-K8S-31:
         icon: kubernetes.png
         ping: 10.0.20.31

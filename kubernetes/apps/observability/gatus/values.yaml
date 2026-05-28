@@ -277,7 +277,7 @@ configMaps:
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.10
-          - name: hl-pve-30
+          - name: hl-k8s-30
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.30

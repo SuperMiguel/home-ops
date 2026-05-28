@@ -18,6 +18,23 @@ cniConfig:
   name: none
 
 nodes:
+  - hostname: "hl-k8s-30"
+    ipAddress: "10.0.20.30"
+    installDisk: "/dev/nvme0n1"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "50:9a:4c:49:85:39"
+        dhcp: false
+        addresses:
+          - "10.0.20.30/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "10.0.20.1"
+        mtu: 1500
   - hostname: "hl-k8s-31"
     ipAddress: "10.0.20.31"
     installDisk: "/dev/nvme0n1"

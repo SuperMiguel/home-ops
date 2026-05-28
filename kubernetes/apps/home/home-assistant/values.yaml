@@ -1,0 +1,138 @@
+# Fresh Home Assistant — config in Git (config/ → ConfigMaps). See README.md.
+# LAN: 10.0.20.50 | https://hass.veliz.cc | MQTT: packages/mqtt.yaml
+controllers:
+  home-assistant:
+    strategy: Recreate
+    pod:
+      annotations:
+        configmap.reloader.stakater.com/reload: home-assistant-config,home-assistant-packages,home-assistant-dashboards
+    containers:
+      app:
+        image:
+          repository: ghcr.io/home-operations/home-assistant
+          tag: "2026.5.4"
+        env:
+          TZ: America/New_York
+          # Envoy / in-cluster clients and VLAN 20 servers (Node-RED, LAN devices)
+          HASS_HTTP_TRUSTED_PROXY_1: 10.42.0.0/16
+          HASS_HTTP_TRUSTED_PROXY_2: 10.0.20.0/24
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: &port 8123
+              initialDelaySeconds: 300
+              periodSeconds: 30
+              timeoutSeconds: 10
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              initialDelaySeconds: 60
+              periodSeconds: 15
+              timeoutSeconds: 10
+              failureThreshold: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              failureThreshold: 60
+              periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  configuration:
+    enabled: true
+    type: configMap
+    name: home-assistant-config
+    globalMounts:
+      - path: /config/configuration.yaml
+        subPath: configuration.yaml
+  packages:
+    enabled: true
+    type: configMap
+    name: home-assistant-packages
+    globalMounts:
+      - path: /config/packages/mqtt.yaml
+        subPath: mqtt.yaml
+      - path: /config/packages/lovelace.yaml
+        subPath: lovelace.yaml
+  dashboards:
+    enabled: true
+    type: configMap
+    name: home-assistant-dashboards
+    globalMounts:
+      - path: /config/dashboards/tablet.yaml
+        subPath: tablet.yaml
+  cache:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config/.venv
+  tmp:
+    type: emptyDir
+service:
+  app:
+    ports:
+      http:
+        port: *port
+        appProtocol: kubernetes.io/ws
+  lan:
+    controller: home-assistant
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: "10.0.20.50"
+    ports:
+      http:
+        port: *port
+        protocol: TCP
+route:
+  app:
+    hostnames:
+      - hass.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

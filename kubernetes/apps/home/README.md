@@ -15,7 +15,7 @@ Uses Node-RED **Projects** (built-in Git): init clones into `/data/projects/supe
 
 ### Cutover
 
-DNS **`nodered.veliz.cc`**. Update flows still pointing at `10.0.20.40` (HA) when that moves to the cluster.
+DNS **`nodered.veliz.cc`**. Update flows still pointing at old HA **`10.0.20.40`** → **`10.0.20.50`** or `https://hass.veliz.cc`.
 
 ---
 
@@ -34,6 +34,19 @@ Config starts with **`allow_anonymous true`** (no auth file in Git). If the old 
 Optional: copy persistence from PVE into Longhorn PVC `mosquitto` at `/mosquitto/data` to keep retained MQTT messages.
 
 Node-RED broker URL is updated in [Super-Node-RED](https://github.com/SuperMiguel/Super-Node-RED) (`Super-MQTT-broker` → `10.0.20.41`). Commit/push flows, then deploy Node-RED or pull in the editor.
+
+---
+
+## Home Assistant
+
+| Item | Value |
+|------|--------|
+| HTTPS | https://hass.veliz.cc |
+| LAN | http://10.0.20.50:8123 |
+| Config in Git | `home-assistant/resources/config/` (MQTT, Lovelace tablet dashboard) |
+| Argo app | `home-assistant` |
+
+**Fresh install** — no Proxmox restore. Add **Hubitat** (×2) + **Ecobee** in UI; tablet kiosk → `https://hass.veliz.cc/lovelace-tablet?kiosk`. See **[home-assistant/README.md](./home-assistant/README.md)**.
 
 ---
 

@@ -1,0 +1,19 @@
+# Fire tablet kiosk: Fully Kiosk → https://hass.veliz.cc/lovelace-tablet?kiosk
+# After Hubitat/Ecobee setup, replace entity IDs below (or use UI editor once, then export YAML).
+
+title: SuperHome
+views:
+  - title: Home
+    path: home
+    cards:
+      - type: markdown
+        content: |
+          ## SuperHome
+          **Setup:** Settings → Devices & services → Add **Hubitat** (×2) and **Ecobee**.
+          Then edit this dashboard in Git: `config/dashboards/tablet.yaml`.
+
+      - type: weather-forecast
+        entity: weather.forecast_home
+        show_forecast: false
+
+      # Add cards here after Hubitat/Ecobee — or use the UI once, then copy YAML back to Git.

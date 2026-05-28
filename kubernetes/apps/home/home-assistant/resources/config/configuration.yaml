@@ -1,0 +1,28 @@
+# Home Assistant — fresh install (SuperHome on K8s). Integrations in Git where possible;
+# Hubitat + Ecobee use UI once (tokens live in PVC .storage). See README.md.
+
+homeassistant:
+  name: SuperHome
+  # Set your home coordinates (or use 1Password → resources/externalsecret.yaml)
+  latitude: 25.7617
+  longitude: -80.1918
+  elevation: 2
+  unit_system: us_customary
+  time_zone: America/New_York
+
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 10.42.0.0/16
+    - 10.0.20.0/24
+
+# MQTT, Lovelace, helpers — see packages/
+packages: !include_dir_named packages
+
+logger:
+  default: info

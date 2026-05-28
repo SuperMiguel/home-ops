@@ -36,6 +36,25 @@
           password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
           node: HL-PVE-36
 
+- Home automation:
+    - Node-RED:
+        icon: nodered.png
+        href: https://nodered.veliz.cc
+        description: Flows (Super-Node-RED repo)
+        siteMonitor: https://nodered.veliz.cc
+    - Homebridge downstairs:
+        icon: homebridge.png
+        href: https://homebridge-downstairs.veliz.cc
+        siteMonitor: https://homebridge-downstairs.veliz.cc
+    - Homebridge upstairs:
+        icon: homebridge.png
+        href: https://homebridge-upstairs.veliz.cc
+        siteMonitor: https://homebridge-upstairs.veliz.cc
+    - Homebridge alarm:
+        icon: homebridge.png
+        href: https://homebridge-alarm.veliz.cc
+        siteMonitor: https://homebridge-alarm.veliz.cc
+
 - Kubernetes:
     - Argo CD:
         icon: argocd.png

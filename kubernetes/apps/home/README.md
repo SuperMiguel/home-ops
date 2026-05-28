@@ -1,4 +1,25 @@
-# Home automation (Homebridge)
+# Home automation
+
+## Node-RED
+
+| Item | Value |
+|------|--------|
+| URL | https://nodered.veliz.cc |
+| Config repo (private) | [Super-Node-RED](https://github.com/SuperMiguel/Super-Node-RED) |
+| PVC | Longhorn `5Gi` at `/data` |
+| Argo app | `node-red` (namespace `home`) |
+
+**Secrets (required):** see **[node-red/SECRETS.md](./node-red/SECRETS.md)** — `GITHUB_TOKEN` (read **and write**) + `NODE_RED_CREDENTIAL_SECRET`.
+
+Uses Node-RED **Projects** (built-in Git): init clones into `/data/projects/super`; you **commit/push** from the editor History sidebar back to Super-Node-RED.
+
+### Cutover
+
+DNS **`nodered.veliz.cc`**. Update flows still pointing at `10.0.20.41` (MQTT) or `10.0.20.40` (HA) when those move to the cluster.
+
+---
+
+## Homebridge
 
 Three Homebridge instances (downstairs / upstairs / alarm). **No config in Git** — use the UI after deploy.
 

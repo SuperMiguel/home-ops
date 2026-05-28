@@ -1,0 +1,155 @@
+# Node-RED with built-in Projects (Git commit/push/pull in the editor).
+# Config repo: https://github.com/SuperMiguel/Super-Node-RED
+# See SECRETS.md — GITHUB_TOKEN needs Contents Read+Write for push from the UI.
+controllers:
+  node-red:
+    strategy: Recreate
+    pod:
+      annotations:
+        secret.reloader.stakater.com/reload: node-red-secrets
+        configmap.reloader.stakater.com/reload: node-red-settings
+    initContainers:
+      bootstrap-git:
+        image:
+          repository: alpine/git
+          tag: "2.49.1"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            PROJECT_DIR=/data/projects/super
+            if [ -d "${PROJECT_DIR}/.git" ]; then
+              echo "Git project already present — skip clone"
+            else
+              if [ -z "${GITHUB_TOKEN:-}" ]; then
+                echo "FATAL: GITHUB_TOKEN missing — add 1Password node-red-secrets/GITHUB_TOKEN"
+                exit 1
+              fi
+              mkdir -p /data/projects
+              git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/SuperMiguel/Super-Node-RED.git" "${PROJECT_DIR}"
+            fi
+            # Git credentials for push/pull from the Node-RED Projects UI (History sidebar).
+            export HOME=/data
+            git config --global credential.helper "store --file=/data/.git-credentials"
+            printf 'https://x-access-token:%s@github.com\n' "${GITHUB_TOKEN}" > /data/.git-credentials
+            chmod 600 /data/.git-credentials
+            chown -R 1000:1000 /data/projects /data/.git-credentials /data/.gitconfig 2>/dev/null || true
+        envFrom:
+          - secretRef:
+              name: node-red-secrets
+    containers:
+      app:
+        image:
+          repository: nodered/node-red
+          tag: "3.1.12-22"
+        envFrom:
+          - secretRef:
+              name: node-red-secrets
+        env:
+          TZ: America/New_York
+          NODE_RED_ENABLE_PROJECTS: "true"
+          NODE_RED_SETTINGS: /data/settings.js
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: &port 1880
+              initialDelaySeconds: 120
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 10
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              failureThreshold: 60
+              periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+configMaps:
+  settings:
+    data:
+      settings.js: |
+        // If credentialSecret was commented out on Proxmox, the key lives in
+        // /data/.config.runtime.json (_credentialSecret). Copy that file to the PVC
+        // OR set NODE_RED_CREDENTIAL_SECRET in 1Password to the same string.
+        const credentialSecret = process.env.NODE_RED_CREDENTIAL_SECRET || undefined;
+        module.exports = {
+          ...(credentialSecret ? { credentialSecret } : {}),
+          editorTheme: {
+            projects: {
+              enabled: true,
+              workflow: {
+                // manual: commit (and push) from History sidebar when you choose
+                // auto: Node-RED commits locally on each deploy; you still push to GitHub from History
+                mode: "manual",
+              },
+            },
+          },
+        };
+persistence:
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /data
+  settings:
+    enabled: true
+    type: configMap
+    identifier: settings
+    globalMounts:
+      - path: /data/settings.js
+        subPath: settings.js
+service:
+  app:
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - nodered.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

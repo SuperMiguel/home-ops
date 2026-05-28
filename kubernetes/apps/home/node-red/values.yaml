@@ -42,7 +42,7 @@ controllers:
       app:
         image:
           repository: nodered/node-red
-          tag: "3.1.12-22"
+          tag: "3.1.15-18"
         envFrom:
           - secretRef:
               name: node-red-secrets

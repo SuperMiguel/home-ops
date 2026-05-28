@@ -83,10 +83,11 @@ controllers:
             memory: 512Mi
           limits:
             memory: 1Gi
+# homebridge/homebridge (s6-overlay) must fix /run ownership; non-root + hostNetwork often fails preinit.
 defaultPodOptions:
   securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
+    runAsGroup: 0
     fsGroup: 1000
 persistence:
   config:

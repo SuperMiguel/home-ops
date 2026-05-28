@@ -42,6 +42,7 @@ configs:
         - .spec.data[].remoteRef.decodingStrategy
         - .spec.data[].remoteRef.metadataPolicy
         - .spec.data[].remoteRef.nullBytePolicy
+        - .spec.target.deletionPolicy
         - .metadata.annotations["force-sync"]
     # Envoy Gateway controller injects infrastructure (LB annotations, etc.) after apply.
     resource.customizations.ignoreDifferences.gateway.networking.k8s.io_Gateway: |

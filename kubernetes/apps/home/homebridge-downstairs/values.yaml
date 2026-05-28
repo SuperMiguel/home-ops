@@ -8,8 +8,8 @@ controllers:
     pod:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-    nodeSelector:
-      kubernetes.io/hostname: hl-k8s-32
+      nodeSelector:
+        kubernetes.io/hostname: hl-k8s-32
     initContainers:
       seed-config:
         image:

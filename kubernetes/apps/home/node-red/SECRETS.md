@@ -84,7 +84,7 @@ Your repo’s root `package.json` already declares `flowFile` / `credentialsFile
 
 1. Open https://nodered.veliz.cc
 2. If prompted, **open** (or create) project **`super`** — it should match `/data/projects/super` from the clone
-3. Set Git user name/email in the editor if asked (**User Settings** → Git config)
+3. Git **name/email** — pre-set in the chart (`GIT_USER_NAME` / `GIT_USER_EMAIL` in `values.yaml`). If the editor still asks, use the same values (any valid name + email; GitHub noreply is fine: `id+username@users.noreply.github.com`).
 4. After editing flows: **History** (sidebar) → commit message → **Commit** → **Push** (remote icon)
 
 **Workflow modes** (in `settings.js`, overridable in the UI):

@@ -29,12 +29,24 @@ controllers:
               mkdir -p /data/projects
               git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/SuperMiguel/Super-Node-RED.git" "${PROJECT_DIR}"
             fi
-            # Git credentials for push/pull from the Node-RED Projects UI (History sidebar).
+            # Git identity + credentials (Node-RED Projects asks for these on first use).
             export HOME=/data
+            git config --global user.name "${GIT_USER_NAME}"
+            git config --global user.email "${GIT_USER_EMAIL}"
             git config --global credential.helper "store --file=/data/.git-credentials"
             printf 'https://x-access-token:%s@github.com\n' "${GITHUB_TOKEN}" > /data/.git-credentials
             chmod 600 /data/.git-credentials
-            chown -R 1000:1000 /data/projects /data/.git-credentials /data/.gitconfig 2>/dev/null || true
+            # Use cloned project instead of an empty /data/flows.json
+            if [ -f "${PROJECT_DIR}/flows.json" ]; then
+              printf '%s\n' '{"projects":{"super":{}},"activeProject":"super"}' > /data/.config.projects.json
+              rm -f /data/flows.json /data/flows_cred.json 2>/dev/null || true
+            fi
+            chown -R 1000:1000 /data/projects /data/.git-credentials /data/.gitconfig /data/.config.projects.json 2>/dev/null || true
+        env:
+          - name: GIT_USER_NAME
+            value: "Miguel Veliz"
+          - name: GIT_USER_EMAIL
+            value: "miguel@veliz.cc"
         envFrom:
           - secretRef:
               name: node-red-secrets

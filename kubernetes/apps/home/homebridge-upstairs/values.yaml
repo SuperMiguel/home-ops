@@ -1,0 +1,123 @@
+# Homebridge — upstairs (hostNetwork + dedicated node for HomeKit/mDNS)
+# config.json: ConfigMap + init seeds PVC; Hubitat token from Secret homebridge-secrets (1Password homelab-homebridge).
+# Still copy plugins/node_modules from Proxmox backup if the Hubitat-v2 plugin is not on a fresh PVC.
+controllers:
+  upstairs:
+    type: deployment
+    strategy: Recreate
+    pod:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+    nodeSelector:
+      kubernetes.io/hostname: hl-k8s-33
+    initContainers:
+      seed-config:
+        image:
+          repository: alpine
+          tag: 3.21.3
+        command:
+          - /bin/sh
+          - -ec
+          - |
+            apk add --no-cache jq >/dev/null
+            if [ ! -f /homebridge/config.json ]; then
+              cp /config-template/config.json /homebridge/config.json
+            fi
+            tmp="$(mktemp)"
+            jq --arg t "${HUBITAT_ACCESS_TOKEN}" \
+              '.platforms |= map(if .platform == "Hubitat-v2" then .access_token = $t else . end)' \
+              /homebridge/config.json > "${tmp}"
+            mv "${tmp}" /homebridge/config.json
+            chown 1000:1000 /homebridge/config.json
+        env:
+          HUBITAT_ACCESS_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: homebridge-secrets
+                key: HUBITAT_UPSTAIRS_ACCESS_TOKEN
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+    containers:
+      app:
+        image:
+          repository: homebridge/homebridge
+          tag: latest
+        env:
+          TZ: America/New_York
+          ENABLE_AVAHI: "1"
+          HOMEBRIDGE_CONFIG_UI: "1"
+          HOMEBRIDGE_CONFIG_UI_PORT: "8581"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: &port 8581
+              initialDelaySeconds: 300
+              periodSeconds: 60
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: *port
+              initialDelaySeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /homebridge
+  config-template:
+    type: configMap
+    name: homebridge-upstairs-config
+    globalMounts:
+      - path: /config-template
+        readOnly: true
+service:
+  app:
+    controller: upstairs
+    ports:
+      http:
+        port: *port
+route:
+  app:
+    hostnames:
+      - homebridge-upstairs.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *port

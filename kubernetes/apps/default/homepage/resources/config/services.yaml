@@ -42,6 +42,10 @@
         href: https://nodered.veliz.cc
         description: Flows (Super-Node-RED repo)
         siteMonitor: https://nodered.veliz.cc
+    - MQTT (Mosquitto):
+        icon: mdi-access-point-network
+        ping: 10.0.20.41
+        description: Eclipse Mosquitto on K8s (port 1883)
     - Homebridge downstairs:
         icon: homebridge.png
         href: https://homebridge-downstairs.veliz.cc

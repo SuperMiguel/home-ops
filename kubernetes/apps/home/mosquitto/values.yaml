@@ -1,0 +1,83 @@
+# Eclipse Mosquitto — MQTT for Node-RED, Home Assistant, Hubitat bridges, etc.
+# LoadBalancer 10.0.20.41 (Cilium L2) replaces Proxmox VM at the same IP — shut down the old mqtt VM first.
+controllers:
+  mosquitto:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: eclipse-mosquitto
+          tag: "2.0.22"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: &port 1883
+              initialDelaySeconds: 10
+              periodSeconds: 20
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: *port
+              initialDelaySeconds: 5
+              periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+defaultPodOptions:
+  securityContext:
+    runAsUser: 1883
+    runAsGroup: 1883
+    fsGroup: 1883
+configMaps:
+  config:
+    data:
+      mosquitto.conf: |
+        per_listener_settings true
+        listener 1883
+        allow_anonymous true
+        persistence true
+        persistence_location /mosquitto/data/
+        log_dest stdout
+        log_type error
+        log_type warning
+        log_type notice
+persistence:
+  config:
+    enabled: true
+    type: configMap
+    identifier: config
+    globalMounts:
+      - path: /mosquitto/config/mosquitto.conf
+        subPath: mosquitto.conf
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /mosquitto/data
+service:
+  mqtt:
+    controller: mosquitto
+    type: LoadBalancer
+    annotations:
+      lbipam.cilium.io/ips: "10.0.20.41"
+    ports:
+      mqtt:
+        port: *port
+        protocol: TCP

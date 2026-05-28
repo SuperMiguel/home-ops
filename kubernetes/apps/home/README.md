@@ -15,7 +15,25 @@ Uses Node-RED **Projects** (built-in Git): init clones into `/data/projects/supe
 
 ### Cutover
 
-DNS **`nodered.veliz.cc`**. Update flows still pointing at `10.0.20.41` (MQTT) or `10.0.20.40` (HA) when those move to the cluster.
+DNS **`nodered.veliz.cc`**. Update flows still pointing at `10.0.20.40` (HA) when that moves to the cluster.
+
+---
+
+## Mosquitto (MQTT)
+
+| Item | Value |
+|------|--------|
+| Broker (LAN) | **`10.0.20.41:1883`** (Cilium LoadBalancer — same IP as former Proxmox VM) |
+| In-cluster | `mosquitto.home.svc.cluster.local:1883` |
+| Argo app | `mosquitto` |
+
+**Before sync:** stop the Proxmox **mqtt** VM on `10.0.20.41` so the cluster can take the IP.
+
+Config starts with **`allow_anonymous true`** (no auth file in Git). If the old broker used passwords, copy `passwd` from Proxmox into the PVC and switch to `password_file` in `mosquitto/values.yaml` (see comment in config).
+
+Optional: copy persistence from PVE into Longhorn PVC `mosquitto` at `/mosquitto/data` to keep retained MQTT messages.
+
+Node-RED broker URL is updated in [Super-Node-RED](https://github.com/SuperMiguel/Super-Node-RED) (`Super-MQTT-broker` → `10.0.20.41`). Commit/push flows, then deploy Node-RED or pull in the editor.
 
 ---
 

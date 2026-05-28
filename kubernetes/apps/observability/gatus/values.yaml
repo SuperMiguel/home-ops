@@ -186,6 +186,10 @@ configMaps:
             <<: *defaults
             group: home
             url: http://node-red.home.svc.cluster.local:1880
+          - name: mqtt
+            <<: *defaults
+            group: home
+            url: tcp://mosquitto.home.svc.cluster.local:1883
           # --- VLAN 1 management (UniFi, switches, APs, PDU, UNAS mgmt) ---
           - name: udm-pro-max
             <<: *lan-icmp

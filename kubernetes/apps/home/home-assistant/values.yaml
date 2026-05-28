@@ -11,6 +11,11 @@ controllers:
         image:
           repository: alpine
           tag: "3.21"
+        # Pod defaults to runAsUser 1000; apk needs root for this one-shot install.
+        securityContext:
+          runAsUser: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
         command:
           - /bin/sh
           - -c
@@ -19,10 +24,16 @@ controllers:
             CC=/config/custom_components
             mkdir -p "${CC}"
             apk add --no-cache curl unzip >/dev/null
+            # hacs.zip unpacks flat (no hacs/ prefix) — must target ${CC}/hacs/
+            if [ -f "${CC}/manifest.json" ] && [ ! -f "${CC}/hacs/manifest.json" ]; then
+              echo "Removing mistaken flat HACS extract..."
+              find "${CC}" -mindepth 1 -maxdepth 1 ! -name hubitat -exec rm -rf {} +
+            fi
             if [ ! -f "${CC}/hacs/manifest.json" ]; then
               echo "Installing HACS 2.0.5..."
+              mkdir -p "${CC}/hacs"
               curl -fsSL -o /tmp/hacs.zip https://github.com/hacs/integration/releases/download/2.0.5/hacs.zip
-              unzip -q /tmp/hacs.zip -d "${CC}"
+              unzip -q -o /tmp/hacs.zip -d "${CC}/hacs"
             else
               echo "HACS already present"
             fi

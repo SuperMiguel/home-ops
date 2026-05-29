@@ -13,6 +13,15 @@
 
 Uses Node-RED **Projects** (built-in Git): init clones into `/data/projects/super`; you **commit/push** from the editor History sidebar back to Super-Node-RED.
 
+**Resources (2026-05):** app container requests **1 CPU / 1 Gi**, limits **2 CPU / 2 Gi**, plus `NODE_OPTIONS=--max-old-space-size=1536`. Kubernetes does not throttle CPU today unless a `limits.cpu` is set too low; the editor is often **browser-bound** or slowed by **bad HA websocket reconnects** (fix the long-lived token in flows).
+
+**Slow editor?** Compare:
+
+1. `kubectl -n home port-forward svc/node-red 1880:1880` → http://127.0.0.1:1880 (bypasses Envoy)
+2. https://nodered.veliz.cc (full path)
+
+If (1) is fast and (2) is slow, the bottleneck is ingress/DNS, not pod CPU. Check Node-RED logs for `Invalid access token for WebSocket` on the Home Assistant config node.
+
 ### Cutover
 
 DNS **`nodered.veliz.cc`**. Update flows still pointing at old HA **`10.0.20.40`** → **`10.0.20.50`** or `https://hass.veliz.cc`.

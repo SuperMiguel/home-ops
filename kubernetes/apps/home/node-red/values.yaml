@@ -93,6 +93,8 @@ controllers:
           TZ: America/New_York
           NODE_RED_ENABLE_PROJECTS: "true"
           NODE_RED_SETTINGS: /data/settings.js
+          # V8 heap cap (~75% of memory limit). Without this, Node may GC aggressively under editor load.
+          NODE_OPTIONS: "--max-old-space-size=1536"
         probes:
           liveness:
             enabled: true
@@ -132,11 +134,14 @@ controllers:
             drop:
               - ALL
         resources:
+          # Low requests → low cgroup cpu.weight (~17 at 100m), so the pod loses priority when the node is busy.
+          # Node-RED has no CPU limit today (can burst), but raising requests improves scheduling weight.
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 1000m
+            memory: 1Gi
           limits:
-            memory: 1536Mi
+            cpu: 2000m
+            memory: 2Gi
 defaultPodOptions:
   securityContext:
     runAsUser: 1000
@@ -152,6 +157,8 @@ configMaps:
         const credentialSecret = process.env.NODE_RED_CREDENTIAL_SECRET || undefined;
         module.exports = {
           ...(credentialSecret ? { credentialSecret } : {}),
+          // Faster deploy/save on Longhorn PVC (single-line JSON).
+          flowFilePretty: false,
           editorTheme: {
             projects: {
               enabled: true,

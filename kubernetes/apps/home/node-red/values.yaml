@@ -53,7 +53,7 @@ controllers:
       install-nodes:
         image:
           repository: nodered/node-red
-          tag: "3.1.15-18"
+          tag: "4.1.10-18"
         command:
           - /bin/sh
           - -c
@@ -85,7 +85,7 @@ controllers:
       app:
         image:
           repository: nodered/node-red
-          tag: "3.1.15-18"
+          tag: "4.1.10-18"
         envFrom:
           - secretRef:
               name: node-red-secrets

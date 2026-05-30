@@ -10,7 +10,7 @@ controllers:
       bootstrap-custom-components:
         image:
           repository: alpine
-          tag: "3.21"
+          tag: "3.23"
         # Pod defaults to runAsUser 1000; apk needs root for this one-shot install.
         securityContext:
           runAsUser: 0

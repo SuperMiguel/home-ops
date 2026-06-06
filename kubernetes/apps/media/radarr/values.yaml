@@ -13,7 +13,7 @@ controllers:
         image:
           repository: ghcr.io/home-operations/radarr
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 6.1.1.10317).
-          tag: 6.2.0.10390
+          tag: 6.2.1.10437
         env:
           TZ: America/New_York
           RADARR__APP__INSTANCENAME: Radarr

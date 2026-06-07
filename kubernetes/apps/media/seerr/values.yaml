@@ -3,7 +3,8 @@
 # Radarr/Sonarr: CronJob `seerr-sync` (daily 4am ET); manual: kubectl create job -n media seerr-sync-now --from=cronjob/seerr-sync
 controllers:
   seerr:
-    strategy: RollingUpdate
+    # RWO Longhorn PVC — RollingUpdate leaves two pods fighting for one volume.
+    strategy: Recreate
     containers:
       app:
         image:

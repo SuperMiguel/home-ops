@@ -34,9 +34,10 @@ httproute:
       namespace: network
       sectionName: https
 
-# So Manager API / UI links use the public hostname (not in-cluster IPs).
+# managerUrl must be reachable from inside the cluster (CSI driver, volume mounts).
+# Public UI stays on https://longhorn.veliz.cc via httproute above.
 defaultSettings:
-  managerUrl: https://longhorn.veliz.cc
+  managerUrl: http://longhorn-backend.longhorn-system.svc.cluster.local:9500
   defaultReplicaCount: "2"
   # Default chart ~30% per disk is large on 120 GB SSDs; frees schedulable space for replicas.
   # Raise if rebuilds fail under load (see Longhorn docs).

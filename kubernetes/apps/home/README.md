@@ -1,5 +1,9 @@
 # Home automation
 
+## In-cluster DNS (`*.veliz.cc`)
+
+LAN DNS uses **k8s-gateway** (`10.0.20.3`). **CoreDNS** must forward `veliz.cc` → k8s-gateway or in-cluster apps (Homepage widgets, etc.) get `ENOTFOUND`. See `kube-system/coredns/values.yaml`.
+
 ## Node-RED
 
 | Item | Value |

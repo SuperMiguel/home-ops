@@ -6,7 +6,7 @@ controllers:
         image:
           repository: ghcr.io/home-operations/bazarr
           # GHCR has no `latest`; use `rolling` or pin a semver (e.g. 1.5.6).
-          tag: 1.5.6
+          tag: 1.6.0
         env:
           TZ: America/New_York
           # home-operations entrypoint: `--port ${BAZARR__PORT}` (see containers/apps/bazarr)

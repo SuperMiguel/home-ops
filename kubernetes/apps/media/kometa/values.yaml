@@ -28,6 +28,8 @@ controllers:
           KOMETA_CONFIG: /config/config.yml
           # Run once and exit (CronJob owns the schedule).
           KOMETA_RUN: "true"
+          # ConfigMap mount is read-only; do not let Kometa rewrite defaults into config.yml.
+          KOMETA_READ_ONLY_CONFIG: "true"
         envFrom:
           - secretRef:
               name: kometa-secret
@@ -81,7 +83,8 @@ configMaps:
             - operations
           cache: true
           cache_expiration: 60
-          asset_directory: config/assets
+          asset_directory: []
+          asset_folders: false
           sync_mode: append
           verify_ssl: true
 persistence:

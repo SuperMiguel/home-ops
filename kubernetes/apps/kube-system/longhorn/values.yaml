@@ -34,6 +34,11 @@ httproute:
       namespace: network
       sectionName: https
 
+# Scrape Longhorn manager metrics into kube-prometheus-stack (selectorNilUsesHelmValues: false).
+metrics:
+  serviceMonitor:
+    enabled: true
+
 # managerUrl must be reachable from inside the cluster (CSI driver, volume mounts).
 # Public UI stays on https://longhorn.veliz.cc via httproute above.
 defaultSettings:

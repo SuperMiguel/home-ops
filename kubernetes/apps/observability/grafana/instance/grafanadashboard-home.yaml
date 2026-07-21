@@ -338,8 +338,7 @@ spec:
               "legendFormat": "x",
               "refId": "A"
             }
-          ],
-          "description": "Failed Gatus checks across all groups"
+          ]
         },
         {
           "datasource": {
@@ -548,8 +547,7 @@ spec:
               "legendFormat": "x",
               "refId": "A"
             }
-          ],
-          "description": "Longhorn volumes with robustness degraded(2) or faulted(3)"
+          ]
         },
         {
           "datasource": {
@@ -713,7 +711,7 @@ spec:
                   },
                   {
                     "color": "yellow",
-                    "value": 70
+                    "value": 75
                   },
                   {
                     "color": "red",
@@ -773,7 +771,7 @@ spec:
                   },
                   {
                     "color": "yellow",
-                    "value": 70
+                    "value": 75
                   },
                   {
                     "color": "red",
@@ -1386,12 +1384,11 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
                   "name": "App",
@@ -1410,7 +1407,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Empty = all apps Healthy"
         },
         {
           "datasource": {
@@ -1491,12 +1489,11 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
                   "name": "App",
@@ -1515,7 +1512,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Empty = all apps Synced"
         },
         {
           "collapsed": false,
@@ -1579,8 +1577,7 @@ spec:
               "legendFormat": "h",
               "refId": "A"
             }
-          ],
-          "description": "Requires Longhorn ServiceMonitor scrape"
+          ]
         },
         {
           "datasource": {
@@ -2030,7 +2027,7 @@ spec:
                   },
                   {
                     "color": "red",
-                    "value": 90
+                    "value": 85
                   }
                 ]
               },
@@ -2146,12 +2143,11 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
                   "volume": "Volume",
@@ -2170,7 +2166,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Empty = all volumes healthy"
         },
         {
           "collapsed": false,
@@ -2199,42 +2196,34 @@ spec:
                     "value": null
                   },
                   {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 90
+                  },
+                  {
                     "color": "green",
-                    "value": 1
+                    "value": 100
                   }
                 ]
               },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "red",
-                      "index": 0,
-                      "text": "DOWN"
-                    },
-                    "1": {
-                      "color": "green",
-                      "index": 1,
-                      "text": "UP"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
+              "unit": "percent",
+              "mappings": []
             },
             "overrides": []
           },
           "gridPos": {
             "h": 5,
-            "w": 16,
+            "w": 4,
             "x": 0,
             "y": 36
           },
           "id": 40,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -2244,62 +2233,18 @@ spec:
               "fields": "",
               "values": false
             },
-            "textMode": "value_and_name"
+            "textMode": "auto"
           },
-          "title": "Platform targets",
+          "title": "Platform health",
           "type": "stat",
           "targets": [
             {
-              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"} > bool 0)",
-              "legendFormat": "Prometheus",
+              "expr": "100 * (scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0)) / 10",
+              "legendFormat": "health",
               "refId": "A"
-            },
-            {
-              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"} > bool 0)",
-              "legendFormat": "Alertmanager",
-              "refId": "B"
-            },
-            {
-              "expr": "(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"} > bool 0)",
-              "legendFormat": "Grafana",
-              "refId": "C"
-            },
-            {
-              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"} > bool 0)",
-              "legendFormat": "Victoria Logs",
-              "refId": "D"
-            },
-            {
-              "expr": "(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"} > bool 0)",
-              "legendFormat": "Longhorn UI",
-              "refId": "E"
-            },
-            {
-              "expr": "max(up{job=\"argocd-server-metrics\"}) or vector(0)",
-              "legendFormat": "Argo CD",
-              "refId": "F"
-            },
-            {
-              "expr": "min(up{job=\"cilium-agent\"}) or vector(0)",
-              "legendFormat": "Cilium",
-              "refId": "G"
-            },
-            {
-              "expr": "max(up{job=\"unpoller\"}) or vector(0)",
-              "legendFormat": "Unpoller",
-              "refId": "H"
-            },
-            {
-              "expr": "(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"} > bool 0)",
-              "legendFormat": "Gatus",
-              "refId": "I"
-            },
-            {
-              "expr": "max(up{job=\"network/envoy-proxy\"}) or vector(0)",
-              "legendFormat": "Envoy",
-              "refId": "J"
             }
-          ]
+          ],
+          "description": "Share of core platform components that are up"
         },
         {
           "datasource": {
@@ -2312,39 +2257,28 @@ spec:
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
+                    "color": "red",
                     "value": null
                   },
                   {
-                    "color": "yellow",
-                    "value": 1
+                    "color": "orange",
+                    "value": 9
                   },
                   {
-                    "color": "red",
-                    "value": 5
+                    "color": "green",
+                    "value": 10
                   }
                 ]
               },
               "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
+              "mappings": []
             },
             "overrides": []
           },
           "gridPos": {
             "h": 5,
             "w": 4,
-            "x": 16,
+            "x": 4,
             "y": 36
           },
           "id": 41,
@@ -2360,96 +2294,23 @@ spec:
               "fields": "",
               "values": false
             },
-            "textMode": "auto"
+            "textMode": "value_and_name"
           },
-          "title": "Pods not Running",
+          "title": "Components up",
           "type": "stat",
           "targets": [
             {
-              "expr": "count(kube_pod_status_phase{phase!~\"Running|Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|default\"} == 1) or vector(0)",
-              "legendFormat": "p",
+              "expr": "(scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0))",
+              "legendFormat": "up",
               "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
             },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 4,
-            "x": 20,
-            "y": 36
-          },
-          "id": 42,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Certs <14d",
-          "type": "stat",
-          "targets": [
             {
-              "expr": "count((certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 14) or vector(0)",
-              "legendFormat": "c",
-              "refId": "A"
+              "expr": "vector(10)",
+              "legendFormat": "total",
+              "refId": "B"
             }
-          ]
-        },
-        {
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 41
-          },
-          "id": 105,
-          "title": "Workloads",
-          "type": "row"
+          ],
+          "description": "10 tracked: Prometheus, Alertmanager, Grafana, Victoria Logs, Longhorn UI, Argo CD, Cilium, Unpoller, Gatus, Envoy"
         },
         {
           "datasource": {
@@ -2488,7 +2349,7 @@ spec:
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Not Running"
+                    "value": "Up"
                   },
                   {
                     "id": "custom.cellOptions",
@@ -2501,12 +2362,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 7,
-            "w": 8,
-            "x": 0,
-            "y": 42
+            "h": 5,
+            "w": 16,
+            "x": 8,
+            "y": 36
           },
-          "id": 50,
+          "id": 42,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -2519,7 +2380,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "Pods not Running by namespace",
+          "title": "Platform issues",
           "type": "table",
           "transformations": [
             {
@@ -2530,78 +2391,28 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
-                  "namespace": "Namespace",
-                  "Value": "Not Running"
+                  "component": "Component",
+                  "Value": "Up"
                 }
               }
             }
           ],
           "targets": [
             {
-              "expr": "sum by (namespace) (kube_pod_status_phase{phase!~\"Running|Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) > 0",
+              "expr": "((label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Prometheus\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Alertmanager\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Grafana\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Victoria_Logs\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0, \"component\", \"Longhorn_UI\", \"\", \"\") or label_replace((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0, \"component\", \"Argo_CD\", \"\", \"\") or label_replace((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0, \"component\", \"Cilium\", \"\", \"\") or label_replace((max(up{job=\"unpoller\"}) or vector(0)) > bool 0, \"component\", \"Unpoller\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Gatus\", \"\", \"\") or label_replace((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0, \"component\", \"Envoy\", \"\", \"\"))) == 0",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "drawStyle": "line",
-                "fillOpacity": 10,
-                "lineWidth": 1,
-                "showPoints": "never",
-                "spanNulls": false
-              },
-              "unit": "short"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 16,
-            "x": 8,
-            "y": 42
-          },
-          "id": 51,
-          "options": {
-            "legend": {
-              "calcs": [
-                "mean",
-                "max"
-              ],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "title": "Container restart rate (5m)",
-          "type": "timeseries",
-          "targets": [
-            {
-              "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|default\"}[5m])) > 0",
-              "legendFormat": "{{namespace}}",
-              "refId": "A"
-            }
-          ]
+          ],
+          "description": "Only components that are down. Empty = all platform targets healthy."
         },
         {
           "collapsed": false,
@@ -2609,10 +2420,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 49
+            "y": 41
           },
-          "id": 106,
-          "title": "Service checks (Gatus)",
+          "id": 105,
+          "title": "Workloads",
           "type": "row"
         },
         {
@@ -2620,12 +2431,8 @@ spec:
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "description": "One bar per Gatus group. Drill into failures in the table, or open https://gatus.veliz.cc",
           "fieldConfig": {
             "defaults": {
-              "decimals": 0,
-              "max": 100,
-              "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -2635,11 +2442,11 @@ spec:
                   },
                   {
                     "color": "orange",
-                    "value": 80
+                    "value": 90
                   },
                   {
                     "color": "yellow",
-                    "value": 95
+                    "value": 98
                   },
                   {
                     "color": "green",
@@ -2647,20 +2454,23 @@ spec:
                   }
                 ]
               },
-              "unit": "percent"
+              "unit": "percent",
+              "mappings": []
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 8,
-            "w": 10,
+            "h": 4,
+            "w": 4,
             "x": 0,
-            "y": 50
+            "y": 42
           },
-          "id": 60,
+          "id": 50,
           "options": {
-            "displayMode": "lcd",
-            "orientation": "horizontal",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
             "reduceOptions": {
               "calcs": [
                 "lastNotNull"
@@ -2668,14 +2478,67 @@ spec:
               "fields": "",
               "values": false
             },
-            "showUnfilled": true
+            "textMode": "auto"
           },
-          "title": "Success % by group",
-          "type": "bargauge",
+          "title": "Pods running %",
+          "type": "stat",
           "targets": [
             {
-              "expr": "100 * avg by (group) (gatus_results_endpoint_success)",
-              "legendFormat": "{{group}}",
+              "expr": "100 * sum(kube_pod_status_phase{phase=\"Running\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) / clamp_min(sum(kube_pod_status_phase{phase!=\"Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1), 1)",
+              "legendFormat": "running",
+              "refId": "A"
+            }
+          ],
+          "description": "Running pods / (all non-Succeeded pods) across app namespaces"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 42
+          },
+          "id": 51,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Pods running",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{phase=\"Running\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) or vector(0)",
+              "legendFormat": "running",
               "refId": "A"
             }
           ]
@@ -2721,10 +2584,694 @@ spec:
             "overrides": []
           },
           "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 42
+          },
+          "id": 52,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Pods with issues",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "(count(sum by (namespace, pod, phase) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)) or vector(0)) + (count(sum by (namespace, pod, reason) (kube_pod_container_status_waiting_reason{reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|InvalidImageName|CreateContainerError\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)) or vector(0))",
+              "legendFormat": "issues",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "orange",
+                    "value": 5
+                  },
+                  {
+                    "color": "red",
+                    "value": 20
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "None"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 42
+          },
+          "id": 53,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Restarts (1h)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[1h])) or vector(0)",
+              "legendFormat": "r",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "None"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 42
+          },
+          "id": 54,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "CrashLoop",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) or vector(0)",
+              "legendFormat": "c",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "None"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 42
+          },
+          "id": 55,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Pending/Failed",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) or vector(0)",
+              "legendFormat": "p",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 95
+                  },
+                  {
+                    "color": "green",
+                    "value": 100
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 46
+          },
+          "id": 56,
+          "options": {
+            "displayMode": "lcd",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "Running % by namespace",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 * sum by (namespace) (kube_pod_status_phase{phase=\"Running\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) / clamp_min(sum by (namespace) (kube_pod_status_phase{phase!=\"Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1), 1)",
+              "legendFormat": "{{namespace}}",
+              "refId": "A"
+            }
+          ],
+          "description": "Always populated \u2014 100% means every non-Succeeded pod in the namespace is Running"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Count"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 12,
+            "y": 46
+          },
+          "id": 57,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "title": "Pods with issues",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "service": true,
+                  "container": true,
+                  "endpoint": true,
+                  "exported_namespace": true,
+                  "uid": true
+                },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "pod": "Pod",
+                  "reason": "Reason",
+                  "Value": "Count"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "sum by (namespace, pod, reason) (kube_pod_container_status_waiting_reason{reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|InvalidImageName|CreateContainerError\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "description": "Waiting reasons (CrashLoop, ImagePull, etc). Empty = none."
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Count"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 12,
+            "y": 50
+          },
+          "id": 58,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "title": "Pods Pending / Failed / Unknown",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "service": true,
+                  "container": true,
+                  "endpoint": true,
+                  "exported_namespace": true,
+                  "uid": true
+                },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "pod": "Pod",
+                  "phase": "Phase",
+                  "Value": "Count"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "sum by (namespace, pod, phase) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "description": "Empty = none in Pending/Failed/Unknown"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 1,
+                "showPoints": "never",
+                "spanNulls": false
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 54
+          },
+          "id": 59,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Container restart rate (5m)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[5m])) > 0",
+              "legendFormat": "{{namespace}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 60
+          },
+          "id": 106,
+          "title": "Service checks (Gatus)",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 95
+                  },
+                  {
+                    "color": "green",
+                    "value": 100
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 10,
+            "x": 0,
+            "y": 61
+          },
+          "id": 60,
+          "options": {
+            "displayMode": "lcd",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "Success % by group",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 * avg by (group) (gatus_results_endpoint_success)",
+              "legendFormat": "{{group}}",
+              "refId": "A"
+            }
+          ],
+          "description": "One bar per Gatus group. Failures listed to the right."
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 3
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "None"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
             "h": 8,
             "w": 6,
             "x": 10,
-            "y": 50
+            "y": 61
           },
           "id": 61,
           "options": {
@@ -2804,7 +3351,7 @@ spec:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 50
+            "y": 61
           },
           "id": 62,
           "options": {
@@ -2830,12 +3377,11 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
                   "group": "Group",
@@ -2861,7 +3407,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 58
+            "y": 69
           },
           "id": 107,
           "title": "Network (UniFi)",
@@ -2892,7 +3438,7 @@ spec:
             "h": 4,
             "w": 6,
             "x": 0,
-            "y": 59
+            "y": 70
           },
           "id": 70,
           "options": {
@@ -2944,7 +3490,7 @@ spec:
             "h": 4,
             "w": 6,
             "x": 6,
-            "y": 59
+            "y": 70
           },
           "id": 71,
           "options": {
@@ -2996,7 +3542,7 @@ spec:
             "h": 4,
             "w": 6,
             "x": 12,
-            "y": 59
+            "y": 70
           },
           "id": 72,
           "options": {
@@ -3048,7 +3594,7 @@ spec:
             "h": 4,
             "w": 6,
             "x": 18,
-            "y": 59
+            "y": 70
           },
           "id": 73,
           "options": {
@@ -3081,7 +3627,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 63
+            "y": 74
           },
           "id": 108,
           "title": "Alerts",
@@ -3096,7 +3642,7 @@ spec:
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 64
+            "y": 75
           },
           "id": 80,
           "options": {
@@ -3172,7 +3718,7 @@ spec:
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 64
+            "y": 75
           },
           "id": 81,
           "options": {
@@ -3198,12 +3744,11 @@ spec:
                   "__name__": true,
                   "job": true,
                   "instance": true,
-                  "pod": true,
-                  "namespace": true,
                   "service": true,
                   "container": true,
                   "endpoint": true,
-                  "exported_namespace": true
+                  "exported_namespace": true,
+                  "uid": true
                 },
                 "renameByName": {
                   "namespace": "Namespace",
@@ -3215,7 +3760,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "topk(10, sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total[1h])) > 0)",
+              "expr": "topk(10, sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[1h])) > 0)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -3274,6 +3819,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 2,
+      "version": 3,
       "weekStart": ""
     }

@@ -18,6 +18,25 @@ controllers:
       activeDeadlineSeconds: 3600
     pod:
       restartPolicy: OnFailure
+    initContainers:
+      copy-config:
+        image:
+          repository: docker.io/library/busybox
+          tag: "1.38.0"
+        command:
+          - sh
+          - -c
+          - |
+            set -e
+            # Kometa rewrites config.yml with defaults; ConfigMap must be copied to a writable path.
+            cp /cm/config.yml /config/config.yml
+            chmod 644 /config/config.yml
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
     containers:
       app:
         image:
@@ -28,8 +47,6 @@ controllers:
           KOMETA_CONFIG: /config/config.yml
           # Run once and exit (CronJob owns the schedule).
           KOMETA_RUN: "true"
-          # ConfigMap mount is read-only; do not let Kometa rewrite defaults into config.yml.
-          KOMETA_READ_ONLY_CONFIG: "true"
         envFrom:
           - secretRef:
               name: kometa-secret
@@ -101,9 +118,8 @@ persistence:
     identifier: kometa-config
     advancedMounts:
       kometa:
-        app:
-          - path: /config/config.yml
-            subPath: config.yml
+        copy-config:
+          - path: /cm
             readOnly: true
   tmp:
     type: emptyDir

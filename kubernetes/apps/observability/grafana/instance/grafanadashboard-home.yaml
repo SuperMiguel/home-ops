@@ -1,0 +1,1021 @@
+# Veliz Home — cluster / homelab overview. Open: https://grafana.veliz.cc/d/veliz-home
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: veliz-home
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: Home
+  uid: veliz-home
+  json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [
+        {
+          "asDropdown": true,
+          "icon": "external link",
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [],
+          "targetBlank": true,
+          "title": "Drill-downs",
+          "tooltip": "",
+          "type": "link",
+          "url": "https://grafana.veliz.cc"
+        },
+        {
+          "title": "Gatus",
+          "type": "link",
+          "url": "https://gatus.veliz.cc",
+          "targetBlank": true,
+          "icon": "heart"
+        },
+        {
+          "title": "Argo CD",
+          "type": "link",
+          "url": "https://argo.veliz.cc",
+          "targetBlank": true,
+          "icon": "cloud"
+        },
+        {
+          "title": "Longhorn",
+          "type": "link",
+          "url": "https://longhorn.veliz.cc",
+          "targetBlank": true,
+          "icon": "database"
+        },
+        {
+          "title": "Alertmanager",
+          "type": "link",
+          "url": "https://alertmanager.veliz.cc",
+          "targetBlank": true,
+          "icon": "bell"
+        }
+      ],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+          "id": 100,
+          "title": "Status",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "red", "index": 0, "text": "DOWN" } }, "type": "value" },
+                { "options": { "from": 1, "result": { "color": "green", "index": 1, "text": "OK" }, "to": 999 }, "type": "range" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+          "id": 1,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "title": "Nodes Ready",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+              "legendFormat": "ready",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "None" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 3 }
+                ]
+              },
+              "unit": "none"
+            }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+          "id": 2,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "title": "CrashLoopBackOff",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\"} == 1) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "None" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+          "id": 3,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "OOMKilled (1h)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count((kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 1h >= 1) and ignoring(reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\"}[1h]) == 1) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "None" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+          "id": 4,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "PVC Pending",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "All healthy" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+          "id": 5,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "Argo Not Healthy",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "Synced" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "orange", "value": 3 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+          "id": 6,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "Argo OutOfSync",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+          "id": 101,
+          "title": "Cluster capacity",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "red", "value": 90 }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 6 },
+          "id": 10,
+          "options": {
+            "displayMode": "lcd",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "showUnfilled": true
+          },
+          "title": "CPU % by node",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 75 },
+                  { "color": "red", "value": 90 }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 6 },
+          "id": 11,
+          "options": {
+            "displayMode": "lcd",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "showUnfilled": true
+          },
+          "title": "Memory % by node",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 75 },
+                  { "color": "red", "value": 90 }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 6 },
+          "id": 12,
+          "options": {
+            "displayMode": "lcd",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "showUnfilled": true
+          },
+          "title": "Disk /var % by node",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+          "id": 102,
+          "title": "Platform",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "red", "index": 0, "text": "DOWN" }, "1": { "color": "green", "index": 1, "text": "UP" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 5, "w": 12, "x": 0, "y": 14 },
+          "id": 20,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "value_and_name"
+          },
+          "title": "Platform targets",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"} > bool 0)",
+              "legendFormat": "Prometheus",
+              "refId": "A"
+            },
+            {
+              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"} > bool 0)",
+              "legendFormat": "Alertmanager",
+              "refId": "B"
+            },
+            {
+              "expr": "(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"} > bool 0)",
+              "legendFormat": "Grafana",
+              "refId": "C"
+            },
+            {
+              "expr": "(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"} > bool 0)",
+              "legendFormat": "Victoria Logs",
+              "refId": "D"
+            },
+            {
+              "expr": "(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"} > bool 0)",
+              "legendFormat": "Longhorn UI",
+              "refId": "E"
+            },
+            {
+              "expr": "max(up{job=\"argocd-server-metrics\"}) or vector(0)",
+              "legendFormat": "Argo CD",
+              "refId": "F"
+            },
+            {
+              "expr": "min(up{job=\"cilium-agent\"}) or vector(0)",
+              "legendFormat": "Cilium",
+              "refId": "G"
+            },
+            {
+              "expr": "max(up{job=\"unpoller\"}) or vector(0)",
+              "legendFormat": "Unpoller",
+              "refId": "H"
+            },
+            {
+              "expr": "(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"} > bool 0)",
+              "legendFormat": "Gatus",
+              "refId": "I"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "green", "index": 0, "text": "All Bound" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 12, "y": 14 },
+          "id": 21,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "PVC not Bound",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(kube_persistentvolumeclaim_status_phase{phase!=\"Bound\"} == 1) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 16, "y": 14 },
+          "id": 22,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "Pods not Running",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_phase{phase!~\"Running|Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|default\"} == 1) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 5, "w": 4, "x": 20, "y": 14 },
+          "id": 23,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "Certs expiring <14d",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count((certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 14) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
+          "id": 103,
+          "title": "Workloads",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": { "type": "auto" },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Value" },
+                "properties": [
+                  { "id": "displayName", "value": "Not Running" },
+                  { "id": "custom.cellOptions", "value": { "type": "color-background" } }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 20 },
+          "id": 30,
+          "options": {
+            "cellHeight": "sm",
+            "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+            "showHeader": true,
+            "sortBy": [{ "desc": true, "displayName": "Not Running" }]
+          },
+          "title": "Pods not Running by namespace",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": { "Time": true, "__name__": true },
+                "renameByName": { "namespace": "Namespace", "Value": "Not Running" }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "sum by (namespace) (kube_pod_status_phase{phase!~\"Running|Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) > 0",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "lineWidth": 1,
+                "showPoints": "never",
+                "spanNulls": false
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": { "h": 8, "w": 16, "x": 8, "y": 20 },
+          "id": 31,
+          "options": {
+            "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "title": "Container restart rate (5m)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|default\"}[5m])) > 0",
+              "legendFormat": "{{namespace}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
+          "id": 104,
+          "title": "Service checks (Gatus)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "options": { "0": { "color": "red", "index": 0, "text": "FAIL" }, "1": { "color": "green", "index": 1, "text": "OK" } }, "type": "value" }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              }
+            }
+          },
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 29 },
+          "id": 40,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "value_and_name"
+          },
+          "title": "Endpoint success (core / observability / storage / home / media)",
+          "description": "From Gatus Prometheus metrics. Full LAN/IoT checks: https://gatus.veliz.cc",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}",
+              "legendFormat": "{{group}}/{{name}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "orange", "value": 50 },
+                  { "color": "green", "value": 100 }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 5, "w": 12, "x": 0, "y": 35 },
+          "id": 41,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "value_and_name"
+          },
+          "title": "Gatus success % by group",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "100 * avg by (group) (gatus_results_endpoint_success)",
+              "legendFormat": "{{group}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 1,
+                "showPoints": "never"
+              },
+              "unit": "s"
+            }
+          },
+          "gridPos": { "h": 5, "w": 12, "x": 12, "y": 35 },
+          "id": 42,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "title": "Gatus latency (HTTP apps)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"}",
+              "legendFormat": "{{group}}/{{name}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 },
+          "id": 105,
+          "title": "Network (UniFi)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [{ "color": "blue", "value": null }]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 41 },
+          "id": 50,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "UniFi clients",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(unpoller_client_uptime_seconds) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [{ "color": "purple", "value": null }]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 41 },
+          "id": 51,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "UniFi devices",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(unpoller_device_uptime_seconds) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [{ "color": "green", "value": null }]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 41 },
+          "id": 52,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "WAN RX",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(rate(unpoller_device_wan_receive_bytes_total[5m])) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [{ "color": "orange", "value": null }]
+              }
+            }
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 41 },
+          "id": 53,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "title": "WAN TX",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(rate(unpoller_device_wan_transmit_bytes_total[5m])) or vector(0)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 45 },
+          "id": 106,
+          "title": "Alerts",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "alertmanager", "uid": "${alertmanager}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
+          "id": 60,
+          "options": {
+            "alertInstanceLabelFilter": "",
+            "alertName": "",
+            "dashboardRef": {},
+            "groupBy": [],
+            "groupMode": "default",
+            "maxItems": 20,
+            "sortOrder": 1,
+            "stateFilter": {
+              "error": true,
+              "firing": true,
+              "noData": false,
+              "normal": false,
+              "pending": true
+            },
+            "viewMode": "list"
+          },
+          "title": "Firing / pending alerts",
+          "type": "alertlist"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": { "type": "auto" },
+                "inspect": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Value" },
+                "properties": [{ "id": "displayName", "value": "Restarts (1h)" }]
+              }
+            ]
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
+          "id": 61,
+          "options": {
+            "cellHeight": "sm",
+            "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+            "showHeader": true
+          },
+          "title": "Top restarting pods (1h)",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": { "Time": true, "__name__": true },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "pod": "Pod",
+                  "Value": "Restarts (1h)"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "topk(10, sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total[1h])) > 0)",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "tags": ["home", "veliz", "overview"],
+      "templating": {
+        "list": [
+          {
+            "current": { "selected": true, "text": "Prometheus", "value": "Prometheus" },
+            "hide": 0,
+            "includeAll": false,
+            "label": "Prometheus",
+            "name": "datasource",
+            "options": [],
+            "query": "prometheus",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+          },
+          {
+            "current": { "selected": true, "text": "Alertmanager", "value": "Alertmanager" },
+            "hide": 0,
+            "includeAll": false,
+            "label": "Alertmanager",
+            "name": "alertmanager",
+            "options": [],
+            "query": "alertmanager",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+          }
+        ]
+      },
+      "time": { "from": "now-6h", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Veliz Home",
+      "uid": "veliz-home",
+      "version": 1,
+      "weekStart": ""
+    }

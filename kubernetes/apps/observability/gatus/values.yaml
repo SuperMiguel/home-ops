@@ -74,10 +74,21 @@ service:
     ports:
       http:
         port: 8080
+serviceMonitor:
+  app:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+    endpoints:
+      - port: http
+        interval: 30s
+        path: /metrics
+        scrapeTimeout: 10s
 configMaps:
   config:
     data:
       config.yaml: |
+        metrics: true
         storage:
           type: sqlite
           path: /data/sqlite.db

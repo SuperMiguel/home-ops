@@ -71,10 +71,15 @@
         siteMonitor: https://gatus.veliz.cc
 
 - Observability & storage:
+    - Cluster status:
+        icon: grafana.png
+        href: https://grafana.veliz.cc/d/veliz-home
+        description: Veliz Home overview (Grafana)
+        siteMonitor: https://grafana.veliz.cc/login
     - Grafana:
         icon: grafana.png
-        href: https://grafana.veliz.cc
-        description: Dashboards (Grafana Operator)
+        href: https://grafana.veliz.cc/d/veliz-home
+        description: Dashboards (Grafana Operator) — opens Veliz Home
         siteMonitor: https://grafana.veliz.cc/login
     - Prometheus:
         icon: prometheus.png

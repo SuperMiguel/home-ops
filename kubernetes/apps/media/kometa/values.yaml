@@ -1,0 +1,110 @@
+# Kometa — https://kometa.wiki/
+# Nightly: normalize mature Plex content ratings so kids share restrictions (R filter) catch them.
+# Plex parental controls block R reliably; NC-17 / X / AO often slip through — map those → R.
+# Secrets: kometa-secret (KOMETA_PLEXURL, KOMETA_PLEXTOKEN, KOMETA_TMDBKEY from 1Password).
+# Library name under `libraries:` must match Plex exactly (edit if yours is not "Movies").
+# Manual run: kubectl create job -n media kometa-now --from=cronjob/kometa
+controllers:
+  kometa:
+    type: cronjob
+    cronjob:
+      schedule: "0 5 * * *"
+      timeZone: America/New_York
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 2
+      ttlSecondsAfterFinished: 86400
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+    pod:
+      restartPolicy: OnFailure
+    containers:
+      app:
+        image:
+          repository: docker.io/kometateam/kometa
+          tag: v2.4.4@sha256:90e53a6bdf9343d63702767f8f6d6da09902e7bd174850120ac50d39a0722ff1
+        env:
+          TZ: America/New_York
+          KOMETA_CONFIG: /config/config.yml
+          # Run once and exit (CronJob owns the schedule).
+          KOMETA_RUN: "true"
+        envFrom:
+          - secretRef:
+              name: kometa-secret
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+configMaps:
+  kometa-config:
+    data:
+      config.yml: |
+        # yaml-language-server: $schema=https://raw.githubusercontent.com/Kometa-Team/Kometa/v2.4.4/json-schema/config-schema.json
+        # Secrets via env (no underscores in <<NAME>>): KOMETA_PLEXURL, KOMETA_PLEXTOKEN, KOMETA_TMDBKEY
+        plex:
+          url: <<PLEXURL>>
+          token: <<PLEXTOKEN>>
+          timeout: 60
+          clean_bundles: false
+          empty_trash: false
+          optimize: false
+          verify_ssl: true
+        tmdb:
+          apikey: <<TMDBKEY>>
+          cache_expiration: 60
+          language: en
+        libraries:
+          Movies:
+            operations:
+              content_rating_mapper:
+                NC-17: R
+                "X": R
+                AO: R
+                "Adults Only": R
+        settings:
+          run_order:
+            - operations
+          cache: true
+          cache_expiration: 60
+          asset_directory: config/assets
+          sync_mode: append
+          verify_ssl: true
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  kometa-yml:
+    type: configMap
+    identifier: kometa-config
+    advancedMounts:
+      kometa:
+        app:
+          - path: /config/config.yml
+            subPath: config.yml
+            readOnly: true
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      kometa:
+        app:
+          - path: /tmp

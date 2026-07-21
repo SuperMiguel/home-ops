@@ -10,6 +10,8 @@ spec:
   datasource:
     type: prometheus
     name: Prometheus
+    # Stable UID for dashboards (mutable). Avoids CR metadata UUIDs in panel JSON.
+    uid: prometheus
     access: proxy
     isDefault: true
     url: http://kube-prometheus-stack-prometheus.observability.svc:9090
@@ -25,6 +27,7 @@ spec:
   datasource:
     type: alertmanager
     name: Alertmanager
+    uid: alertmanager
     access: proxy
     jsonData:
       implementation: prometheus

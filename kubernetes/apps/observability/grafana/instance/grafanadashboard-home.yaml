@@ -1,6 +1,5 @@
-# Veliz Home — SRE overall-health dashboard. Open: https://grafana.veliz.cc/d/veliz-home
-# Layout inspired by SRE dashboard hierarchy (status → golden signals → problems → resources → dependencies)
-# and homelab NOC / command-center overview patterns.
+# Veliz Home — SRE health board. https://grafana.veliz.cc/d/veliz-home
+# Datasources: stable UIDs `prometheus` / `alertmanager` (see grafanadatasource.yaml).
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -31,7 +30,7 @@ spec:
           }
         ]
       },
-      "description": "SRE home board for Veliz. Answers: is anything broken, golden signals (traffic/errors/latency/saturation), what is failing, and capacity headroom. Drill-downs: https://gatus.veliz.cc \u00b7 https://argo.veliz.cc \u00b7 https://longhorn.veliz.cc \u00b7 https://alertmanager.veliz.cc",
+      "description": "SRE home board. Datasources use stable UIDs prometheus / alertmanager. Firing alerts from Prometheus ALERTS (not Alert list panel).",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 1,
@@ -75,24 +74,24 @@ spec:
       "panels": [
         {
           "gridPos": {
-            "h": 3,
+            "h": 2,
             "w": 24,
             "x": 0,
             "y": 0
           },
           "id": 99,
+          "transparent": true,
+          "type": "text",
+          "title": "",
           "options": {
+            "mode": "markdown",
             "code": {
               "language": "plaintext",
               "showLineNumbers": false,
               "showMiniMap": false
             },
-            "content": "### Veliz Home \u2014 SRE health board\n**Questions this answers:** (1) Is anything broken? (2) How busy / slow / error-prone is the lab? (3) Are we close to capacity? (4) What exactly is failing?\n\n**How to use:** Top row = traffic lights (readable from across the room). Next = Google SRE **golden signals**. Then **only problems**. Empty problem tables = healthy. Detail rows below are for drill-down.\nInspired by SRE dashboard hierarchy (status \u2192 golden signals \u2192 resources \u2192 dependencies) and homelab NOC \u201ccommand center\u201d layouts.",
-            "mode": "markdown"
-          },
-          "title": "",
-          "transparent": true,
-          "type": "text"
+            "content": "**Veliz Home** \u2014 traffic lights first, then golden signals, then only problems. Empty problem tables = healthy. Drill-down: [Gatus](https://gatus.veliz.cc) \u00b7 [Argo](https://argo.veliz.cc) \u00b7 [Longhorn](https://longhorn.veliz.cc) \u00b7 [Alertmanager](https://alertmanager.veliz.cc)"
+          }
         },
         {
           "collapsed": false,
@@ -100,7 +99,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 3
+            "y": 2
           },
           "id": 100,
           "title": "1 \u00b7 Status \u2014 is anything broken?",
@@ -109,7 +108,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -151,7 +150,7 @@ spec:
             "h": 5,
             "w": 4,
             "x": 0,
-            "y": 4
+            "y": 3
           },
           "id": 1,
           "options": {
@@ -168,21 +167,21 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "EVERYTHING OK?",
+          "title": "All OK?",
           "type": "stat",
           "targets": [
             {
               "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
-              "legendFormat": "overall",
+              "legendFormat": "o",
               "refId": "A"
             }
           ],
-          "description": "OK only if Cluster + User services + GitOps + Storage are OK, saturation is not HOT, and no firing alerts."
+          "description": "OK if Cluster+Services+GitOps+Storage OK, Capacity not HOT, no real firing alerts (excl. Watchdog)."
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -224,7 +223,7 @@ spec:
             "h": 5,
             "w": 3,
             "x": 4,
-            "y": 4
+            "y": 3
           },
           "id": 2,
           "options": {
@@ -249,13 +248,12 @@ spec:
               "legendFormat": "c",
               "refId": "A"
             }
-          ],
-          "description": "All nodes Ready"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -295,9 +293,9 @@ spec:
           },
           "gridPos": {
             "h": 5,
-            "w": 3,
+            "w": 4,
             "x": 7,
-            "y": 4
+            "y": 3
           },
           "id": 3,
           "options": {
@@ -314,7 +312,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "User services",
+          "title": "Services",
           "type": "stat",
           "targets": [
             {
@@ -323,12 +321,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Gatus critical groups (core|observability|storage|home|media) all OK"
+          "description": "Critical Gatus groups: core|observability|storage|home|media"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -369,8 +367,8 @@ spec:
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 10,
-            "y": 4
+            "x": 11,
+            "y": 3
           },
           "id": 4,
           "options": {
@@ -395,13 +393,12 @@ spec:
               "legendFormat": "g",
               "refId": "A"
             }
-          ],
-          "description": "Argo apps Healthy + Synced"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -442,8 +439,8 @@ spec:
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 13,
-            "y": 4
+            "x": 14,
+            "y": 3
           },
           "id": 5,
           "options": {
@@ -468,13 +465,12 @@ spec:
               "legendFormat": "st",
               "refId": "A"
             }
-          ],
-          "description": "No degraded/faulted Longhorn vols; no Pending PVCs"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -514,9 +510,9 @@ spec:
           },
           "gridPos": {
             "h": 5,
-            "w": 4,
-            "x": 16,
-            "y": 4
+            "w": 3,
+            "x": 17,
+            "y": 3
           },
           "id": 6,
           "options": {
@@ -533,7 +529,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Saturation",
+          "title": "Capacity",
           "type": "stat",
           "targets": [
             {
@@ -547,7 +543,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -588,7 +584,7 @@ spec:
             "h": 5,
             "w": 4,
             "x": 20,
-            "y": 4
+            "y": 3
           },
           "id": 7,
           "options": {
@@ -614,14 +610,14 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Firing alerts (excl. Watchdog)"
+          "description": "Firing alerts excluding Watchdog/InfoInhibitor"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
-          "description": "When did each domain flip? Green=OK. Capacity row uses inverted saturation (green=OK).",
+          "description": "When each domain flipped. Saturation: green=OK, orange=HOT.",
           "fieldConfig": {
             "defaults": {
               "custom": {
@@ -694,7 +690,7 @@ spec:
             "h": 5,
             "w": 24,
             "x": 0,
-            "y": 9
+            "y": 8
           },
           "id": 8,
           "options": {
@@ -752,7 +748,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 14
+            "y": 13
           },
           "id": 101,
           "title": "2 \u00b7 Golden signals \u2014 traffic \u00b7 errors \u00b7 latency \u00b7 saturation",
@@ -761,7 +757,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -780,10 +776,10 @@ spec:
             "overrides": []
           },
           "gridPos": {
-            "h": 5,
+            "h": 4,
             "w": 6,
             "x": 0,
-            "y": 15
+            "y": 14
           },
           "id": 10,
           "options": {
@@ -800,7 +796,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Traffic (API RPS)",
+          "title": "Traffic",
           "type": "stat",
           "targets": [
             {
@@ -809,12 +805,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Kubernetes API server request rate \u2014 lab control-plane demand (SRE traffic signal)"
+          "description": "API server RPS"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -845,10 +841,10 @@ spec:
             "overrides": []
           },
           "gridPos": {
-            "h": 5,
+            "h": 4,
             "w": 6,
             "x": 6,
-            "y": 15
+            "y": 14
           },
           "id": 11,
           "options": {
@@ -865,7 +861,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Errors (critical checks %)",
+          "title": "Errors",
           "type": "stat",
           "targets": [
             {
@@ -874,12 +870,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Failure rate of critical Gatus groups \u2014 user-facing error signal for the lab"
+          "description": "Critical Gatus failure %"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -910,10 +906,10 @@ spec:
             "overrides": []
           },
           "gridPos": {
-            "h": 5,
+            "h": 4,
             "w": 6,
             "x": 12,
-            "y": 15
+            "y": 14
           },
           "id": 12,
           "options": {
@@ -930,7 +926,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Latency p95 (Gatus HTTP)",
+          "title": "Latency p95",
           "type": "stat",
           "targets": [
             {
@@ -939,12 +935,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "p95 duration of critical HTTP health checks \u2014 proxy for user-experienced latency"
+          "description": "Critical HTTP check p95"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -975,10 +971,10 @@ spec:
             "overrides": []
           },
           "gridPos": {
-            "h": 5,
+            "h": 4,
             "w": 6,
             "x": 18,
-            "y": 15
+            "y": 14
           },
           "id": 13,
           "options": {
@@ -995,7 +991,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Saturation (worst node %)",
+          "title": "Saturation",
           "type": "stat",
           "targets": [
             {
@@ -1004,12 +1000,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Worst of max node CPU / memory / /var disk \u2014 how close to the cliff"
+          "description": "Worst node CPU/mem/disk %"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1021,15 +1017,15 @@ spec:
                 "spanNulls": false,
                 "gradientMode": "opacity"
               },
-              "unit": "short"
+              "unit": "reqps"
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 7,
-            "w": 24,
+            "h": 6,
+            "w": 6,
             "x": 0,
-            "y": 20
+            "y": 18
           },
           "id": 14,
           "options": {
@@ -1047,31 +1043,172 @@ spec:
               "sort": "desc"
             }
           },
-          "title": "Golden signals over time",
+          "title": "Traffic (API RPS)",
           "type": "timeseries",
           "targets": [
             {
               "expr": "sum(rate(apiserver_request_total{job=\"apiserver\",verb=~\"GET|LIST|WATCH|POST|PUT|PATCH|DELETE\"}[5m]))",
-              "legendFormat": "API RPS",
+              "legendFormat": "RPS",
               "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "percent",
+              "min": 0
             },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 6,
+            "x": 6,
+            "y": 18
+          },
+          "id": 15,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Errors (%)",
+          "type": "timeseries",
+          "targets": [
             {
               "expr": "100 * (1 - avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}))",
               "legendFormat": "Error %",
-              "refId": "B"
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "s",
+              "min": 0
             },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 6,
+            "x": 12,
+            "y": 18
+          },
+          "id": 16,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Latency p95",
+          "type": "timeseries",
+          "targets": [
             {
-              "expr": "(quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})) * 1000",
-              "legendFormat": "Latency p95 (ms)",
-              "refId": "C"
+              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})",
+              "legendFormat": "p95",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
             },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 6,
+            "x": 18,
+            "y": 18
+          },
+          "id": 17,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Saturation (%)",
+          "type": "timeseries",
+          "targets": [
             {
               "expr": "max(max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) or max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})))",
-              "legendFormat": "Saturation %",
-              "refId": "D"
+              "legendFormat": "Worst node %",
+              "refId": "A"
             }
-          ],
-          "description": "Same four signals as trends \u2014 spot correlated spikes (SRE overview pattern)"
+          ]
         },
         {
           "collapsed": false,
@@ -1079,7 +1216,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 27
+            "y": 24
           },
           "id": 102,
           "title": "3 \u00b7 Active problems \u2014 empty means healthy",
@@ -1087,41 +1224,8 @@ spec:
         },
         {
           "datasource": {
-            "type": "alertmanager",
-            "uid": "${alertmanager}"
-          },
-          "description": "Primary incident feed. Match visual reds above to alerts here.",
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 28
-          },
-          "id": 20,
-          "options": {
-            "alertInstanceLabelFilter": "",
-            "alertName": "",
-            "dashboardRef": {},
-            "groupBy": [],
-            "groupMode": "default",
-            "maxItems": 20,
-            "sortOrder": 1,
-            "stateFilter": {
-              "error": true,
-              "firing": true,
-              "noData": false,
-              "normal": false,
-              "pending": true
-            },
-            "viewMode": "list"
-          },
-          "title": "Incidents (Alertmanager)",
-          "type": "alertlist"
-        },
-        {
-          "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1155,7 +1259,113 @@ spec:
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Failed"
+                    "value": "Firing"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 25
+          },
+          "id": 20,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "title": "Firing alerts",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "service": true,
+                  "container": true,
+                  "endpoint": true,
+                  "exported_namespace": true,
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
+                },
+                "renameByName": {
+                  "alertname": "Alert",
+                  "severity": "Sev",
+                  "namespace": "NS",
+                  "pod": "Pod"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "description": "From Prometheus ALERTS (excl. Watchdog). Uses Prometheus datasource \u2014 no Alertmanager variable."
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Fail"
                   },
                   {
                     "id": "custom.cellOptions",
@@ -1171,7 +1381,7 @@ spec:
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 28
+            "y": 25
           },
           "id": 21,
           "options": {
@@ -1186,7 +1396,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "Failed service checks",
+          "title": "Failed checks",
           "type": "table",
           "transformations": [
             {
@@ -1201,7 +1411,9 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
                   "group": "Group",
@@ -1219,12 +1431,12 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Gatus failures only \u2014 start here when User services = FAIL"
+          "description": "Gatus failures only"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1274,7 +1486,7 @@ spec:
             "h": 4,
             "w": 8,
             "x": 16,
-            "y": 28
+            "y": 25
           },
           "id": 22,
           "options": {
@@ -1289,7 +1501,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "GitOps / platform issues",
+          "title": "GitOps issues",
           "type": "table",
           "transformations": [
             {
@@ -1304,7 +1516,9 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
                   "name": "App",
@@ -1327,7 +1541,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1377,7 +1591,7 @@ spec:
             "h": 4,
             "w": 8,
             "x": 16,
-            "y": 32
+            "y": 29
           },
           "id": 23,
           "options": {
@@ -1392,7 +1606,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "Platform components down",
+          "title": "Platform down",
           "type": "table",
           "transformations": [
             {
@@ -1407,7 +1621,9 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
                   "component": "Component"
@@ -1417,7 +1633,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "((label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Prometheus\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Alertmanager\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Grafana\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Victoria_Logs\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0, \"component\", \"Longhorn_UI\", \"\", \"\") or label_replace((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0, \"component\", \"Argo_CD\", \"\", \"\") or label_replace((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0, \"component\", \"Cilium\", \"\", \"\") or label_replace((max(up{job=\"unpoller\"}) or vector(0)) > bool 0, \"component\", \"Unpoller\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Gatus\", \"\", \"\") or label_replace((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0, \"component\", \"Envoy\", \"\", \"\"))) == 0",
+              "expr": "((label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Prometheus\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Alertmanager\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Grafana\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"VictoriaLogs\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0, \"component\", \"LonghornUI\", \"\", \"\") or label_replace((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0, \"component\", \"ArgoCD\", \"\", \"\") or label_replace((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0, \"component\", \"Cilium\", \"\", \"\") or label_replace((max(up{job=\"unpoller\"}) or vector(0)) > bool 0, \"component\", \"Unpoller\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Gatus\", \"\", \"\") or label_replace((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0, \"component\", \"Envoy\", \"\", \"\"))) == 0",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -1427,7 +1643,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1461,7 +1677,7 @@ spec:
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Count"
+                    "value": "N"
                   },
                   {
                     "id": "custom.cellOptions",
@@ -1477,7 +1693,7 @@ spec:
             "h": 5,
             "w": 8,
             "x": 0,
-            "y": 36
+            "y": 33
           },
           "id": 24,
           "options": {
@@ -1507,10 +1723,12 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
-                  "namespace": "Namespace",
+                  "namespace": "NS",
                   "pod": "Pod",
                   "reason": "Reason"
                 }
@@ -1529,7 +1747,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1563,7 +1781,7 @@ spec:
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Count"
+                    "value": "N"
                   },
                   {
                     "id": "custom.cellOptions",
@@ -1579,7 +1797,7 @@ spec:
             "h": 5,
             "w": 8,
             "x": 8,
-            "y": 36
+            "y": 33
           },
           "id": 25,
           "options": {
@@ -1609,10 +1827,12 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
-                  "namespace": "Namespace",
+                  "namespace": "NS",
                   "pod": "Pod",
                   "phase": "Phase"
                 }
@@ -1631,7 +1851,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1681,7 +1901,7 @@ spec:
             "h": 5,
             "w": 8,
             "x": 16,
-            "y": 36
+            "y": 33
           },
           "id": 26,
           "options": {
@@ -1711,7 +1931,9 @@ spec:
                   "container": true,
                   "endpoint": true,
                   "exported_namespace": true,
-                  "uid": true
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true
                 },
                 "renameByName": {
                   "pvc_namespace": "NS",
@@ -1737,7 +1959,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 41
+            "y": 38
           },
           "id": 103,
           "title": "4 \u00b7 Resources \u2014 capacity headroom",
@@ -1746,7 +1968,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1780,7 +2002,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 42
+            "y": 39
           },
           "id": 30,
           "options": {
@@ -1797,7 +2019,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Max CPU %",
+          "title": "Max CPU",
           "type": "stat",
           "targets": [
             {
@@ -1810,7 +2032,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1844,7 +2066,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 4,
-            "y": 42
+            "y": 39
           },
           "id": 31,
           "options": {
@@ -1861,7 +2083,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Max memory %",
+          "title": "Max mem",
           "type": "stat",
           "targets": [
             {
@@ -1874,7 +2096,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1908,7 +2130,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 8,
-            "y": 42
+            "y": 39
           },
           "id": 32,
           "options": {
@@ -1925,7 +2147,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Max disk /var %",
+          "title": "Max disk",
           "type": "stat",
           "targets": [
             {
@@ -1938,7 +2160,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -1964,7 +2186,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 12,
-            "y": 42
+            "y": 39
           },
           "id": 33,
           "options": {
@@ -1981,7 +2203,7 @@ spec:
             },
             "textMode": "value_and_name"
           },
-          "title": "Nodes Ready",
+          "title": "Nodes",
           "type": "stat",
           "targets": [
             {
@@ -1999,7 +2221,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2029,7 +2251,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 16,
-            "y": 42
+            "y": 39
           },
           "id": 34,
           "options": {
@@ -2046,7 +2268,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Pods running %",
+          "title": "Pods up",
           "type": "stat",
           "targets": [
             {
@@ -2059,7 +2281,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2104,7 +2326,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 20,
-            "y": 42
+            "y": 39
           },
           "id": 35,
           "options": {
@@ -2121,7 +2343,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Restarts (1h)",
+          "title": "Restarts/1h",
           "type": "stat",
           "targets": [
             {
@@ -2134,7 +2356,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2170,7 +2392,7 @@ spec:
             "h": 6,
             "w": 8,
             "x": 0,
-            "y": 46
+            "y": 43
           },
           "id": 36,
           "options": {
@@ -2189,8 +2411,8 @@ spec:
           "type": "bargauge",
           "targets": [
             {
-              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-              "legendFormat": "{{instance}}",
+              "expr": "100 - (avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info) * 100)",
+              "legendFormat": "{{nodename}}",
               "refId": "A"
             }
           ]
@@ -2198,7 +2420,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2234,7 +2456,7 @@ spec:
             "h": 6,
             "w": 8,
             "x": 8,
-            "y": 46
+            "y": 43
           },
           "id": 37,
           "options": {
@@ -2253,8 +2475,8 @@ spec:
           "type": "bargauge",
           "targets": [
             {
-              "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
-              "legendFormat": "{{instance}}",
+              "expr": "100 * (1 - avg by (nodename) ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "{{nodename}}",
               "refId": "A"
             }
           ]
@@ -2262,7 +2484,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2298,7 +2520,7 @@ spec:
             "h": 6,
             "w": 8,
             "x": 16,
-            "y": 46
+            "y": 43
           },
           "id": 38,
           "options": {
@@ -2317,8 +2539,8 @@ spec:
           "type": "bargauge",
           "targets": [
             {
-              "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})",
-              "legendFormat": "{{instance}}",
+              "expr": "100 - avg by (nodename) (((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}) * on(instance) group_left(nodename) node_uname_info)",
+              "legendFormat": "{{nodename}}",
               "refId": "A"
             }
           ]
@@ -2329,7 +2551,7 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 52
+            "y": 49
           },
           "id": 104,
           "title": "5 \u00b7 Dependencies \u2014 service & platform availability",
@@ -2338,7 +2560,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2368,7 +2590,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 53
+            "y": 50
           },
           "id": 40,
           "options": {
@@ -2385,7 +2607,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Critical services %",
+          "title": "Critical svc %",
           "type": "stat",
           "targets": [
             {
@@ -2393,13 +2615,12 @@ spec:
               "legendFormat": "c",
               "refId": "A"
             }
-          ],
-          "description": "core+observability+storage+home+media"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2433,7 +2654,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 4,
-            "y": 53
+            "y": 50
           },
           "id": 41,
           "options": {
@@ -2450,7 +2671,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "All Gatus %",
+          "title": "All checks %",
           "type": "stat",
           "targets": [
             {
@@ -2458,13 +2679,12 @@ spec:
               "legendFormat": "a",
               "refId": "A"
             }
-          ],
-          "description": "Includes LAN/IoT \u2014 flaky IoT can lower this without meaning cluster failure"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2494,7 +2714,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 8,
-            "y": 53
+            "y": 50
           },
           "id": 42,
           "options": {
@@ -2524,7 +2744,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2565,7 +2785,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 12,
-            "y": 53
+            "y": 50
           },
           "id": 43,
           "options": {
@@ -2582,7 +2802,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Failing checks",
+          "title": "Failing",
           "type": "stat",
           "targets": [
             {
@@ -2595,7 +2815,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2631,7 +2851,7 @@ spec:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 53
+            "y": 50
           },
           "id": 44,
           "options": {
@@ -2650,7 +2870,7 @@ spec:
           "type": "bargauge",
           "targets": [
             {
-              "expr": "100 * avg by (group) (gatus_results_endpoint_success)",
+              "expr": "100 * avg by (group) (\n  label_replace(\n    label_replace(\n      label_replace(gatus_results_endpoint_success, \"group\", \"obs\", \"group\", \"observability\"),\n    \"group\", \"lan\", \"group\", \"lan-mgmt\"),\n  \"group\", \"svc\", \"group\", \"servers\")\n)",
               "legendFormat": "{{group}}",
               "refId": "A"
             }
@@ -2659,7 +2879,7 @@ spec:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "prometheus"
           },
           "fieldConfig": {
             "defaults": {
@@ -2700,7 +2920,7 @@ spec:
             "h": 4,
             "w": 16,
             "x": 0,
-            "y": 57
+            "y": 54
           },
           "id": 45,
           "options": {
@@ -2733,14 +2953,16 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 61
+            "y": 58
           },
           "id": 105,
+          "title": "6 \u00b7 Detail \u2014 GitOps (Argo CD)",
+          "type": "row",
           "panels": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2792,7 +3014,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2852,7 +3074,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2912,7 +3134,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2979,7 +3201,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3046,7 +3268,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3118,7 +3340,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3170,7 +3392,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3234,9 +3456,7 @@ spec:
                 }
               ]
             }
-          ],
-          "title": "6 \u00b7 Detail \u2014 GitOps (Argo CD)",
-          "type": "row"
+          ]
         },
         {
           "collapsed": true,
@@ -3244,14 +3464,16 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 62
+            "y": 59
           },
           "id": 106,
+          "title": "6 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
+          "type": "row",
           "panels": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3303,7 +3525,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3355,7 +3577,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3422,7 +3644,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3489,7 +3711,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3532,7 +3754,7 @@ spec:
                 },
                 "textMode": "auto"
               },
-              "title": "LH nodes ready",
+              "title": "LH nodes",
               "type": "stat",
               "targets": [
                 {
@@ -3545,7 +3767,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3592,7 +3814,7 @@ spec:
                 },
                 "textMode": "auto"
               },
-              "title": "Storage used %",
+              "title": "Disk used",
               "type": "stat",
               "targets": [
                 {
@@ -3605,7 +3827,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3657,7 +3879,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3724,7 +3946,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3771,7 +3993,7 @@ spec:
                 },
                 "showUnfilled": true
               },
-              "title": "Longhorn disk used % by node",
+              "title": "LH disk % by node",
               "type": "bargauge",
               "targets": [
                 {
@@ -3784,7 +4006,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3822,7 +4044,7 @@ spec:
                   "sort": "desc"
                 }
               },
-              "title": "Restart rate by namespace (5m)",
+              "title": "Restart rate by NS",
               "type": "timeseries",
               "targets": [
                 {
@@ -3832,9 +4054,7 @@ spec:
                 }
               ]
             }
-          ],
-          "title": "6 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
-          "type": "row"
+          ]
         },
         {
           "collapsed": true,
@@ -3842,14 +4062,16 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 63
+            "y": 60
           },
           "id": 107,
+          "title": "6 \u00b7 Detail \u2014 Network edge (UniFi)",
+          "type": "row",
           "panels": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3901,7 +4123,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -3953,7 +4175,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -4005,7 +4227,7 @@ spec:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "prometheus"
               },
               "fieldConfig": {
                 "defaults": {
@@ -4054,9 +4276,7 @@ spec:
                 }
               ]
             }
-          ],
-          "title": "6 \u00b7 Detail \u2014 Network edge (UniFi)",
-          "type": "row"
+          ]
         }
       ],
       "refresh": "30s",
@@ -4069,40 +4289,7 @@ spec:
         "golden-signals"
       ],
       "templating": {
-        "list": [
-          {
-            "current": {
-              "selected": true,
-              "text": "Prometheus",
-              "value": "Prometheus"
-            },
-            "hide": 0,
-            "includeAll": false,
-            "label": "Prometheus",
-            "name": "datasource",
-            "options": [],
-            "query": "prometheus",
-            "refresh": 1,
-            "regex": "",
-            "type": "datasource"
-          },
-          {
-            "current": {
-              "selected": true,
-              "text": "Alertmanager",
-              "value": "Alertmanager"
-            },
-            "hide": 0,
-            "includeAll": false,
-            "label": "Alertmanager",
-            "name": "alertmanager",
-            "options": [],
-            "query": "alertmanager",
-            "refresh": 1,
-            "regex": "",
-            "type": "datasource"
-          }
-        ]
+        "list": []
       },
       "time": {
         "from": "now-3h",
@@ -4112,6 +4299,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 5,
+      "version": 6,
       "weekStart": ""
     }

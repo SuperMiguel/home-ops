@@ -1,5 +1,6 @@
 # Veliz Home — SRE overall-health dashboard. Open: https://grafana.veliz.cc/d/veliz-home
-# Symptom-first: EVERYTHING OK? → domain traffic lights → active problems only → saturation → detail.
+# Layout inspired by SRE dashboard hierarchy (status → golden signals → problems → resources → dependencies)
+# and homelab NOC / command-center overview patterns.
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -30,7 +31,7 @@ spec:
           }
         ]
       },
-      "description": "SRE home view: overall OK/FAIL domains, active problems only, then saturation and domain detail. Open https://grafana.veliz.cc/d/veliz-home",
+      "description": "SRE home board for Veliz. Answers: is anything broken, golden signals (traffic/errors/latency/saturation), what is failing, and capacity headroom. Drill-downs: https://gatus.veliz.cc \u00b7 https://argo.veliz.cc \u00b7 https://longhorn.veliz.cc \u00b7 https://alertmanager.veliz.cc",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 1,
@@ -73,15 +74,36 @@ spec:
       ],
       "panels": [
         {
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 99,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "### Veliz Home \u2014 SRE health board\n**Questions this answers:** (1) Is anything broken? (2) How busy / slow / error-prone is the lab? (3) Are we close to capacity? (4) What exactly is failing?\n\n**How to use:** Top row = traffic lights (readable from across the room). Next = Google SRE **golden signals**. Then **only problems**. Empty problem tables = healthy. Detail rows below are for drill-down.\nInspired by SRE dashboard hierarchy (status \u2192 golden signals \u2192 resources \u2192 dependencies) and homelab NOC \u201ccommand center\u201d layouts.",
+            "mode": "markdown"
+          },
+          "title": "",
+          "transparent": true,
+          "type": "text"
+        },
+        {
           "collapsed": false,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 0
+            "y": 3
           },
           "id": 100,
-          "title": "Overall health \u2014 answer in 5 seconds",
+          "title": "1 \u00b7 Status \u2014 is anything broken?",
           "type": "row"
         },
         {
@@ -129,7 +151,7 @@ spec:
             "h": 5,
             "w": 4,
             "x": 0,
-            "y": 1
+            "y": 4
           },
           "id": 1,
           "options": {
@@ -150,12 +172,12 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * ((count(argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status!=\"Synced\"}) or vector(0)) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
+              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
               "legendFormat": "overall",
               "refId": "A"
             }
           ],
-          "description": "OK only if: all nodes Ready, critical Gatus groups 100%, Argo healthy+synced, Longhorn no degraded/faulted, no Pending PVCs, no firing alerts, no node CPU/mem/disk above 85%"
+          "description": "OK only if Cluster + User services + GitOps + Storage are OK, saturation is not HOT, and no firing alerts."
         },
         {
           "datasource": {
@@ -202,7 +224,7 @@ spec:
             "h": 5,
             "w": 3,
             "x": 4,
-            "y": 1
+            "y": 4
           },
           "id": 2,
           "options": {
@@ -228,7 +250,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "All Kubernetes nodes Ready"
+          "description": "All nodes Ready"
         },
         {
           "datasource": {
@@ -275,7 +297,7 @@ spec:
             "h": 5,
             "w": 3,
             "x": 7,
-            "y": 1
+            "y": 4
           },
           "id": 3,
           "options": {
@@ -301,7 +323,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Gatus groups core|observability|storage|home|media all succeeding"
+          "description": "Gatus critical groups (core|observability|storage|home|media) all OK"
         },
         {
           "datasource": {
@@ -348,7 +370,7 @@ spec:
             "h": 5,
             "w": 3,
             "x": 10,
-            "y": 1
+            "y": 4
           },
           "id": 4,
           "options": {
@@ -369,12 +391,12 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(count(argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status!=\"Synced\"}) or vector(0)) == bool 0",
+              "expr": "((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0",
               "legendFormat": "g",
               "refId": "A"
             }
           ],
-          "description": "All Argo apps Healthy and Synced"
+          "description": "Argo apps Healthy + Synced"
         },
         {
           "datasource": {
@@ -421,7 +443,7 @@ spec:
             "h": 5,
             "w": 3,
             "x": 13,
-            "y": 1
+            "y": 4
           },
           "id": 5,
           "options": {
@@ -447,7 +469,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "No Longhorn degraded/faulted volumes; no Pending PVCs"
+          "description": "No degraded/faulted Longhorn vols; no Pending PVCs"
         },
         {
           "datasource": {
@@ -494,7 +516,7 @@ spec:
             "h": 5,
             "w": 4,
             "x": 16,
-            "y": 1
+            "y": 4
           },
           "id": 6,
           "options": {
@@ -520,7 +542,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "HOT if any node CPU, memory, or /var disk > 85%"
+          "description": "HOT if any node CPU/mem/disk > 85%"
         },
         {
           "datasource": {
@@ -566,12 +588,12 @@ spec:
             "h": 5,
             "w": 4,
             "x": 20,
-            "y": 1
+            "y": 4
           },
           "id": 7,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -583,7 +605,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Firing alerts",
+          "title": "Alerts",
           "type": "stat",
           "targets": [
             {
@@ -592,7 +614,137 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Alertmanager firing (excludes Watchdog/InfoInhibitor)"
+          "description": "Firing alerts (excl. Watchdog)"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "When did each domain flip? Green=OK. Capacity row uses inverted saturation (green=OK).",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "fillOpacity": 100,
+                "lineWidth": 0
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "FAIL"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "OK"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Saturation"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "0": {
+                            "color": "green",
+                            "index": 0,
+                            "text": "OK"
+                          },
+                          "1": {
+                            "color": "orange",
+                            "index": 1,
+                            "text": "HOT"
+                          }
+                        },
+                        "type": "value"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 24,
+            "x": 0,
+            "y": 9
+          },
+          "id": 8,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "never",
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "title": "Domain health over time",
+          "type": "state-timeline",
+          "targets": [
+            {
+              "expr": "(sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))",
+              "legendFormat": "Cluster",
+              "refId": "A"
+            },
+            {
+              "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)",
+              "legendFormat": "Services",
+              "refId": "B"
+            },
+            {
+              "expr": "((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0",
+              "legendFormat": "GitOps",
+              "refId": "C"
+            },
+            {
+              "expr": "((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0",
+              "legendFormat": "Storage",
+              "refId": "D"
+            },
+            {
+              "expr": "((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85))",
+              "legendFormat": "Saturation",
+              "refId": "E"
+            },
+            {
+              "expr": "(count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0",
+              "legendFormat": "No alerts",
+              "refId": "F"
+            }
+          ]
         },
         {
           "collapsed": false,
@@ -600,10 +752,337 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 6
+            "y": 14
           },
           "id": 101,
-          "title": "Active problems \u2014 empty means healthy",
+          "title": "2 \u00b7 Golden signals \u2014 traffic \u00b7 errors \u00b7 latency \u00b7 saturation",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 0,
+            "y": 15
+          },
+          "id": 10,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Traffic (API RPS)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(rate(apiserver_request_total{job=\"apiserver\",verb=~\"GET|LIST|WATCH|POST|PUT|PATCH|DELETE\"}[5m]))",
+              "legendFormat": "rps",
+              "refId": "A"
+            }
+          ],
+          "description": "Kubernetes API server request rate \u2014 lab control-plane demand (SRE traffic signal)"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "orange",
+                    "value": 5
+                  },
+                  {
+                    "color": "red",
+                    "value": 10
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 6,
+            "y": 15
+          },
+          "id": 11,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Errors (critical checks %)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "100 * (1 - avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}))",
+              "legendFormat": "err",
+              "refId": "A"
+            }
+          ],
+          "description": "Failure rate of critical Gatus groups \u2014 user-facing error signal for the lab"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0.5
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 2
+                  }
+                ]
+              },
+              "unit": "s",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 12,
+            "y": 15
+          },
+          "id": 12,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Latency p95 (Gatus HTTP)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})",
+              "legendFormat": "lat",
+              "refId": "A"
+            }
+          ],
+          "description": "p95 duration of critical HTTP health checks \u2014 proxy for user-experienced latency"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 18,
+            "y": 15
+          },
+          "id": 13,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Saturation (worst node %)",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "max(max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) or max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})))",
+              "legendFormat": "sat",
+              "refId": "A"
+            }
+          ],
+          "description": "Worst of max node CPU / memory / /var disk \u2014 how close to the cliff"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 20
+          },
+          "id": 14,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Golden signals over time",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "sum(rate(apiserver_request_total{job=\"apiserver\",verb=~\"GET|LIST|WATCH|POST|PUT|PATCH|DELETE\"}[5m]))",
+              "legendFormat": "API RPS",
+              "refId": "A"
+            },
+            {
+              "expr": "100 * (1 - avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}))",
+              "legendFormat": "Error %",
+              "refId": "B"
+            },
+            {
+              "expr": "(quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})) * 1000",
+              "legendFormat": "Latency p95 (ms)",
+              "refId": "C"
+            },
+            {
+              "expr": "max(max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) or max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})))",
+              "legendFormat": "Saturation %",
+              "refId": "D"
+            }
+          ],
+          "description": "Same four signals as trends \u2014 spot correlated spikes (SRE overview pattern)"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 27
+          },
+          "id": 102,
+          "title": "3 \u00b7 Active problems \u2014 empty means healthy",
           "type": "row"
         },
         {
@@ -611,21 +1090,21 @@ spec:
             "type": "alertmanager",
             "uid": "${alertmanager}"
           },
-          "description": "Live Alertmanager firings/pending. Primary incident signal.",
+          "description": "Primary incident feed. Match visual reds above to alerts here.",
           "gridPos": {
-            "h": 9,
+            "h": 8,
             "w": 8,
             "x": 0,
-            "y": 7
+            "y": 28
           },
-          "id": 10,
+          "id": 20,
           "options": {
             "alertInstanceLabelFilter": "",
             "alertName": "",
             "dashboardRef": {},
             "groupBy": [],
             "groupMode": "default",
-            "maxItems": 25,
+            "maxItems": 20,
             "sortOrder": 1,
             "stateFilter": {
               "error": true,
@@ -689,12 +1168,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 9,
+            "h": 8,
             "w": 8,
             "x": 8,
-            "y": 7
+            "y": 28
           },
-          "id": 11,
+          "id": 21,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -740,7 +1219,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Gatus failures only. Critical groups: core, observability, storage, home, media."
+          "description": "Gatus failures only \u2014 start here when User services = FAIL"
         },
         {
           "datasource": {
@@ -792,12 +1271,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 5,
+            "h": 4,
             "w": 8,
             "x": 16,
-            "y": 7
+            "y": 28
           },
-          "id": 12,
+          "id": 22,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -810,7 +1289,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "GitOps issues",
+          "title": "GitOps / platform issues",
           "type": "table",
           "transformations": [
             {
@@ -831,7 +1310,7 @@ spec:
                   "name": "App",
                   "health_status": "Health",
                   "sync_status": "Sync",
-                  "dest_namespace": "Namespace"
+                  "dest_namespace": "NS"
                 }
               }
             }
@@ -843,8 +1322,7 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ],
-          "description": "Unhealthy or OutOfSync Argo apps"
+          ]
         },
         {
           "datasource": {
@@ -899,9 +1377,9 @@ spec:
             "h": 4,
             "w": 8,
             "x": 16,
-            "y": 12
+            "y": 32
           },
-          "id": 13,
+          "id": 23,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -914,7 +1392,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "Platform down",
+          "title": "Platform components down",
           "type": "table",
           "transformations": [
             {
@@ -944,8 +1422,7 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ],
-          "description": "Core platform components that are down"
+          ]
         },
         {
           "datasource": {
@@ -1000,9 +1477,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 0,
-            "y": 16
+            "y": 36
           },
-          "id": 14,
+          "id": 24,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1102,9 +1579,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 8,
-            "y": 16
+            "y": 36
           },
-          "id": 15,
+          "id": 25,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1204,9 +1681,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 16,
-            "y": 16
+            "y": 36
           },
-          "id": 16,
+          "id": 26,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1237,7 +1714,7 @@ spec:
                   "uid": true
                 },
                 "renameByName": {
-                  "pvc_namespace": "Namespace",
+                  "pvc_namespace": "NS",
                   "pvc": "PVC",
                   "state": "State",
                   "node": "Node"
@@ -1260,10 +1737,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 21
+            "y": 41
           },
-          "id": 102,
-          "title": "Saturation \u2014 capacity headroom",
+          "id": 103,
+          "title": "4 \u00b7 Resources \u2014 capacity headroom",
           "type": "row"
         },
         {
@@ -1301,11 +1778,11 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
+            "w": 4,
             "x": 0,
-            "y": 22
+            "y": 42
           },
-          "id": 20,
+          "id": 30,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -1365,11 +1842,11 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
-            "x": 3,
-            "y": 22
+            "w": 4,
+            "x": 4,
+            "y": 42
           },
-          "id": 21,
+          "id": 31,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -1429,11 +1906,11 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
-            "x": 6,
-            "y": 22
+            "w": 4,
+            "x": 8,
+            "y": 42
           },
-          "id": 22,
+          "id": 32,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -1485,14 +1962,14 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
-            "x": 9,
-            "y": 22
+            "w": 4,
+            "x": 12,
+            "y": 42
           },
-          "id": 23,
+          "id": 33,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -1550,14 +2027,14 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
-            "x": 12,
-            "y": 22
+            "w": 4,
+            "x": 16,
+            "y": 42
           },
-          "id": 24,
+          "id": 34,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -1574,66 +2051,6 @@ spec:
           "targets": [
             {
               "expr": "100 * sum(kube_pod_status_phase{phase=\"Running\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) / clamp_min(sum(kube_pod_status_phase{phase!=\"Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1), 1)",
-              "legendFormat": "p",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 90
-                  },
-                  {
-                    "color": "green",
-                    "value": 100
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 15,
-            "y": 22
-          },
-          "id": 25,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Platform %",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "100 * (scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0)) / 10",
               "legendFormat": "p",
               "refId": "A"
             }
@@ -1685,14 +2102,14 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 3,
-            "x": 18,
-            "y": 22
+            "w": 4,
+            "x": 20,
+            "y": 42
           },
-          "id": 26,
+          "id": 35,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -1710,73 +2127,6 @@ spec:
             {
               "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[1h])) or vector(0)",
               "legendFormat": "r",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 21,
-            "y": 22
-          },
-          "id": 27,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "OOM (1h)",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count((kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 1h >= 1) and ignoring(reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\"}[1h]) == 1) or vector(0)",
-              "legendFormat": "o",
               "refId": "A"
             }
           ]
@@ -1820,11 +2170,11 @@ spec:
             "h": 6,
             "w": 8,
             "x": 0,
-            "y": 26
+            "y": 46
           },
-          "id": 28,
+          "id": 36,
           "options": {
-            "displayMode": "lcd",
+            "displayMode": "gradient",
             "orientation": "horizontal",
             "reduceOptions": {
               "calcs": [
@@ -1884,11 +2234,11 @@ spec:
             "h": 6,
             "w": 8,
             "x": 8,
-            "y": 26
+            "y": 46
           },
-          "id": 29,
+          "id": 37,
           "options": {
-            "displayMode": "lcd",
+            "displayMode": "gradient",
             "orientation": "horizontal",
             "reduceOptions": {
               "calcs": [
@@ -1948,11 +2298,11 @@ spec:
             "h": 6,
             "w": 8,
             "x": 16,
-            "y": 26
+            "y": 46
           },
-          "id": 30,
+          "id": 38,
           "options": {
-            "displayMode": "lcd",
+            "displayMode": "gradient",
             "orientation": "horizontal",
             "reduceOptions": {
               "calcs": [
@@ -1979,10 +2329,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 32
+            "y": 52
           },
-          "id": 103,
-          "title": "Service availability (Gatus)",
+          "id": 104,
+          "title": "5 \u00b7 Dependencies \u2014 service & platform availability",
           "type": "row"
         },
         {
@@ -2018,7 +2368,7 @@ spec:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 33
+            "y": 53
           },
           "id": 40,
           "options": {
@@ -2044,7 +2394,7 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "core + observability + storage + home + media"
+          "description": "core+observability+storage+home+media"
         },
         {
           "datasource": {
@@ -2083,12 +2433,12 @@ spec:
             "h": 4,
             "w": 4,
             "x": 4,
-            "y": 33
+            "y": 53
           },
           "id": 41,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -2100,7 +2450,7 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "All checks %",
+          "title": "All Gatus %",
           "type": "stat",
           "targets": [
             {
@@ -2109,7 +2459,67 @@ spec:
               "refId": "A"
             }
           ],
-          "description": "Includes LAN/IoT ICMP \u2014 flaky IoT can pull this down without meaning cluster failure"
+          "description": "Includes LAN/IoT \u2014 flaky IoT can lower this without meaning cluster failure"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 90
+                  },
+                  {
+                    "color": "green",
+                    "value": 100
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 53
+          },
+          "id": 42,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Platform %",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "100 * (scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0)) / 10",
+              "legendFormat": "p",
+              "refId": "A"
+            }
+          ]
         },
         {
           "datasource": {
@@ -2154,13 +2564,13 @@ spec:
           "gridPos": {
             "h": 4,
             "w": 4,
-            "x": 8,
-            "y": 33
+            "x": 12,
+            "y": 53
           },
-          "id": 42,
+          "id": 43,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -2219,13 +2629,13 @@ spec:
           },
           "gridPos": {
             "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 33
+            "w": 8,
+            "x": 16,
+            "y": 53
           },
-          "id": 43,
+          "id": 44,
           "options": {
-            "displayMode": "lcd",
+            "displayMode": "gradient",
             "orientation": "horizontal",
             "reduceOptions": {
               "calcs": [
@@ -2236,7 +2646,7 @@ spec:
             },
             "showUnfilled": true
           },
-          "title": "Success % by group",
+          "title": "Gatus success % by group",
           "type": "bargauge",
           "targets": [
             {
@@ -2288,14 +2698,14 @@ spec:
           },
           "gridPos": {
             "h": 4,
-            "w": 12,
+            "w": 16,
             "x": 0,
-            "y": 37
+            "y": 57
           },
-          "id": 44,
+          "id": 45,
           "options": {
             "colorMode": "background",
-            "graphMode": "none",
+            "graphMode": "area",
             "justifyMode": "center",
             "orientation": "auto",
             "reduceOptions": {
@@ -2318,1328 +2728,1335 @@ spec:
           ]
         },
         {
-          "collapsed": false,
+          "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 41
-          },
-          "id": 104,
-          "title": "GitOps (Argo CD)",
-          "type": "row"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 0,
-            "y": 42
-          },
-          "id": 50,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Apps",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(argocd_app_info)",
-              "legendFormat": "n",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 95
-                  },
-                  {
-                    "color": "green",
-                    "value": 100
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 3,
-            "y": 42
-          },
-          "id": 51,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Healthy %",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "100 * count(argocd_app_info{health_status=\"Healthy\"}) / clamp_min(count(argocd_app_info), 1)",
-              "legendFormat": "h",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 95
-                  },
-                  {
-                    "color": "green",
-                    "value": 100
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 6,
-            "y": 42
-          },
-          "id": 52,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Synced %",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "100 * count(argocd_app_info{sync_status=\"Synced\"}) / clamp_min(count(argocd_app_info), 1)",
-              "legendFormat": "s",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 9,
-            "y": 42
-          },
-          "id": 53,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Unhealthy",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)",
-              "legendFormat": "u",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 12,
-            "y": 42
-          },
-          "id": 54,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "OutOfSync",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0)",
-              "legendFormat": "o",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "green",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "red",
-                      "index": 0,
-                      "text": "DOWN"
-                    },
-                    "1": {
-                      "color": "green",
-                      "index": 1,
-                      "text": "UP"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 15,
-            "y": 42
-          },
-          "id": 55,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Cluster connected",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "max(argocd_cluster_connection_status) or vector(0)",
-              "legendFormat": "c",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "short",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 18,
-            "y": 42
-          },
-          "id": 56,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Syncs/min",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "sum(rate(argocd_app_sync_total[1h])) * 60 or vector(0)",
-              "legendFormat": "r",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 21,
-            "y": 42
-          },
-          "id": 57,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Progressing",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(argocd_app_info{health_status=\"Progressing\"}) or vector(0)",
-              "legendFormat": "p",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 46
+            "y": 61
           },
           "id": 105,
-          "title": "Storage (Longhorn)",
+          "panels": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 0,
+                "y": 0
+              },
+              "id": 50,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Apps",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(argocd_app_info)",
+                  "legendFormat": "n",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "orange",
+                        "value": 95
+                      },
+                      {
+                        "color": "green",
+                        "value": 100
+                      }
+                    ]
+                  },
+                  "unit": "percent",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 3,
+                "y": 0
+              },
+              "id": 51,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Healthy %",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "100 * count(argocd_app_info{health_status=\"Healthy\"}) / clamp_min(count(argocd_app_info), 1)",
+                  "legendFormat": "h",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "orange",
+                        "value": 95
+                      },
+                      {
+                        "color": "green",
+                        "value": 100
+                      }
+                    ]
+                  },
+                  "unit": "percent",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 6,
+                "y": 0
+              },
+              "id": 52,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Synced %",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "100 * count(argocd_app_info{sync_status=\"Synced\"}) / clamp_min(count(argocd_app_info), 1)",
+                  "legendFormat": "s",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 9,
+                "y": 0
+              },
+              "id": 53,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Unhealthy",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)",
+                  "legendFormat": "u",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "orange",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 0
+              },
+              "id": 54,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "OutOfSync",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0)",
+                  "legendFormat": "o",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "green",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "red",
+                          "index": 0,
+                          "text": "DOWN"
+                        },
+                        "1": {
+                          "color": "green",
+                          "index": 1,
+                          "text": "UP"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 15,
+                "y": 0
+              },
+              "id": 55,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Connected",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "max(argocd_cluster_connection_status) or vector(0)",
+                  "legendFormat": "c",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 18,
+                "y": 0
+              },
+              "id": 56,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Syncs/min",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "sum(rate(argocd_app_sync_total[1h])) * 60 or vector(0)",
+                  "legendFormat": "r",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "yellow",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 21,
+                "y": 0
+              },
+              "id": 57,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Progressing",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(argocd_app_info{health_status=\"Progressing\"}) or vector(0)",
+                  "legendFormat": "p",
+                  "refId": "A"
+                }
+              ]
+            }
+          ],
+          "title": "6 \u00b7 Detail \u2014 GitOps (Argo CD)",
           "type": "row"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 0,
-            "y": 47
-          },
-          "id": 60,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Volumes",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(count by (volume) (longhorn_volume_robustness)) or vector(0)",
-              "legendFormat": "v",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 3,
-            "y": 47
-          },
-          "id": 61,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Healthy",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1) or vector(0)",
-              "legendFormat": "h",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 6,
-            "y": 47
-          },
-          "id": 62,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Degraded",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)",
-              "legendFormat": "d",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 9,
-            "y": 47
-          },
-          "id": 63,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Faulted",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)",
-              "legendFormat": "f",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "green",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 12,
-            "y": 47
-          },
-          "id": 64,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "LH nodes ready",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "sum(longhorn_node_status{condition=\"ready\"} == 1) or vector(0)",
-              "legendFormat": "n",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "red",
-                    "value": 85
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 15,
-            "y": 47
-          },
-          "id": 65,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Storage used %",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "100 * sum(longhorn_disk_usage_bytes) / clamp_min(sum(longhorn_disk_capacity_bytes), 1) or (100 * sum(kubelet_volume_stats_used_bytes) / clamp_min(sum(kubelet_volume_stats_capacity_bytes), 1))",
-              "legendFormat": "u",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 18,
-            "y": 47
-          },
-          "id": 66,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "PVC Bound",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Bound\"} == 1) or vector(0)",
-              "legendFormat": "b",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 21,
-            "y": 47
-          },
-          "id": 67,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "PVC Pending",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)",
-              "legendFormat": "p",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "decimals": 1,
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "red",
-                    "value": 85
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 12,
-            "x": 0,
-            "y": 51
-          },
-          "id": 68,
-          "options": {
-            "displayMode": "lcd",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showUnfilled": true
-          },
-          "title": "Longhorn disk used % by node",
-          "type": "bargauge",
-          "targets": [
-            {
-              "expr": "100 * sum by (node) (longhorn_disk_usage_bytes) / clamp_min(sum by (node) (longhorn_disk_capacity_bytes), 1)",
-              "legendFormat": "{{node}}",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "drawStyle": "line",
-                "fillOpacity": 10,
-                "lineWidth": 1,
-                "showPoints": "never",
-                "spanNulls": false
-              },
-              "unit": "short"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 12,
-            "x": 12,
-            "y": 51
-          },
-          "id": 69,
-          "options": {
-            "legend": {
-              "calcs": [
-                "lastNotNull",
-                "max"
-              ],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "title": "Restart rate by namespace (5m)",
-          "type": "timeseries",
-          "targets": [
-            {
-              "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[5m])) > 0",
-              "legendFormat": "{{namespace}}",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "collapsed": false,
+          "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 57
+            "y": 62
           },
           "id": 106,
-          "title": "Network edge (UniFi)",
+          "panels": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 0,
+                "y": 0
+              },
+              "id": 60,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Volumes",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(count by (volume) (longhorn_volume_robustness)) or vector(0)",
+                  "legendFormat": "v",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 3,
+                "y": 0
+              },
+              "id": 61,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Healthy",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1) or vector(0)",
+                  "legendFormat": "h",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "orange",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 6,
+                "y": 0
+              },
+              "id": 62,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Degraded",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)",
+                  "legendFormat": "d",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 9,
+                "y": 0
+              },
+              "id": 63,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Faulted",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)",
+                  "legendFormat": "f",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "green",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 0
+              },
+              "id": 64,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "LH nodes ready",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "sum(longhorn_node_status{condition=\"ready\"} == 1) or vector(0)",
+                  "legendFormat": "n",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "yellow",
+                        "value": 70
+                      },
+                      {
+                        "color": "red",
+                        "value": 85
+                      }
+                    ]
+                  },
+                  "unit": "percent",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 15,
+                "y": 0
+              },
+              "id": 65,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Storage used %",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "100 * sum(longhorn_disk_usage_bytes) / clamp_min(sum(longhorn_disk_capacity_bytes), 1) or (100 * sum(kubelet_volume_stats_used_bytes) / clamp_min(sum(kubelet_volume_stats_capacity_bytes), 1))",
+                  "legendFormat": "u",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 18,
+                "y": 0
+              },
+              "id": 66,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "PVC Bound",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Bound\"} == 1) or vector(0)",
+                  "legendFormat": "b",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "None"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 21,
+                "y": 0
+              },
+              "id": 67,
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "PVC Pending",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)",
+                  "legendFormat": "p",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 1,
+                  "max": 100,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "yellow",
+                        "value": 70
+                      },
+                      {
+                        "color": "red",
+                        "value": 85
+                      }
+                    ]
+                  },
+                  "unit": "percent"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 0,
+                "y": 4
+              },
+              "id": 68,
+              "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showUnfilled": true
+              },
+              "title": "Longhorn disk used % by node",
+              "type": "bargauge",
+              "targets": [
+                {
+                  "expr": "100 * sum by (node) (longhorn_disk_usage_bytes) / clamp_min(sum by (node) (longhorn_disk_capacity_bytes), 1)",
+                  "legendFormat": "{{node}}",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "drawStyle": "line",
+                    "fillOpacity": 15,
+                    "lineWidth": 2,
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "gradientMode": "opacity"
+                  },
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 12,
+                "y": 4
+              },
+              "id": 69,
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ],
+                  "displayMode": "table",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "title": "Restart rate by namespace (5m)",
+              "type": "timeseries",
+              "targets": [
+                {
+                  "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[5m])) > 0",
+                  "legendFormat": "{{namespace}}",
+                  "refId": "A"
+                }
+              ]
+            }
+          ],
+          "title": "6 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
           "type": "row"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
+          "collapsed": true,
           "gridPos": {
-            "h": 4,
-            "w": 6,
+            "h": 1,
+            "w": 24,
             "x": 0,
-            "y": 58
+            "y": 63
           },
-          "id": 70,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Clients",
-          "type": "stat",
-          "targets": [
+          "id": 107,
+          "panels": [
             {
-              "expr": "count(unpoller_client_uptime_seconds) or vector(0)",
-              "legendFormat": "c",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "purple",
-                    "value": null
-                  }
-                ]
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
               },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 6,
-            "y": 58
-          },
-          "id": 71,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Devices",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "count(unpoller_device_uptime_seconds) or vector(0)",
-              "legendFormat": "d",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
               },
-              "unit": "Bps",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 12,
-            "y": 58
-          },
-          "id": 72,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "WAN RX",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "sum(rate(unpoller_device_wan_receive_bytes_total[5m])) or vector(0)",
-              "legendFormat": "r",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "orange",
-                    "value": null
-                  }
-                ]
+              "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 0
               },
-              "unit": "Bps",
-              "mappings": []
+              "id": 70,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Clients",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(unpoller_client_uptime_seconds) or vector(0)",
+                  "legendFormat": "c",
+                  "refId": "A"
+                }
+              ]
             },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 18,
-            "y": 58
-          },
-          "id": 73,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "WAN TX",
-          "type": "stat",
-          "targets": [
             {
-              "expr": "sum(rate(unpoller_device_wan_transmit_bytes_total[5m])) or vector(0)",
-              "legendFormat": "t",
-              "refId": "A"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "purple",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 0
+              },
+              "id": 71,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Devices",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(unpoller_device_uptime_seconds) or vector(0)",
+                  "legendFormat": "d",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "Bps",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 0
+              },
+              "id": 72,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "WAN RX",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "sum(rate(unpoller_device_wan_receive_bytes_total[5m])) or vector(0)",
+                  "legendFormat": "r",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "orange",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "unit": "Bps",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 0
+              },
+              "id": 73,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "WAN TX",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "sum(rate(unpoller_device_wan_transmit_bytes_total[5m])) or vector(0)",
+                  "legendFormat": "t",
+                  "refId": "A"
+                }
+              ]
             }
-          ]
+          ],
+          "title": "6 \u00b7 Detail \u2014 Network edge (UniFi)",
+          "type": "row"
         }
       ],
       "refresh": "30s",
@@ -3648,7 +4065,8 @@ spec:
         "home",
         "veliz",
         "sre",
-        "overview"
+        "overview",
+        "golden-signals"
       ],
       "templating": {
         "list": [
@@ -3687,13 +4105,13 @@ spec:
         ]
       },
       "time": {
-        "from": "now-6h",
+        "from": "now-3h",
         "to": "now"
       },
       "timepicker": {},
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 4,
+      "version": 5,
       "weekStart": ""
     }

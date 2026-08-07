@@ -195,6 +195,10 @@ configMaps:
             }
           },
           "plugins": {
+            "allow": [
+              "discord",
+              "ollama"
+            ],
             "entries": {
               "discord": {
                 "enabled": true

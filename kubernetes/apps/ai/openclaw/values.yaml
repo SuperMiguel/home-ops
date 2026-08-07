@@ -3,7 +3,7 @@
 # Docs: Super-Veliz-Network/software/openclaw/README.md
 #
 # After first sync: primary model is ollama/qwen2.5:14b (Mac Mini 10.0.20.25).
-# Change via Control UI or edit models below and re-seed openclaw.json on the PVC.
+# openclaw.json is always synced from this ConfigMap on pod start.
 controllers:
   openclaw:
     strategy: Recreate
@@ -23,18 +23,11 @@ controllers:
           - |
             set -e
             mkdir -p /home/node/.openclaw/workspace
-            # Seed once so Discord pairing / Control UI edits on the PVC survive restarts.
-            # To re-apply GitOps config: delete openclaw.json from the PVC (or wipe the claim).
-            if [ ! -f /home/node/.openclaw/openclaw.json ]; then
-              cp /config/openclaw.json /home/node/.openclaw/openclaw.json
-              echo "Seeded openclaw.json from ConfigMap"
-            else
-              echo "openclaw.json already present — keeping PVC copy"
-            fi
-            if [ ! -f /home/node/.openclaw/workspace/AGENTS.md ]; then
-              cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
-            fi
+            # ConfigMap is source of truth for openclaw.json (GitOps).
+            cp /config/openclaw.json /home/node/.openclaw/openclaw.json
+            cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
             chown -R 1000:1000 /home/node/.openclaw
+            echo "Synced openclaw.json + AGENTS.md from ConfigMap"
         securityContext:
           # Pod defaults to non-root; chown on the PVC needs root for this one-shot.
           runAsUser: 0
@@ -188,9 +181,7 @@ configMaps:
                 "id": "DISCORD_BOT_TOKEN"
               },
               "groupPolicy": "allowlist",
-              "dm": {
-                "policy": "pairing"
-              },
+              "dmPolicy": "pairing",
               "guilds": {
                 "1173832276279296112": {
                   "requireMention": true,
@@ -199,11 +190,6 @@ configMaps:
                   ]
                 }
               }
-            }
-          },
-          "messages": {
-            "groupChat": {
-              "requireMention": true
             }
           },
           "cron": {

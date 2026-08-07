@@ -23,7 +23,7 @@ controllers:
           - "*"
           - --disable-write
           - --enabled-tools
-          - search,dashboard,datasource,prometheus,loki,alerting,annotations,folder,navigation,sift,runpanelquery
+          - search,dashboard,datasource,prometheus,loki
         env:
           TZ: America/New_York
           GRAFANA_URL: http://grafana-service.observability.svc.cluster.local:3000

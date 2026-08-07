@@ -150,18 +150,19 @@ configMaps:
                 "apiKey": "ollama-local",
                 "api": "ollama",
                 "timeoutSeconds": 300,
-                "contextWindow": 16384,
+                "contextWindow": 8192,
                 "params": {
-                  "num_ctx": 16384
+                  "num_ctx": 8192
                 },
                 "models": [
                   {
                     "id": "qwen3:8b",
                     "name": "qwen3:8b",
-                    "contextWindow": 16384,
-                    "maxTokens": 1024,
+                    "contextWindow": 8192,
+                    "maxTokens": 512,
                     "params": {
-                      "num_ctx": 16384
+                      "num_ctx": 8192,
+                      "think": false
                     }
                   }
                 ]
@@ -169,11 +170,17 @@ configMaps:
             }
           },
           "tools": {
-            "profile": "messaging"
+            "profile": "messaging",
+            "deny": [
+              "sessions_history",
+              "sessions_list",
+              "sessions_send"
+            ]
           },
           "agents": {
             "defaults": {
               "workspace": "~/.openclaw/workspace",
+              "thinkingDefault": "off",
               "model": {
                 "primary": "ollama/qwen3:8b"
               }
@@ -227,14 +234,37 @@ configMaps:
                 "transport": "streamable-http",
                 "enabled": true,
                 "connectionTimeoutMs": 10000,
-                "requestTimeoutMs": 60000
+                "requestTimeoutMs": 60000,
+                "toolFilter": {
+                  "include": [
+                    "search_dashboards",
+                    "get_dashboard_summary",
+                    "list_datasources",
+                    "query_prometheus",
+                    "query_loki_logs",
+                    "check_datasources_health"
+                  ]
+                }
               },
               "kubernetes": {
                 "url": "http://kubernetes-mcp.ai.svc.cluster.local:8080/mcp",
                 "transport": "streamable-http",
                 "enabled": true,
                 "connectionTimeoutMs": 10000,
-                "requestTimeoutMs": 60000
+                "requestTimeoutMs": 60000,
+                "toolFilter": {
+                  "include": [
+                    "pods_list",
+                    "pods_list_in_namespace",
+                    "pods_get",
+                    "pods_log",
+                    "events_list",
+                    "namespaces_list",
+                    "resources_list",
+                    "resources_get",
+                    "nodes_top"
+                  ]
+                }
               }
             }
           },

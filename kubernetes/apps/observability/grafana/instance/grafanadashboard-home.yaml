@@ -1,5 +1,5 @@
 # Veliz Home — SRE health board. https://grafana.veliz.cc/d/veliz-home
-# Datasources: stable UIDs `prometheus` / `alertmanager` (see grafanadatasource.yaml).
+# Nodes first (CPU/mem/disk/load), then status with named failing services.
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -30,7 +30,7 @@ spec:
           }
         ]
       },
-      "description": "SRE home board. Datasources use stable UIDs prometheus / alertmanager. Firing alerts from Prometheus ALERTS (not Alert list panel).",
+      "description": "SRE home: nodes (CPU/mem/disk/load) first, then status. When Services FAIL, the table under Status names the failing checks.",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 1,
@@ -90,7 +90,7 @@ spec:
               "showLineNumbers": false,
               "showMiniMap": false
             },
-            "content": "**Veliz Home** \u2014 traffic lights first, then golden signals, then only problems. Empty problem tables = healthy. Drill-down: [Gatus](https://gatus.veliz.cc) \u00b7 [Argo](https://argo.veliz.cc) \u00b7 [Longhorn](https://longhorn.veliz.cc) \u00b7 [Alertmanager](https://alertmanager.veliz.cc)"
+            "content": "**Veliz Home** \u2014 nodes first, then traffic lights, then only problems. When **Services** is FAIL, the table under Status lists exactly which checks are down. [Gatus](https://gatus.veliz.cc) \u00b7 [Argo](https://argo.veliz.cc) \u00b7 [Longhorn](https://longhorn.veliz.cc)"
           }
         },
         {
@@ -101,7 +101,921 @@ spec:
             "x": 0,
             "y": 2
           },
+          "id": 90,
+          "title": "0 \u00b7 Nodes \u2014 CPU \u00b7 memory \u00b7 disk \u00b7 load",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 0,
+            "y": 3
+          },
+          "id": 91,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value_and_name"
+          },
+          "title": "Nodes Ready",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+              "legendFormat": "ready",
+              "refId": "A"
+            },
+            {
+              "expr": "count(kube_node_info)",
+              "legendFormat": "total",
+              "refId": "B"
+            }
+          ],
+          "description": "Kubernetes nodes Ready / total"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 3,
+            "y": 3
+          },
+          "id": 92,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Max CPU",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "max(100 - (avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info) * 100))",
+              "legendFormat": "cpu",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 6,
+            "y": 3
+          },
+          "id": 93,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Max mem",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "max(100 * (1 - avg by (nodename) ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info)))",
+              "legendFormat": "mem",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 9,
+            "y": 3
+          },
+          "id": 94,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Max disk",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "max(100 - avg by (nodename) (((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "disk",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 4
+                  },
+                  {
+                    "color": "orange",
+                    "value": 8
+                  },
+                  {
+                    "color": "red",
+                    "value": 16
+                  }
+                ]
+              },
+              "unit": "short",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 12,
+            "y": 3
+          },
+          "id": 95,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Max load1",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "max(avg by (nodename) (node_load1 * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "load",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "Bps",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 15,
+            "y": 3
+          },
+          "id": 96,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Net RX",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(sum by (nodename) (rate(node_network_receive_bytes_total{device!~\"lo|veth.*|cilium.*|lxc.*|tailscale.*|br-.*\"}[5m]) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "rx",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "purple",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "Bps",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 18,
+            "y": 3
+          },
+          "id": 97,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Net TX",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "sum(sum by (nodename) (rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|cilium.*|lxc.*|tailscale.*|br-.*\"}[5m]) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "tx",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 20
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 40
+                  },
+                  {
+                    "color": "green",
+                    "value": 60
+                  }
+                ]
+              },
+              "unit": "decgbytes",
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 21,
+            "y": 3
+          },
+          "id": 98,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Disk free GiB",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "min(avg by (nodename) ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} / 1024 / 1024 / 1024) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "free",
+              "refId": "A"
+            }
+          ],
+          "description": "Minimum free space on /var across nodes"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 7
+          },
           "id": 100,
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "CPU % \u2014 all nodes",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 - (avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info) * 100)",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 7
+          },
+          "id": 101,
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "Memory % \u2014 all nodes",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 * (1 - avg by (nodename) ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 7
+          },
+          "id": 102,
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "Disk /var % \u2014 all nodes",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "100 - avg by (nodename) (((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}) * on(instance) group_left(nodename) node_uname_info)",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 1,
+              "max": 16,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 4
+                  },
+                  {
+                    "color": "orange",
+                    "value": 8
+                  },
+                  {
+                    "color": "red",
+                    "value": 16
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 7
+          },
+          "id": 103,
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true
+          },
+          "title": "Load1 \u2014 all nodes",
+          "type": "bargauge",
+          "targets": [
+            {
+              "expr": "avg by (nodename) (node_load1 * on(instance) group_left(nodename) node_uname_info)",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 15
+          },
+          "id": 104,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "CPU % by node",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "100 - (avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info) * 100)",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 15
+          },
+          "id": 105,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Memory % by node",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "100 * (1 - avg by (nodename) ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info))",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "lineWidth": 2,
+                "showPoints": "never",
+                "spanNulls": false,
+                "gradientMode": "opacity"
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 15
+          },
+          "id": 106,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "title": "Disk /var % by node",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "100 - avg by (nodename) (((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}) * on(instance) group_left(nodename) node_uname_info)",
+              "legendFormat": "{{nodename}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 22
+          },
+          "id": 110,
           "title": "1 \u00b7 Status \u2014 is anything broken?",
           "type": "row"
         },
@@ -148,11 +1062,11 @@ spec:
           },
           "gridPos": {
             "h": 5,
-            "w": 4,
+            "w": 3,
             "x": 0,
-            "y": 3
+            "y": 23
           },
-          "id": 1,
+          "id": 111,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -173,79 +1087,6 @@ spec:
             {
               "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
               "legendFormat": "o",
-              "refId": "A"
-            }
-          ],
-          "description": "OK if Cluster+Services+GitOps+Storage OK, Capacity not HOT, no real firing alerts (excl. Watchdog)."
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "green",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "red",
-                      "index": 0,
-                      "text": "FAIL"
-                    },
-                    "1": {
-                      "color": "green",
-                      "index": 1,
-                      "text": "OK"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 3,
-            "x": 4,
-            "y": 3
-          },
-          "id": 2,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Cluster",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "(sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))",
-              "legendFormat": "c",
               "refId": "A"
             }
           ]
@@ -293,11 +1134,11 @@ spec:
           },
           "gridPos": {
             "h": 5,
-            "w": 4,
-            "x": 7,
-            "y": 3
+            "w": 3,
+            "x": 3,
+            "y": 23
           },
-          "id": 3,
+          "id": 112,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -312,16 +1153,93 @@ spec:
             },
             "textMode": "auto"
           },
+          "title": "Cluster",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "(sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))",
+              "legendFormat": "c",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "FAIL"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "OK"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 3,
+            "x": 6,
+            "y": 23
+          },
+          "id": 113,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value_and_name"
+          },
           "title": "Services",
           "type": "stat",
           "targets": [
             {
               "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)",
-              "legendFormat": "s",
+              "legendFormat": "status",
               "refId": "A"
+            },
+            {
+              "expr": "count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)",
+              "legendFormat": "down",
+              "refId": "B"
             }
           ],
-          "description": "Critical Gatus groups: core|observability|storage|home|media"
+          "description": "Critical Gatus groups (core|observability|storage|home|media). See table below for which checks are down."
         },
         {
           "datasource": {
@@ -367,10 +1285,10 @@ spec:
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 11,
-            "y": 3
+            "x": 9,
+            "y": 23
           },
-          "id": 4,
+          "id": 114,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -439,10 +1357,10 @@ spec:
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 14,
-            "y": 3
+            "x": 12,
+            "y": 23
           },
-          "id": 5,
+          "id": 115,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -511,10 +1429,10 @@ spec:
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 17,
-            "y": 3
+            "x": 15,
+            "y": 23
           },
-          "id": 6,
+          "id": 116,
           "options": {
             "colorMode": "background",
             "graphMode": "none",
@@ -537,8 +1455,7 @@ spec:
               "legendFormat": "sat",
               "refId": "A"
             }
-          ],
-          "description": "HOT if any node CPU/mem/disk > 85%"
+          ]
         },
         {
           "datasource": {
@@ -582,11 +1499,11 @@ spec:
           },
           "gridPos": {
             "h": 5,
-            "w": 4,
-            "x": 20,
-            "y": 3
+            "w": 3,
+            "x": 18,
+            "y": 23
           },
-          "id": 7,
+          "id": 117,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -609,15 +1526,298 @@ spec:
               "legendFormat": "a",
               "refId": "A"
             }
-          ],
-          "description": "Firing alerts excluding Watchdog/InfoInhibitor"
+          ]
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "When each domain flipped. Saturation: green=OK, orange=HOT.",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "none",
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "None"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 3,
+            "x": 21,
+            "y": 23
+          },
+          "id": 118,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "title": "Svc down",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)",
+              "legendFormat": "n",
+              "refId": "A"
+            }
+          ],
+          "description": "Count of failing critical Gatus checks (core/obs/storage/home/media)"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Down"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 28
+          },
+          "id": 120,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "title": "Which services are failing? (critical)",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "service": true,
+                  "container": true,
+                  "endpoint": true,
+                  "exported_namespace": true,
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true,
+                  "key": true
+                },
+                "renameByName": {
+                  "group": "Group",
+                  "name": "Service",
+                  "type": "Type"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "description": "Empty = critical services OK. Critical groups: core|observability|storage|home|media. This is why Services shows FAIL."
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Down"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 28
+          },
+          "id": 121,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "title": "Other failing checks (LAN / IoT / etc)",
+          "type": "table",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true,
+                  "service": true,
+                  "container": true,
+                  "endpoint": true,
+                  "exported_namespace": true,
+                  "uid": true,
+                  "prometheus": true,
+                  "prometheus_replica": true,
+                  "key": true
+                },
+                "renameByName": {
+                  "group": "Group",
+                  "name": "Check",
+                  "type": "Type"
+                }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == 0",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "description": "Non-critical failures (does not flip Services traffic light)."
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "description": "",
           "fieldConfig": {
             "defaults": {
               "custom": {
@@ -690,9 +1890,9 @@ spec:
             "h": 5,
             "w": 24,
             "x": 0,
-            "y": 8
+            "y": 34
           },
-          "id": 8,
+          "id": 122,
           "options": {
             "alignValue": "center",
             "legend": {
@@ -748,9 +1948,9 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 13
+            "y": 39
           },
-          "id": 101,
+          "id": 130,
           "title": "2 \u00b7 Golden signals \u2014 traffic \u00b7 errors \u00b7 latency \u00b7 saturation",
           "type": "row"
         },
@@ -779,9 +1979,9 @@ spec:
             "h": 4,
             "w": 6,
             "x": 0,
-            "y": 14
+            "y": 40
           },
-          "id": 10,
+          "id": 131,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -804,8 +2004,7 @@ spec:
               "legendFormat": "rps",
               "refId": "A"
             }
-          ],
-          "description": "API server RPS"
+          ]
         },
         {
           "datasource": {
@@ -844,9 +2043,9 @@ spec:
             "h": 4,
             "w": 6,
             "x": 6,
-            "y": 14
+            "y": 40
           },
-          "id": 11,
+          "id": 132,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -869,8 +2068,7 @@ spec:
               "legendFormat": "err",
               "refId": "A"
             }
-          ],
-          "description": "Critical Gatus failure %"
+          ]
         },
         {
           "datasource": {
@@ -909,9 +2107,9 @@ spec:
             "h": 4,
             "w": 6,
             "x": 12,
-            "y": 14
+            "y": 40
           },
-          "id": 12,
+          "id": 133,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -934,8 +2132,7 @@ spec:
               "legendFormat": "lat",
               "refId": "A"
             }
-          ],
-          "description": "Critical HTTP check p95"
+          ]
         },
         {
           "datasource": {
@@ -974,9 +2171,9 @@ spec:
             "h": 4,
             "w": 6,
             "x": 18,
-            "y": 14
+            "y": 40
           },
-          "id": 13,
+          "id": 134,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -999,8 +2196,7 @@ spec:
               "legendFormat": "sat",
               "refId": "A"
             }
-          ],
-          "description": "Worst node CPU/mem/disk %"
+          ]
         },
         {
           "datasource": {
@@ -1025,9 +2221,9 @@ spec:
             "h": 6,
             "w": 6,
             "x": 0,
-            "y": 18
+            "y": 44
           },
-          "id": 14,
+          "id": 135,
           "options": {
             "legend": {
               "calcs": [
@@ -1077,9 +2273,9 @@ spec:
             "h": 6,
             "w": 6,
             "x": 6,
-            "y": 18
+            "y": 44
           },
-          "id": 15,
+          "id": 136,
           "options": {
             "legend": {
               "calcs": [
@@ -1129,9 +2325,9 @@ spec:
             "h": 6,
             "w": 6,
             "x": 12,
-            "y": 18
+            "y": 44
           },
-          "id": 16,
+          "id": 137,
           "options": {
             "legend": {
               "calcs": [
@@ -1182,9 +2378,9 @@ spec:
             "h": 6,
             "w": 6,
             "x": 18,
-            "y": 18
+            "y": 44
           },
-          "id": 17,
+          "id": 138,
           "options": {
             "legend": {
               "calcs": [
@@ -1216,9 +2412,9 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 24
+            "y": 50
           },
-          "id": 102,
+          "id": 140,
           "title": "3 \u00b7 Active problems \u2014 empty means healthy",
           "type": "row"
         },
@@ -1272,12 +2468,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 8,
+            "h": 7,
             "w": 8,
             "x": 0,
-            "y": 25
+            "y": 51
           },
-          "id": 20,
+          "id": 141,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1307,7 +2503,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "alertname": "Alert",
@@ -1325,113 +2522,7 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ],
-          "description": "From Prometheus ALERTS (excl. Watchdog). Uses Prometheus datasource \u2014 no Alertmanager variable."
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                },
-                "inspect": false
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 1
-                  }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Fail"
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-background"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 25
-          },
-          "id": 21,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true
-          },
-          "title": "Failed checks",
-          "type": "table",
-          "transformations": [
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "Time": true,
-                  "__name__": true,
-                  "job": true,
-                  "instance": true,
-                  "service": true,
-                  "container": true,
-                  "endpoint": true,
-                  "exported_namespace": true,
-                  "uid": true,
-                  "prometheus": true,
-                  "prometheus_replica": true
-                },
-                "renameByName": {
-                  "group": "Group",
-                  "name": "Check",
-                  "type": "Type"
-                }
-              }
-            }
-          ],
-          "targets": [
-            {
-              "expr": "gatus_results_endpoint_success == 0",
-              "format": "table",
-              "instant": true,
-              "refId": "A"
-            }
-          ],
-          "description": "Gatus failures only"
+          ]
         },
         {
           "datasource": {
@@ -1483,12 +2574,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 4,
+            "h": 7,
             "w": 8,
-            "x": 16,
-            "y": 25
+            "x": 8,
+            "y": 51
           },
-          "id": 22,
+          "id": 142,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1518,7 +2609,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "name": "App",
@@ -1588,12 +2680,12 @@ spec:
             ]
           },
           "gridPos": {
-            "h": 4,
+            "h": 7,
             "w": 8,
             "x": 16,
-            "y": 29
+            "y": 51
           },
-          "id": 23,
+          "id": 143,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1623,7 +2715,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "component": "Component"
@@ -1693,9 +2786,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 0,
-            "y": 33
+            "y": 58
           },
-          "id": 24,
+          "id": 144,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1725,7 +2818,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "namespace": "NS",
@@ -1797,9 +2891,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 8,
-            "y": 33
+            "y": 58
           },
-          "id": 25,
+          "id": 145,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1829,7 +2923,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "namespace": "NS",
@@ -1901,9 +2996,9 @@ spec:
             "h": 5,
             "w": 8,
             "x": 16,
-            "y": 33
+            "y": 58
           },
-          "id": 26,
+          "id": 146,
           "options": {
             "cellHeight": "sm",
             "footer": {
@@ -1933,7 +3028,8 @@ spec:
                   "exported_namespace": true,
                   "uid": true,
                   "prometheus": true,
-                  "prometheus_replica": true
+                  "prometheus_replica": true,
+                  "key": true
                 },
                 "renameByName": {
                   "pvc_namespace": "NS",
@@ -1959,602 +3055,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 38
+            "y": 63
           },
-          "id": 103,
-          "title": "4 \u00b7 Resources \u2014 capacity headroom",
-          "type": "row"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 0,
-            "y": 39
-          },
-          "id": 30,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Max CPU",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100))",
-              "legendFormat": "cpu",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 4,
-            "y": 39
-          },
-          "id": 31,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Max mem",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
-              "legendFormat": "mem",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 8,
-            "y": 39
-          },
-          "id": 32,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Max disk",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}))",
-              "legendFormat": "disk",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "green",
-                    "value": 1
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 12,
-            "y": 39
-          },
-          "id": 33,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "value_and_name"
-          },
-          "title": "Nodes",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
-              "legendFormat": "ready",
-              "refId": "A"
-            },
-            {
-              "expr": "count(kube_node_info)",
-              "legendFormat": "total",
-              "refId": "B"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "orange",
-                    "value": 95
-                  },
-                  {
-                    "color": "green",
-                    "value": 100
-                  }
-                ]
-              },
-              "unit": "percent",
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 16,
-            "y": 39
-          },
-          "id": 34,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Pods up",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "100 * sum(kube_pod_status_phase{phase=\"Running\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1) / clamp_min(sum(kube_pod_status_phase{phase!=\"Succeeded\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1), 1)",
-              "legendFormat": "p",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 1
-                  },
-                  {
-                    "color": "orange",
-                    "value": 10
-                  },
-                  {
-                    "color": "red",
-                    "value": 50
-                  }
-                ]
-              },
-              "unit": "none",
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "green",
-                      "index": 0,
-                      "text": "None"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 20,
-            "y": 39
-          },
-          "id": 35,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "area",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "textMode": "auto"
-          },
-          "title": "Restarts/1h",
-          "type": "stat",
-          "targets": [
-            {
-              "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[1h])) or vector(0)",
-              "legendFormat": "r",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "decimals": 1,
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 8,
-            "x": 0,
-            "y": 43
-          },
-          "id": 36,
-          "options": {
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showUnfilled": true
-          },
-          "title": "CPU % by node",
-          "type": "bargauge",
-          "targets": [
-            {
-              "expr": "100 - (avg by (nodename) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]) * on(instance) group_left(nodename) node_uname_info) * 100)",
-              "legendFormat": "{{nodename}}",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "decimals": 1,
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 8,
-            "x": 8,
-            "y": 43
-          },
-          "id": 37,
-          "options": {
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showUnfilled": true
-          },
-          "title": "Memory % by node",
-          "type": "bargauge",
-          "targets": [
-            {
-              "expr": "100 * (1 - avg by (nodename) ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * on(instance) group_left(nodename) node_uname_info))",
-              "legendFormat": "{{nodename}}",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "decimals": 1,
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 70
-                  },
-                  {
-                    "color": "orange",
-                    "value": 85
-                  },
-                  {
-                    "color": "red",
-                    "value": 95
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 8,
-            "x": 16,
-            "y": 43
-          },
-          "id": 38,
-          "options": {
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showUnfilled": true
-          },
-          "title": "Disk /var % by node",
-          "type": "bargauge",
-          "targets": [
-            {
-              "expr": "100 - avg by (nodename) (((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"}) * on(instance) group_left(nodename) node_uname_info)",
-              "legendFormat": "{{nodename}}",
-              "refId": "A"
-            }
-          ]
-        },
-        {
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 49
-          },
-          "id": 104,
-          "title": "5 \u00b7 Dependencies \u2014 service & platform availability",
+          "id": 150,
+          "title": "4 \u00b7 Dependencies \u2014 service & platform availability",
           "type": "row"
         },
         {
@@ -2590,9 +3094,9 @@ spec:
             "h": 4,
             "w": 4,
             "x": 0,
-            "y": 50
+            "y": 64
           },
-          "id": 40,
+          "id": 151,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -2654,9 +3158,9 @@ spec:
             "h": 4,
             "w": 4,
             "x": 4,
-            "y": 50
+            "y": 64
           },
-          "id": 41,
+          "id": 152,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -2714,9 +3218,9 @@ spec:
             "h": 4,
             "w": 4,
             "x": 8,
-            "y": 50
+            "y": 64
           },
-          "id": 42,
+          "id": 153,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -2785,9 +3289,9 @@ spec:
             "h": 4,
             "w": 4,
             "x": 12,
-            "y": 50
+            "y": 64
           },
-          "id": 43,
+          "id": 154,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -2851,9 +3355,9 @@ spec:
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 50
+            "y": 64
           },
-          "id": 44,
+          "id": 155,
           "options": {
             "displayMode": "gradient",
             "orientation": "horizontal",
@@ -2920,9 +3424,9 @@ spec:
             "h": 4,
             "w": 16,
             "x": 0,
-            "y": 54
+            "y": 68
           },
-          "id": 45,
+          "id": 156,
           "options": {
             "colorMode": "background",
             "graphMode": "area",
@@ -2953,10 +3457,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 58
+            "y": 72
           },
-          "id": 105,
-          "title": "6 \u00b7 Detail \u2014 GitOps (Argo CD)",
+          "id": 190,
+          "title": "5 \u00b7 Detail \u2014 GitOps (Argo CD)",
           "type": "row",
           "panels": [
             {
@@ -2986,7 +3490,7 @@ spec:
                 "x": 0,
                 "y": 0
               },
-              "id": 50,
+              "id": 160,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3046,7 +3550,7 @@ spec:
                 "x": 3,
                 "y": 0
               },
-              "id": 51,
+              "id": 161,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3106,7 +3610,7 @@ spec:
                 "x": 6,
                 "y": 0
               },
-              "id": 52,
+              "id": 162,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3173,7 +3677,7 @@ spec:
                 "x": 9,
                 "y": 0
               },
-              "id": 53,
+              "id": 163,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3240,7 +3744,7 @@ spec:
                 "x": 12,
                 "y": 0
               },
-              "id": 54,
+              "id": 164,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3312,7 +3816,7 @@ spec:
                 "x": 15,
                 "y": 0
               },
-              "id": 55,
+              "id": 165,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3364,7 +3868,7 @@ spec:
                 "x": 18,
                 "y": 0
               },
-              "id": 56,
+              "id": 166,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3431,7 +3935,7 @@ spec:
                 "x": 21,
                 "y": 0
               },
-              "id": 57,
+              "id": 167,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3464,10 +3968,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 59
+            "y": 73
           },
-          "id": 106,
-          "title": "6 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
+          "id": 191,
+          "title": "5 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
           "type": "row",
           "panels": [
             {
@@ -3497,7 +4001,7 @@ spec:
                 "x": 0,
                 "y": 0
               },
-              "id": 60,
+              "id": 170,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3549,7 +4053,7 @@ spec:
                 "x": 3,
                 "y": 0
               },
-              "id": 61,
+              "id": 171,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3616,7 +4120,7 @@ spec:
                 "x": 6,
                 "y": 0
               },
-              "id": 62,
+              "id": 172,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3683,7 +4187,7 @@ spec:
                 "x": 9,
                 "y": 0
               },
-              "id": 63,
+              "id": 173,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3739,7 +4243,7 @@ spec:
                 "x": 12,
                 "y": 0
               },
-              "id": 64,
+              "id": 174,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3799,7 +4303,7 @@ spec:
                 "x": 15,
                 "y": 0
               },
-              "id": 65,
+              "id": 175,
               "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -3851,7 +4355,7 @@ spec:
                 "x": 18,
                 "y": 0
               },
-              "id": 66,
+              "id": 176,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -3918,7 +4422,7 @@ spec:
                 "x": 21,
                 "y": 0
               },
-              "id": 67,
+              "id": 177,
               "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -3965,8 +4469,12 @@ spec:
                         "value": 70
                       },
                       {
-                        "color": "red",
+                        "color": "orange",
                         "value": 85
+                      },
+                      {
+                        "color": "red",
+                        "value": 95
                       }
                     ]
                   },
@@ -3980,7 +4488,7 @@ spec:
                 "x": 0,
                 "y": 4
               },
-              "id": 68,
+              "id": 178,
               "options": {
                 "displayMode": "gradient",
                 "orientation": "horizontal",
@@ -4028,7 +4536,7 @@ spec:
                 "x": 12,
                 "y": 4
               },
-              "id": 69,
+              "id": 179,
               "options": {
                 "legend": {
                   "calcs": [
@@ -4062,10 +4570,10 @@ spec:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 60
+            "y": 74
           },
-          "id": 107,
-          "title": "6 \u00b7 Detail \u2014 Network edge (UniFi)",
+          "id": 192,
+          "title": "5 \u00b7 Detail \u2014 Network edge (UniFi)",
           "type": "row",
           "panels": [
             {
@@ -4095,7 +4603,7 @@ spec:
                 "x": 0,
                 "y": 0
               },
-              "id": 70,
+              "id": 180,
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -4147,7 +4655,7 @@ spec:
                 "x": 6,
                 "y": 0
               },
-              "id": 71,
+              "id": 181,
               "options": {
                 "colorMode": "value",
                 "graphMode": "none",
@@ -4199,7 +4707,7 @@ spec:
                 "x": 12,
                 "y": 0
               },
-              "id": 72,
+              "id": 182,
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -4251,7 +4759,7 @@ spec:
                 "x": 18,
                 "y": 0
               },
-              "id": 73,
+              "id": 183,
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -4286,7 +4794,7 @@ spec:
         "veliz",
         "sre",
         "overview",
-        "golden-signals"
+        "nodes"
       ],
       "templating": {
         "list": []
@@ -4299,6 +4807,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 6,
+      "version": 7,
       "weekStart": ""
     }

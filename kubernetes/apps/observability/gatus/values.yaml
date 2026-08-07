@@ -201,6 +201,14 @@ configMaps:
             <<: *defaults
             group: home
             url: tcp://mosquitto.home.svc.cluster.local:1883
+          - name: openclaw
+            <<: *defaults
+            group: ai
+            url: http://openclaw.ai.svc.cluster.local:18789/healthz
+          - name: ollama-macmini
+            <<: *defaults
+            group: ai
+            url: http://10.0.20.25:11434/api/tags
           # --- VLAN 1 management (UniFi, switches, APs, PDU, UNAS mgmt) ---
           - name: udm-pro-max
             <<: *lan-icmp
@@ -286,7 +294,7 @@ configMaps:
           - name: super-macmini
             <<: *lan-icmp
             group: trusted
-            url: icmp://10.0.10.25
+            url: icmp://10.0.20.25
           # --- VLAN 20 servers ---
           - name: unifi-gateway-srv
             <<: *lan-icmp

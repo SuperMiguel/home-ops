@@ -30,7 +30,7 @@ spec:
           }
         ]
       },
-      "description": "SRE home: nodes (CPU/mem/disk/load) first, then status. When Services FAIL, the table under Status names the failing checks.",
+      "description": "SRE home: nodes first, then status. Failing tables show FAIL (not 0). GitOps ignores Progressing. Golden errors = apiserver 5xx.",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 1,
@@ -90,7 +90,7 @@ spec:
               "showLineNumbers": false,
               "showMiniMap": false
             },
-            "content": "**Veliz Home** \u2014 nodes first, then traffic lights, then only problems. When **Services** is FAIL, the table under Status lists exactly which checks are down. [Gatus](https://gatus.veliz.cc) \u00b7 [Argo](https://argo.veliz.cc) \u00b7 [Longhorn](https://longhorn.veliz.cc)"
+            "content": "**Veliz Home** — nodes first, then traffic lights, then only problems. When **Services** is FAIL, the table under Status lists exactly which checks are down. [Gatus](https://gatus.veliz.cc) · [Argo](https://argo.veliz.cc) · [Longhorn](https://longhorn.veliz.cc)"
           }
         },
         {
@@ -102,7 +102,7 @@ spec:
             "y": 2
           },
           "id": 90,
-          "title": "0 \u00b7 Nodes \u2014 CPU \u00b7 memory \u00b7 disk \u00b7 load",
+          "title": "0 · Nodes — CPU · memory · disk · load",
           "type": "row"
         },
         {
@@ -646,7 +646,7 @@ spec:
             },
             "showUnfilled": true
           },
-          "title": "CPU % \u2014 all nodes",
+          "title": "CPU % — all nodes",
           "type": "bargauge",
           "targets": [
             {
@@ -710,7 +710,7 @@ spec:
             },
             "showUnfilled": true
           },
-          "title": "Memory % \u2014 all nodes",
+          "title": "Memory % — all nodes",
           "type": "bargauge",
           "targets": [
             {
@@ -774,7 +774,7 @@ spec:
             },
             "showUnfilled": true
           },
-          "title": "Disk /var % \u2014 all nodes",
+          "title": "Disk /var % — all nodes",
           "type": "bargauge",
           "targets": [
             {
@@ -838,7 +838,7 @@ spec:
             },
             "showUnfilled": true
           },
-          "title": "Load1 \u2014 all nodes",
+          "title": "Load1 — all nodes",
           "type": "bargauge",
           "targets": [
             {
@@ -1016,7 +1016,7 @@ spec:
             "y": 22
           },
           "id": 110,
-          "title": "1 \u00b7 Status \u2014 is anything broken?",
+          "title": "1 · Status — is anything broken?",
           "type": "row"
         },
         {
@@ -1085,7 +1085,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
+              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
               "legendFormat": "o",
               "refId": "A"
             }
@@ -1302,7 +1302,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0",
+              "expr": "((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0",
               "legendFormat": "g",
               "refId": "A"
             }
@@ -1621,23 +1621,73 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —",
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "OK",
+                      "color": "green",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "FAIL",
+                      "color": "red",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
             },
             "overrides": [
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "Value"
+                  "options": "Status"
                 },
                 "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Down"
-                  },
                   {
                     "id": "custom.cellOptions",
                     "value": {
                       "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "OK",
+                            "color": "green",
+                            "index": 0
+                          },
+                          "1": {
+                            "text": "FAIL",
+                            "color": "red",
+                            "index": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 1
+                        }
+                      ]
                     }
                   }
                 ]
@@ -1683,26 +1733,28 @@ spec:
                   "prometheus_replica": true,
                   "key": true,
                   "namespace": true,
-                  "pod": true
+                  "pod": true,
+                  "Value": false,
+                  "dest_server": true
                 },
                 "renameByName": {
                   "group": "Group",
                   "name": "Service",
                   "type": "Type",
-                  "Value": "Down"
+                  "Value": "Status"
                 }
               }
             }
           ],
           "targets": [
             {
-              "expr": "gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0",
+              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == bool 0) == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
           ],
-          "description": "Empty = critical services OK. Critical groups: core|observability|storage|home|media. This is why Services shows FAIL."
+          "description": "Empty/none failing = critical services OK. Status FAIL is why Services is red."
         },
         {
           "datasource": {
@@ -1730,23 +1782,56 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "Value"
+                  "options": "Status"
                 },
                 "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Down"
-                  },
                   {
                     "id": "custom.cellOptions",
                     "value": {
                       "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "OK",
+                            "color": "green",
+                            "index": 0
+                          },
+                          "1": {
+                            "text": "FAIL",
+                            "color": "red",
+                            "index": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 1
+                        }
+                      ]
                     }
                   }
                 ]
@@ -1792,26 +1877,28 @@ spec:
                   "prometheus_replica": true,
                   "key": true,
                   "namespace": true,
-                  "pod": true
+                  "pod": true,
+                  "Value": false,
+                  "dest_server": true
                 },
                 "renameByName": {
                   "group": "Group",
                   "name": "Check",
                   "type": "Type",
-                  "Value": "Down"
+                  "Value": "Status"
                 }
               }
             }
           ],
           "targets": [
             {
-              "expr": "gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == 0",
+              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == bool 0) == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
           ],
-          "description": "Non-critical failures (does not flip Services traffic light)."
+          "description": "Non-critical failures (does not flip Services). none failing = OK."
         },
         {
           "datasource": {
@@ -1922,7 +2009,7 @@ spec:
               "refId": "B"
             },
             {
-              "expr": "((count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)) + (count(argocd_app_info{sync_status!=\"Synced\"}) or vector(0))) == bool 0",
+              "expr": "((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0",
               "legendFormat": "GitOps",
               "refId": "C"
             },
@@ -1952,7 +2039,7 @@ spec:
             "y": 39
           },
           "id": 130,
-          "title": "2 \u00b7 Golden signals \u2014 traffic \u00b7 errors \u00b7 latency \u00b7 saturation",
+          "title": "2 · Golden signals — traffic · errors · latency · saturation",
           "type": "row"
         },
         {
@@ -2061,15 +2148,16 @@ spec:
             },
             "textMode": "auto"
           },
-          "title": "Errors",
+          "title": "API 5xx",
           "type": "stat",
           "targets": [
             {
-              "expr": "100 * (1 - avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}))",
-              "legendFormat": "err",
+              "expr": "100 * sum(rate(apiserver_request_total{job=\"apiserver\",code=~\"5..\"}[5m])) / clamp_min(sum(rate(apiserver_request_total{job=\"apiserver\"}[5m])), 1e-9)",
+              "legendFormat": "5xx %",
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Kubernetes apiserver 5xx rate (same source as Traffic). Not Gatus."
         },
         {
           "datasource": {
@@ -2292,15 +2380,16 @@ spec:
               "sort": "desc"
             }
           },
-          "title": "Errors (%)",
+          "title": "API 5xx (%)",
           "type": "timeseries",
           "targets": [
             {
-              "expr": "100 * (1 - avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}))",
-              "legendFormat": "Error %",
+              "expr": "100 * sum(rate(apiserver_request_total{job=\"apiserver\",code=~\"5..\"}[5m])) / clamp_min(sum(rate(apiserver_request_total{job=\"apiserver\"}[5m])), 1e-9)",
+              "legendFormat": "5xx %",
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Kubernetes apiserver 5xx rate (same source as Traffic). Not Gatus."
         },
         {
           "datasource": {
@@ -2416,7 +2505,7 @@ spec:
             "y": 50
           },
           "id": 140,
-          "title": "3 \u00b7 Active problems \u2014 empty means healthy",
+          "title": "3 · Active problems — empty means healthy",
           "type": "row"
         },
         {
@@ -2445,7 +2534,8 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
@@ -2505,7 +2595,8 @@ spec:
                   "uid": true,
                   "prometheus": true,
                   "prometheus_replica": true,
-                  "key": true
+                  "key": true,
+                  "Value": true
                 },
                 "renameByName": {
                   "alertname": "Alert",
@@ -2518,12 +2609,13 @@ spec:
           ],
           "targets": [
             {
-              "expr": "ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}",
+              "expr": "(label_replace(label_replace((vector(0) and on() ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == 0)),\"alertname\",\"none firing\",\"\",\"\"),\"severity\",\"—\",\"\",\"\")) or ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": "No rows / none firing = healthy (Watchdog ignored)."
         },
         {
           "datasource": {
@@ -2551,28 +2643,10 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Flag"
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-background"
-                    }
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 7,
@@ -2611,7 +2685,13 @@ spec:
                   "uid": true,
                   "prometheus": true,
                   "prometheus_replica": true,
-                  "key": true
+                  "key": true,
+                  "Value": true,
+                  "namespace": true,
+                  "pod": true,
+                  "dest_server": true,
+                  "project": true,
+                  "repo": true
                 },
                 "renameByName": {
                   "name": "App",
@@ -2624,12 +2704,13 @@ spec:
           ],
           "targets": [
             {
-              "expr": "argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status!=\"Synced\"}",
+              "expr": "(label_replace(label_replace(label_replace(label_replace((vector(0) and on() ((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"} or argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)) == 0)),\"name\",\"none\",\"\",\"\"),\"health_status\",\"—\",\"\",\"\"),\"sync_status\",\"—\",\"\",\"\"),\"dest_namespace\",\"—\",\"\",\"\")) or (argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"} or argocd_app_info{sync_status=\"OutOfSync\"})",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": "Degraded/Missing/OutOfSync only. Progressing (rolling) is ignored. none = healthy."
         },
         {
           "datasource": {
@@ -2657,7 +2738,8 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
@@ -2732,7 +2814,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": " No data / empty = healthy."
         },
         {
           "datasource": {
@@ -2760,7 +2843,8 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
@@ -2837,7 +2921,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": " No data / empty = healthy."
         },
         {
           "datasource": {
@@ -2865,7 +2950,8 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
@@ -2942,7 +3028,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": " No data / empty = healthy."
         },
         {
           "datasource": {
@@ -2970,7 +3057,8 @@ spec:
                     "value": 1
                   }
                 ]
-              }
+              },
+              "noValue": "— none —"
             },
             "overrides": [
               {
@@ -3048,7 +3136,8 @@ spec:
               "instant": true,
               "refId": "A"
             }
-          ]
+          ],
+          "description": " No data / empty = healthy."
         },
         {
           "collapsed": false,
@@ -3059,7 +3148,7 @@ spec:
             "y": 63
           },
           "id": 150,
-          "title": "4 \u00b7 Dependencies \u2014 service & platform availability",
+          "title": "4 · Dependencies — service & platform availability",
           "type": "row"
         },
         {
@@ -3461,7 +3550,7 @@ spec:
             "y": 72
           },
           "id": 190,
-          "title": "5 \u00b7 Detail \u2014 GitOps (Argo CD)",
+          "title": "5 · Detail — GitOps (Argo CD)",
           "type": "row",
           "panels": [
             {
@@ -3972,7 +4061,7 @@ spec:
             "y": 73
           },
           "id": 191,
-          "title": "5 \u00b7 Detail \u2014 Storage (Longhorn) & restarts",
+          "title": "5 · Detail — Storage (Longhorn) & restarts",
           "type": "row",
           "panels": [
             {
@@ -4574,7 +4663,7 @@ spec:
             "y": 74
           },
           "id": 192,
-          "title": "5 \u00b7 Detail \u2014 Network edge (UniFi)",
+          "title": "5 · Detail — Network edge (UniFi)",
           "type": "row",
           "panels": [
             {
@@ -4808,6 +4897,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 8,
+      "version": 10,
       "weekStart": ""
     }

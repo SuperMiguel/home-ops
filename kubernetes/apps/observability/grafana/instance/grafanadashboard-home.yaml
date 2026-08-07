@@ -1223,7 +1223,7 @@ spec:
               "fields": "",
               "values": false
             },
-            "textMode": "value_and_name"
+            "textMode": "auto"
           },
           "title": "Services",
           "type": "stat",
@@ -1232,14 +1232,9 @@ spec:
               "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)",
               "legendFormat": "status",
               "refId": "A"
-            },
-            {
-              "expr": "count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)",
-              "legendFormat": "down",
-              "refId": "B"
             }
           ],
-          "description": "Critical Gatus groups (core|observability|storage|home|media). See table below for which checks are down."
+          "description": "Critical Gatus groups (core|observability|storage|home|media). See \"Which services are failing?\" table below for names."
         },
         {
           "datasource": {
@@ -1686,12 +1681,15 @@ spec:
                   "uid": true,
                   "prometheus": true,
                   "prometheus_replica": true,
-                  "key": true
+                  "key": true,
+                  "namespace": true,
+                  "pod": true
                 },
                 "renameByName": {
                   "group": "Group",
                   "name": "Service",
-                  "type": "Type"
+                  "type": "Type",
+                  "Value": "Down"
                 }
               }
             }
@@ -1792,12 +1790,15 @@ spec:
                   "uid": true,
                   "prometheus": true,
                   "prometheus_replica": true,
-                  "key": true
+                  "key": true,
+                  "namespace": true,
+                  "pod": true
                 },
                 "renameByName": {
                   "group": "Group",
                   "name": "Check",
-                  "type": "Type"
+                  "type": "Type",
+                  "Value": "Down"
                 }
               }
             }
@@ -4807,6 +4808,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 7,
+      "version": 8,
       "weekStart": ""
     }

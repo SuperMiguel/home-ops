@@ -54,6 +54,7 @@ controllers:
           HOME: /home/node
           OPENCLAW_CONFIG_DIR: /home/node/.openclaw
           NODE_ENV: production
+          NPM_CONFIG_CACHE: /home/node/.npm
           OPENCLAW_GATEWAY_TOKEN:
             valueFrom:
               secretKeyRef:
@@ -99,7 +100,8 @@ controllers:
               httpGet:
                 path: /healthz
                 port: *port
-              failureThreshold: 30
+              # First boot installs @openclaw/discord from npm — allow several minutes.
+              failureThreshold: 60
               periodSeconds: 10
         securityContext:
           allowPrivilegeEscalation: false
@@ -225,6 +227,27 @@ persistence:
     sizeLimit: 256Mi
     globalMounts:
       - path: /tmp
+  # Writable dirs for plugin install under readOnlyRootFilesystem.
+  npm:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /home/node/.npm
+  cache:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /home/node/.cache
+  xdg-config:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /home/node/.config
+  local:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /home/node/.local
 service:
   app:
     ports:

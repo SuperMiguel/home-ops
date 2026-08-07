@@ -2,7 +2,7 @@
 # Secrets: see SECRETS.md (1Password Homelab / openclaw-secrets).
 # Docs: Super-Veliz-Network/software/openclaw/README.md
 #
-# After first sync: primary model is ollama/qwen2.5:14b (Mac Mini 10.0.20.25).
+# After first sync: primary model is ollama/qwen3:8b (Mac Mini M4 16GB, 10.0.20.25).
 # openclaw.json is always synced from this ConfigMap on pod start.
 controllers:
   openclaw:
@@ -11,7 +11,7 @@ controllers:
     pod:
       annotations:
         secret.reloader.stakater.com/reload: openclaw-secrets
-        configmap.reloader.stakater.com/reload: openclaw-config
+        configmap.reloader.stakater.com/reload: openclaw
     initContainers:
       seed-config:
         image:
@@ -150,20 +150,32 @@ configMaps:
                 "apiKey": "ollama-local",
                 "api": "ollama",
                 "timeoutSeconds": 300,
+                "contextWindow": 16384,
+                "params": {
+                  "num_ctx": 16384
+                },
                 "models": [
                   {
-                    "id": "qwen2.5:14b",
-                    "name": "qwen2.5:14b"
+                    "id": "qwen3:8b",
+                    "name": "qwen3:8b",
+                    "contextWindow": 16384,
+                    "maxTokens": 1024,
+                    "params": {
+                      "num_ctx": 16384
+                    }
                   }
                 ]
               }
             }
           },
+          "tools": {
+            "profile": "messaging"
+          },
           "agents": {
             "defaults": {
               "workspace": "~/.openclaw/workspace",
               "model": {
-                "primary": "ollama/qwen2.5:14b"
+                "primary": "ollama/qwen3:8b"
               }
             },
             "list": [
@@ -186,7 +198,7 @@ configMaps:
               "dmPolicy": "pairing",
               "guilds": {
                 "1173832276279296112": {
-                  "requireMention": true,
+                  "requireMention": false,
                   "users": [
                     "581220086757720089"
                   ]
@@ -233,19 +245,28 @@ configMaps:
       AGENTS.md: |
         # OpenClaw Assistant
 
-        You are Miguel's personal assistant for the Veliz home Kubernetes cluster.
+        You are SuperClaw, Miguel's personal assistant for the Veliz home Kubernetes cluster.
         Models run via Ollama on the Mac Mini (10.0.20.25). Prefer concise, actionable replies.
+
+        ## How to read Discord messages
+
+        User messages are normal chat. Answer the user's text directly.
+        OpenClaw may also inject inbound_meta / Conversation Context JSON for routing —
+        that is for you only. Never describe it, never call it "internal metadata the
+        user shared", and never ask what to do with it. Just help with the request.
+
+        Mentions like `<@...>` or `<@&...>` are Discord @pings — ignore the markup.
 
         ## Cluster troubleshooting
 
         You have MCP tools for **kubernetes** (read-only) and **grafana** (read-only).
-        When asked about a down service, Gatus alert, or Grafana dashboard:
+        When asked about MQTT, pods, a down service, Gatus alert, or Grafana dashboard:
 
-        1. Check Kubernetes: pods/deployments/events/logs for the relevant namespace
-           (home, media, observability, ai, default, network, argo-system, kube-system).
-        2. Check Grafana/Prometheus/Loki via the grafana MCP (search dashboards, query metrics).
-        3. Summarize root cause and a concrete fix. Do **not** claim you changed the cluster —
-           kubernetes MCP is read-only. Suggest GitOps edits in SuperMiguel/home-ops for fixes/PRs.
+        1. Call kubernetes MCP tools for pods/deployments/events/logs (namespaces: home,
+           media, observability, ai, default, network, argo-system, kube-system).
+        2. Call grafana MCP tools for Prometheus/Loki/dashboard health as needed.
+        3. Summarize findings and a concrete fix. Do **not** claim you changed the
+           cluster — k8s MCP is read-only. Suggest GitOps edits in SuperMiguel/home-ops.
 
         Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc.
         MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).

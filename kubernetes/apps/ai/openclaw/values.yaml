@@ -194,6 +194,16 @@ configMaps:
               }
             }
           },
+          "plugins": {
+            "entries": {
+              "discord": {
+                "enabled": true
+              },
+              "ollama": {
+                "enabled": true
+              }
+            }
+          },
           "cron": {
             "enabled": false
           }

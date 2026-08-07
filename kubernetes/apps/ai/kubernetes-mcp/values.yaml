@@ -1,5 +1,6 @@
 # Read-only Kubernetes MCP (containers/kubernetes-mcp-server) for OpenClaw.
 # ClusterIP only — OpenClaw reaches http://kubernetes-mcp.ai.svc:8080/mcp
+fullnameOverride: kubernetes-mcp
 ingress:
   enabled: false
 httpRoute:

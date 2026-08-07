@@ -1,14 +1,13 @@
 # Grafana MCP — streamable HTTP for OpenClaw (and other agents).
-# Secrets: see SECRETS.md (1Password Homelab / grafana-mcp-secrets).
-#
-# Create a Grafana Service Account (Viewer) + token, store as GRAFANA_SERVICE_ACCOUNT_TOKEN.
+# Secrets: shared 1Password item openclaw-secrets (see ../openclaw/SECRETS.md).
+# Field: GRAFANA_SERVICE_ACCOUNT_TOKEN (Grafana Viewer SA).
 controllers:
   grafana-mcp:
     strategy: Recreate
     replicas: 1
     pod:
       annotations:
-        secret.reloader.stakater.com/reload: grafana-mcp-secrets
+        secret.reloader.stakater.com/reload: openclaw-secrets
     containers:
       app:
         image:
@@ -31,7 +30,7 @@ controllers:
           GRAFANA_SERVICE_ACCOUNT_TOKEN:
             valueFrom:
               secretKeyRef:
-                name: grafana-mcp-secrets
+                name: openclaw-secrets
                 key: GRAFANA_SERVICE_ACCOUNT_TOKEN
         probes:
           liveness:

@@ -208,6 +208,24 @@ configMaps:
               }
             }
           },
+          "mcp": {
+            "servers": {
+              "grafana": {
+                "url": "http://grafana-mcp.ai.svc.cluster.local:8000/mcp",
+                "transport": "streamable-http",
+                "enabled": true,
+                "connectionTimeoutMs": 10000,
+                "requestTimeoutMs": 60000
+              },
+              "kubernetes": {
+                "url": "http://kubernetes-mcp.ai.svc.cluster.local:8080/mcp",
+                "transport": "streamable-http",
+                "enabled": true,
+                "connectionTimeoutMs": 10000,
+                "requestTimeoutMs": 60000
+              }
+            }
+          },
           "cron": {
             "enabled": false
           }
@@ -215,8 +233,22 @@ configMaps:
       AGENTS.md: |
         # OpenClaw Assistant
 
-        You are Miguel's personal assistant running on the home Kubernetes cluster.
+        You are Miguel's personal assistant for the Veliz home Kubernetes cluster.
         Models run via Ollama on the Mac Mini (10.0.20.25). Prefer concise, actionable replies.
+
+        ## Cluster troubleshooting
+
+        You have MCP tools for **kubernetes** (read-only) and **grafana** (read-only).
+        When asked about a down service, Gatus alert, or Grafana dashboard:
+
+        1. Check Kubernetes: pods/deployments/events/logs for the relevant namespace
+           (home, media, observability, ai, default, network, argo-system, kube-system).
+        2. Check Grafana/Prometheus/Loki via the grafana MCP (search dashboards, query metrics).
+        3. Summarize root cause and a concrete fix. Do **not** claim you changed the cluster —
+           kubernetes MCP is read-only. Suggest GitOps edits in SuperMiguel/home-ops for fixes/PRs.
+
+        Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc.
+        MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).
 persistence:
   home:
     enabled: true

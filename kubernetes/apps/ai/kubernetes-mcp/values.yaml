@@ -1,0 +1,39 @@
+# Read-only Kubernetes MCP (containers/kubernetes-mcp-server) for OpenClaw.
+# ClusterIP only — OpenClaw reaches http://kubernetes-mcp.ai.svc:8080/mcp
+ingress:
+  enabled: false
+httpRoute:
+  enabled: false
+replicaCount: 1
+image:
+  registry: quay.io
+  repository: containers/kubernetes_mcp_server
+  version: "0.0.66"
+  pullPolicy: IfNotPresent
+serviceAccount:
+  create: true
+  automountToken: true
+rbac:
+  create: true
+  extraClusterRoleBindings:
+    - name: view
+      roleRef:
+        name: view
+        external: true
+extraArgs:
+  - --read-only
+service:
+  type: ClusterIP
+  port: 8080
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+metrics:
+  serviceMonitor:
+    enabled: false
+config:
+  port: "8080"

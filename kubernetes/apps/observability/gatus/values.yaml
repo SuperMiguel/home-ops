@@ -198,13 +198,24 @@ configMaps:
             group: home
             url: http://node-red.home.svc.cluster.local:1880
           - name: mqtt
-            <<: *defaults
+            <<: *lan-icmp
             group: home
+            # Mosquitto is MQTT/TCP, not HTTP — CONNECTED check, not STATUS==200.
             url: tcp://mosquitto.home.svc.cluster.local:1883
+            conditions:
+              - "[CONNECTED] == true"
           - name: openclaw
             <<: *defaults
             group: ai
             url: http://openclaw.ai.svc.cluster.local:18789/healthz
+          - name: grafana-mcp
+            <<: *defaults
+            group: ai
+            url: http://grafana-mcp.ai.svc.cluster.local:8000/healthz
+          - name: kubernetes-mcp
+            <<: *defaults
+            group: ai
+            url: http://kubernetes-mcp.ai.svc.cluster.local:8080/healthz
           - name: ollama-macmini
             <<: *defaults
             group: ai

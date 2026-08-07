@@ -1,0 +1,92 @@
+# Grafana MCP — streamable HTTP for OpenClaw (and other agents).
+# Secrets: see SECRETS.md (1Password Homelab / grafana-mcp-secrets).
+#
+# Create a Grafana Service Account (Viewer) + token, store as GRAFANA_SERVICE_ACCOUNT_TOKEN.
+controllers:
+  grafana-mcp:
+    strategy: Recreate
+    replicas: 1
+    pod:
+      annotations:
+        secret.reloader.stakater.com/reload: grafana-mcp-secrets
+    containers:
+      app:
+        image:
+          repository: grafana/mcp-grafana
+          tag: latest
+        args:
+          - -t
+          - streamable-http
+          - --address
+          - :8000
+          # ClusterIP-only; Host header from kube probes / in-cluster clients varies.
+          - --allowed-hosts
+          - "*"
+          - --disable-write
+          - --enabled-tools
+          - search,dashboard,datasource,prometheus,loki,alerting,annotations,folder,navigation,sift,runpanelquery
+        env:
+          TZ: America/New_York
+          GRAFANA_URL: http://grafana-service.observability.svc.cluster.local:3000
+          GRAFANA_SERVICE_ACCOUNT_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: grafana-mcp-secrets
+                key: GRAFANA_SERVICE_ACCOUNT_TOKEN
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: &port 8000
+              initialDelaySeconds: 15
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: *port
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+persistence:
+  tmp:
+    enabled: true
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 128Mi
+    globalMounts:
+      - path: /tmp
+service:
+  app:
+    ports:
+      http:
+        port: *port

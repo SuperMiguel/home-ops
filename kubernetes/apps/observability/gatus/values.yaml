@@ -3,9 +3,9 @@
 # (Pushover + Discord). Do not attach per-endpoint Gatus alerts (avoids duplicate pages).
 #
 # Priority is encoded in `group` (see kube-prometheus-stack homelab-rules):
-#   critical page: servers, lan-mgmt, trusted, home, iot-critical
+#   critical page: servers, lan-mgmt, trusted, home, iot-critical, cctv
 #   warning:       core, observability, storage, media, ai, lan-edge, iot-util
-#   silent (UI):   iot-low  — still probed, never pages
+#   silent (UI):   iot-low, ai-low  — still probed, never pages
 #
 # Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
 # phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
@@ -213,15 +213,15 @@ configMaps:
               - "[CONNECTED] == true"
           - name: openclaw
             <<: *defaults
-            group: ai
+            group: ai-low
             url: http://openclaw.ai.svc.cluster.local:18789/healthz
           - name: grafana-mcp
             <<: *defaults
-            group: ai
+            group: ai-low
             url: http://grafana-mcp.ai.svc.cluster.local:8000/healthz
           - name: kubernetes-mcp
             <<: *defaults
-            group: ai
+            group: ai-low
             url: http://kubernetes-mcp.ai.svc.cluster.local:8080/healthz
           - name: ollama-macmini
             <<: *defaults
@@ -373,9 +373,10 @@ configMaps:
             <<: *lan-icmp
             group: iot-critical
             url: icmp://192.168.120.147
+          # Softener is comfort, not flood risk (Flo covers that) — warning only.
           - name: water-softener
             <<: *lan-icmp
-            group: iot-critical
+            group: iot-util
             url: icmp://192.168.120.118
           # iot-util: climate / energy — warning only
           - name: ecobee-downstairs
@@ -419,6 +420,31 @@ configMaps:
             <<: *lan-icmp
             group: iot-low
             url: icmp://192.168.120.163
+          # --- VLAN 130 CCTV (house cameras) — critical security coverage ---
+          - name: camera-front-door
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.72
+          - name: camera-small-garage
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.78
+          - name: camera-kids-hall
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.80
+          - name: camera-game-room
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.90
+          - name: camera-game-room-4mp
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.92
+          - name: camera-lanai
+            <<: *lan-icmp
+            group: cctv
+            url: icmp://192.168.130.201
 persistence:
   config:
     type: configMap

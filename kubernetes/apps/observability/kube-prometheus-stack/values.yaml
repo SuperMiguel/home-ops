@@ -113,7 +113,7 @@ additionalPrometheusRulesMap:
           - alert: GatusCriticalEndpointDown
             expr: >-
               gatus_results_endpoint_success{
-                group=~"servers|lan-mgmt|trusted|home|iot-critical",
+                group=~"servers|lan-mgmt|trusted|home|cctv",
                 name!="mqtt"
               } == 0
             for: 5m
@@ -123,7 +123,17 @@ additionalPrometheusRulesMap:
               summary: Critical endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 5m
-                — cluster, core network, home hubs, or security/water devices.
+                — cluster, core network, home hubs, or CCTV.
+          - alert: GatusCriticalIoTDown
+            expr: gatus_results_endpoint_success{group="iot-critical"} == 0
+            for: 15m
+            labels:
+              severity: critical
+            annotations:
+              summary: Critical IoT endpoint {{ $labels.name }} is down
+              description: >-
+                {{ $labels.name }} (Wi‑Fi security/water/access device) has been
+                failing for 15m — longer window to avoid flap noise.
           - alert: GatusImportantEndpointDown
             expr: >-
               gatus_results_endpoint_success{
@@ -136,7 +146,7 @@ additionalPrometheusRulesMap:
               summary: Endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 15m.
-          # iot-low (lights / pool / irrigation) is probed for the status page only — no alert.
+          # iot-low / ai-low are probed for the status page only — no alert.
       - name: kubernetes-pods
         rules:
           - alert: KubePodCrashLooping

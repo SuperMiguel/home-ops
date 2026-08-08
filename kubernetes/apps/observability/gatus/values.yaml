@@ -3,9 +3,12 @@
 # (Pushover + Discord). Do not attach per-endpoint Gatus alerts (avoids duplicate pages).
 #
 # Priority is encoded in `group` (see kube-prometheus-stack homelab-rules):
-#   critical page: servers, lan-mgmt, trusted, home, iot-critical, cctv
-#   warning:       core, observability, storage, media, ai, lan-edge, iot-util
+#   critical page: servers, trusted, home, iot-critical, cctv (+ UniFi via Unpoller rules)
+#   warning:       core, observability, storage, media, ai, iot-util
 #   silent (UI):   iot-low, ai-low  — still probed, never pages
+#
+# UniFi Network gear (UDM/switches/APs/PDU) is monitored by Unpoller → PrometheusRules,
+# not ICMP here. Keep non-UniFi probes (Ruckus, cameras, IoT, servers, etc.).
 #
 # Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
 # phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
@@ -227,68 +230,7 @@ configMaps:
             <<: *defaults
             group: ai
             url: http://10.0.20.25:11434/api/tags
-          # --- VLAN 1 management (UniFi, switches, APs, PDU, UNAS mgmt) ---
-          - name: udm-pro-max
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.1
-          - name: usw-aggregation
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.2
-          - name: usw-pro-hd24
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.3
-          - name: usw-pro-hd24-poe
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.4
-          - name: ap-uk-ultra-lanai
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.7
-          - name: ap-e7-upstairs
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.8
-          - name: ap-e7-downstairs
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.9
-          - name: usw-24-miguel-office
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.10
-          # Room flex minis — useful, but not fabric-critical (warning, not page).
-          - name: usw-flex-mini-yanelis-office
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.11
-          - name: usw-flex-mini-gaming-room
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.12
-          - name: usw-flex-mini-living-room
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.13
-          - name: usw-flex-mini-ac-closet
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.14
-          - name: usw-flex-mini-gaming-pcs
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.15
-          - name: usw-flex-mini-miguel-work
-            <<: *lan-icmp
-            group: lan-edge
-            url: icmp://10.0.0.16
-          - name: usp-pdu-pro
-            <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.20
+          # --- Non-UniFi LAN (UniFi UDM/switches/APs/PDU → Unpoller alerts) ---
           - name: ap-ruckus-large-garage
             <<: *lan-icmp
             group: lan-mgmt
@@ -314,11 +256,7 @@ configMaps:
             <<: *lan-icmp
             group: trusted
             url: icmp://10.0.20.25
-          # --- VLAN 20 servers ---
-          - name: unifi-gateway-srv
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.1
+          # --- VLAN 20 servers (UDM reachability → Unpoller controller_up) ---
           - name: superunas-srv
             <<: *lan-icmp
             group: servers

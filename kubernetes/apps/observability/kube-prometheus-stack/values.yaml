@@ -123,7 +123,7 @@ additionalPrometheusRulesMap:
               summary: Critical endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 5m
-                — cluster, core network, home hubs, or CCTV.
+                — cluster, non-UniFi LAN (e.g. Ruckus), home hubs, or CCTV.
           - alert: GatusCriticalIoTDown
             expr: gatus_results_endpoint_success{group="iot-critical"} == 0
             for: 15m
@@ -137,7 +137,7 @@ additionalPrometheusRulesMap:
           - alert: GatusImportantEndpointDown
             expr: >-
               gatus_results_endpoint_success{
-                group=~"core|observability|storage|media|ai|lan-edge|iot-util"
+                group=~"core|observability|storage|media|ai|iot-util"
               } == 0
             for: 15m
             labels:
@@ -147,6 +147,7 @@ additionalPrometheusRulesMap:
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 15m.
           # iot-low / ai-low are probed for the status page only — no alert.
+          # UniFi Network devices: see unpoller-rules (not Gatus ICMP).
       - name: kubernetes-pods
         rules:
           - alert: KubePodCrashLooping
@@ -214,3 +215,109 @@ additionalPrometheusRulesMap:
               description: >-
                 Volume {{ $labels.persistentvolumeclaim }} on {{ $labels.node }} is
                 {{ $value | humanizePercentage }} full and needs space soon.
+  # UniFi Network via Unpoller (https://github.com/unpoller/unpoller/tree/master/alerts).
+  # Covers UDM/switches/APs/PDU so Gatus does not ICMP-duplicate them.
+  unpoller-rules:
+    groups:
+      - name: unifi-health
+        rules:
+          - alert: UnifiPollerDown
+            expr: up{job="unpoller"} == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: Unpoller is down or not scraping
+              description: >-
+                Prometheus cannot scrape Unpoller — UniFi device alerts will be blind.
+          - alert: UnifiControllerDown
+            expr: unpoller_controller_up == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: UniFi controller is unreachable
+              description: >-
+                Unpoller cannot reach the UniFi controller at {{ $labels.source }}.
+          - alert: UnifiDeviceDisconnected
+            expr: unpoller_site_disconnected{subsystem=~"wlan|wan|lan"} > 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: UniFi reports disconnected {{ $labels.subsystem }} device(s)
+              description: >-
+                {{ $value }} device(s) disconnected in {{ $labels.subsystem }}
+                on {{ $labels.site_name }} (UniFi adoption state, not ICMP).
+          - alert: UnifiDeviceInventoryDrop
+            expr: count(unpoller_device_info) < 15
+            for: 10m
+            labels:
+              severity: critical
+            annotations:
+              summary: UniFi device inventory dropped below baseline (15)
+              description: >-
+                Unpoller currently sees {{ $value }} adopted devices (baseline 15).
+                A switch/AP/PDU may have left the controller or stopped reporting.
+      - name: unifi-wan
+        rules:
+          - alert: UnifiWANLowUptime
+            expr: unpoller_wan_uptime_percentage < 95
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: WAN {{ $labels.wan_name }} uptime is low
+              description: >-
+                WAN {{ $labels.wan_name }} uptime at {{ $value }}%
+                (site {{ $labels.site_name }}).
+          - alert: UnifiWANDrops
+            expr: increase(unpoller_site_intenet_drops_total[1h]) >= 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: Multiple WAN drops on {{ $labels.site_name }}
+              description: >-
+                UniFi recorded {{ $value }} internet drop(s) in the last hour.
+      - name: unifi-devices
+        rules:
+          - alert: UnifiDeviceHighCPU
+            expr: unpoller_device_cpu_utilization_ratio > 0.9
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: High CPU on UniFi {{ $labels.name }}
+              description: >-
+                {{ $labels.type }} {{ $labels.name }} CPU at {{ $value | humanizePercentage }}.
+          - alert: UnifiDeviceHighMemory
+            expr: unpoller_device_memory_utilization_ratio > 0.9
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: High memory on UniFi {{ $labels.name }}
+              description: >-
+                {{ $labels.type }} {{ $labels.name }} memory at {{ $value | humanizePercentage }}.
+      - name: unifi-dhcp
+        rules:
+          - alert: UnifiDHCPPoolHigh
+            expr: unpoller_dhcp_utilization_percent > 90
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: DHCP pool nearly full on {{ $labels.network }}
+              description: >-
+                Network {{ $labels.network }} DHCP utilization at {{ $value }}%.
+          - alert: UnifiDHCPPoolCritical
+            expr: unpoller_dhcp_utilization_percent > 98
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: DHCP pool critically full on {{ $labels.network }}
+              description: >-
+                Network {{ $labels.network }} DHCP utilization at {{ $value }}%
+                — new clients may fail to get an address.

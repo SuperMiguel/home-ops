@@ -1,6 +1,7 @@
 # UniFi Poller — https://unpoller.com/ — exports UniFi metrics to Prometheus (`/metrics` on :9130).
 # Create a read-only UniFi user; credentials in unpoller-secret (see cluster-secrets).
 # Controller URL: UDM/UDM Pro use https://IP without :8443 (see unpoller docs).
+# Alerts: kube-prometheus-stack additionalPrometheusRulesMap.unpoller-rules → Alertmanager.
 controllers:
   unpoller:
     replicas: 1

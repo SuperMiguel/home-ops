@@ -152,8 +152,13 @@
         siteMonitor: https://alertmanager.veliz.cc/-/ready
     - Victoria Logs:
         icon: mdi-text-box-search-outline
+        href: https://grafana.veliz.cc/explore
+        description: Grafana Explore → VictoriaLogs datasource (Fluent Bit)
+        siteMonitor: https://victoria-logs.veliz.cc/select/vmui/
+    - Victoria Logs (VMUI):
+        icon: mdi-console
         href: https://victoria-logs.veliz.cc/select/vmui/
-        description: Logs (Fluent Bit)
+        description: Native LogsQL UI
         siteMonitor: https://victoria-logs.veliz.cc/select/vmui/
 
 - Media:

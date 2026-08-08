@@ -161,10 +161,19 @@ configMaps:
                 },
                 "models": [
                   {
+                    "id": "qwen2.5:14b",
+                    "name": "qwen2.5:14b",
+                    "contextWindow": 16384,
+                    "maxTokens": 1024,
+                    "params": {
+                      "num_ctx": 16384
+                    }
+                  },
+                  {
                     "id": "qwen3:8b",
                     "name": "qwen3:8b",
                     "contextWindow": 16384,
-                    "maxTokens": 512,
+                    "maxTokens": 1024,
                     "params": {
                       "num_ctx": 16384,
                       "think": false
@@ -198,7 +207,10 @@ configMaps:
                 "keepRecentTokens": 3000
               },
               "model": {
-                "primary": "ollama/qwen3:8b"
+                "primary": "ollama/qwen2.5:14b",
+                "fallbacks": [
+                  "ollama/qwen3:8b"
+                ]
               }
             },
             "list": [
@@ -293,11 +305,7 @@ configMaps:
                 "toolFilter": {
                   "include": [
                     "GetLiveContext",
-                    "GetDateTime",
-                    "resources_list",
-                    "resources_read",
-                    "prompts_list",
-                    "prompts_get"
+                    "GetDateTime"
                   ]
                 }
               }
@@ -310,54 +318,37 @@ configMaps:
       AGENTS.md: |
         # OpenClaw Assistant
 
-        You are SuperClaw, Miguel's personal assistant for the Veliz home Kubernetes cluster.
-        Models run via Ollama on the Mac Mini (10.0.20.25). Prefer concise, actionable replies.
+        You are SuperClaw for Miguel's Veliz home lab. Be concise.
 
-        ## How to read Discord messages
+        ## Tool use (critical)
 
-        User messages are normal chat. Answer the user's text directly.
-        OpenClaw may also inject inbound_meta / Conversation Context JSON for routing —
-        that is for you only. Never describe it, never call it "internal metadata the
-        user shared", and never ask what to do with it. Just help with the request.
+        Never say “I'll check…” or “Let me look into this” without immediately
+        issuing a tool call in the same turn. If you need live data, call a tool
+        first — text-only promises are a failure.
 
-        Mentions like `<@...>` or `<@&...>` are Discord @pings — ignore the markup.
+        Exact tool names (MCP):
+        - Home state / lights / climate / sensors: `homeassistant__GetLiveContext`
+        - Cluster pods/logs/events: `kubernetes__pods_list_in_namespace`,
+          `kubernetes__pods_log`, `kubernetes__events_list`
+        - Metrics / Gatus / MQTT health: `grafana__query_prometheus`
 
-        ## Cluster troubleshooting
+        ## Discord
 
-        You have MCP tools for **kubernetes** (read-only), **grafana** (read-only),
-        and **homeassistant** (read-only live context).
-        When asked about MQTT, pods, a down service, Gatus alert, or Grafana dashboard:
+        Answer the user text. Ignore inbound_meta / Conversation Context JSON and
+        Discord mention markup (`<@…>`).
 
-        1. Call kubernetes MCP tools for pods/events/logs (namespaces: home, media,
-           observability, ai, default, network, argo-system, kube-system).
-        2. For MQTT / endpoint health, query Prometheus via Grafana MCP — do **not**
-           look for a `mosquitto` scrape job (none exists).
-        3. Summarize findings. Do **not** claim you changed the cluster — k8s MCP is
-           read-only. Suggest GitOps edits in SuperMiguel/home-ops for fixes/PRs.
+        ## Home Assistant
 
-        ## Home / smart-home questions
+        Call `homeassistant__GetLiveContext`, then summarize. Read-only — do not
+        claim you changed devices. Only Assist-exposed entities appear; if missing,
+        say so (do not invent entity IDs).
 
-        When asked about lights, locks, climate, sensors, or “is X on?”:
+        ## Cluster / Grafana
 
-        1. Call **homeassistant** `GetLiveContext` (optionally filter by area/domain).
-        2. Answer from that snapshot. Do **not** claim you changed devices —
-           write tools (HassTurnOn / HassTurnOff / etc.) are filtered out.
-        3. Only entities exposed to Assist in HA are visible. If something is
-           missing, say it is not exposed — do not invent entity IDs.
-
-        Grafana datasource UIDs (use these exactly — do not invent names):
-        - Prometheus: `prometheus` (default)
-        - Alertmanager: `alertmanager`
-        There is currently no Loki datasource. Prefer kubernetes pod logs over Loki queries.
-
-        Useful PromQL (datasource uid `prometheus`):
-        - MQTT TCP check (Gatus): `gatus_results_endpoint_success{name="mqtt"}`
-          (also `key="home_mqtt"`). Value `1` = OK, `0` = failing.
-        - Unhealthy home pods: `kube_pod_status_phase{namespace="home",phase!="Running"}>0`
-        - Home pods running: `sum by (pod) (kube_pod_status_phase{namespace="home",phase="Running"})`
-
-        Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc,
-        hass.veliz.cc. MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).
+        k8s + Grafana MCP are read-only. Suggest GitOps fixes in home-ops.
+        Prometheus uid `prometheus`. MQTT check:
+        `gatus_results_endpoint_success{name="mqtt"}` (1=OK). No mosquitto scrape job.
+        No Loki — use k8s pod logs.
 persistence:
   home:
     enabled: true

@@ -84,3 +84,23 @@ spec:
             name: alertmanager-secret
             key: PUSHOVER_USER_KEY
           urlTitle: View in Alertmanager
+      discordConfigs:
+        - sendResolved: true
+          username: Alertmanager
+          title: >-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+          message: |-
+            {{- range .Alerts }}
+            {{- if ne .Annotations.description "" }}
+            {{ .Annotations.description }}
+            {{- else if ne .Annotations.summary "" }}
+            {{ .Annotations.summary }}
+            {{- else if ne .Annotations.message "" }}
+            {{ .Annotations.message }}
+            {{- else }}
+            Alert description not available
+            {{- end }}
+            {{- end }}
+          apiURL:
+            name: alertmanager-secret
+            key: DISCORD_WEBHOOK_URL

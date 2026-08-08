@@ -1,6 +1,6 @@
 # Gatus — https://github.com/TwiN/gatus
-# Pushover: alerting in config.yaml; tokens from Secret gatus-secret (see cluster-secrets).
-# Docs: https://gatus.io/docs/alerting-pushover
+# Alerts: Pushover + Discord; tokens/webhook from Secret gatus-secret (see cluster-secrets).
+# Docs: https://gatus.io/docs/alerting-pushover https://gatus.io/docs/alerting-discord
 #
 # Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
 # phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
@@ -104,6 +104,13 @@ configMaps:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
+          discord:
+            webhook-url: "${DISCORD_WEBHOOK_URL}"
+            title: "Gatus"
+            default-alert:
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
         # Anchor for DRY endpoints; not a Gatus key — see https://github.com/TwiN/gatus#keeping-your-configuration-small
         default-endpoint: &defaults
           interval: 5m
@@ -112,12 +119,16 @@ configMaps:
           alerts:
             - type: pushover
               description: "endpoint unhealthy"
+            - type: discord
+              description: "endpoint unhealthy"
         lan-icmp: &lan-icmp
           interval: 5m
           conditions:
             - "[CONNECTED] == true"
           alerts:
             - type: pushover
+              description: "host unreachable"
+            - type: discord
               description: "host unreachable"
         endpoints:
           - name: home

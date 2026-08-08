@@ -11,8 +11,7 @@
 #
 # ExternalSecret → Secret `ghcr-pull` (`kubernetes.io/dockerconfigjson`) for image pulls.
 #
-# Image: `ghcr.io/supermiguel/super-veliz-network:latest` (built by Actions on docs push).
-# After a docs update, either wait for Renovate/tag bump or:
-#   kubectl -n default rollout restart deploy/docs
+# Image: `ghcr.io/supermiguel/super-veliz-network:sha-<git>` (built by Actions on docs push).
+# Bump the tag in `values.yaml` after a docs change (Spegel can cache `:latest`).
 #
 # URL: https://docs.veliz.cc (Authentik forward-auth)

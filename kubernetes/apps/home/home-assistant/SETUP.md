@@ -37,3 +37,11 @@ Hubitat must reach HA at `http://10.0.20.50:8123` (or in-cluster) for event webh
 ## Updates
 
 Bump versions in `values.yaml` init container script, delete `custom_components/hacs` or `hubitat` on the PVC (or wipe subdirs), restart pod.
+
+## OpenClaw (Home Assistant MCP)
+
+One-time so Discord/Cursor SuperClaw can read house state (read-only tools filtered in OpenClaw):
+
+1. **Add integration → Model Context Protocol Server** (Assist API).
+2. Expose entities under **Settings → Voice assistants → Expose**.
+3. Create a long-lived token (`openclaw-mcp`) and put it in 1Password **`openclaw-secrets` / `HOME_ASSISTANT_TOKEN`**.

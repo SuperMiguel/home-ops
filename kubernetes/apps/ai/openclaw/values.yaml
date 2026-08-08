@@ -70,6 +70,11 @@ controllers:
               secretKeyRef:
                 name: openclaw-secrets
                 key: OLLAMA_API_KEY
+          HOME_ASSISTANT_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: openclaw-secrets
+                key: HOME_ASSISTANT_TOKEN
         probes:
           liveness:
             enabled: true
@@ -275,6 +280,26 @@ configMaps:
                     "nodes_top"
                   ]
                 }
+              },
+              "homeassistant": {
+                "url": "http://home-assistant.home.svc.cluster.local:8123/api/mcp/assist",
+                "transport": "streamable-http",
+                "enabled": true,
+                "connectionTimeoutMs": 10000,
+                "requestTimeoutMs": 60000,
+                "headers": {
+                  "Authorization": "Bearer ${HOME_ASSISTANT_TOKEN}"
+                },
+                "toolFilter": {
+                  "include": [
+                    "GetLiveContext",
+                    "GetDateTime",
+                    "resources_list",
+                    "resources_read",
+                    "prompts_list",
+                    "prompts_get"
+                  ]
+                }
               }
             }
           },
@@ -299,7 +324,8 @@ configMaps:
 
         ## Cluster troubleshooting
 
-        You have MCP tools for **kubernetes** (read-only) and **grafana** (read-only).
+        You have MCP tools for **kubernetes** (read-only), **grafana** (read-only),
+        and **homeassistant** (read-only live context).
         When asked about MQTT, pods, a down service, Gatus alert, or Grafana dashboard:
 
         1. Call kubernetes MCP tools for pods/events/logs (namespaces: home, media,
@@ -308,6 +334,16 @@ configMaps:
            look for a `mosquitto` scrape job (none exists).
         3. Summarize findings. Do **not** claim you changed the cluster — k8s MCP is
            read-only. Suggest GitOps edits in SuperMiguel/home-ops for fixes/PRs.
+
+        ## Home / smart-home questions
+
+        When asked about lights, locks, climate, sensors, or “is X on?”:
+
+        1. Call **homeassistant** `GetLiveContext` (optionally filter by area/domain).
+        2. Answer from that snapshot. Do **not** claim you changed devices —
+           write tools (HassTurnOn / HassTurnOff / etc.) are filtered out.
+        3. Only entities exposed to Assist in HA are visible. If something is
+           missing, say it is not exposed — do not invent entity IDs.
 
         Grafana datasource UIDs (use these exactly — do not invent names):
         - Prometheus: `prometheus` (default)
@@ -320,8 +356,8 @@ configMaps:
         - Unhealthy home pods: `kube_pod_status_phase{namespace="home",phase!="Running"}>0`
         - Home pods running: `sum by (pod) (kube_pod_status_phase{namespace="home",phase="Running"})`
 
-        Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc.
-        MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).
+        Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc,
+        hass.veliz.cc. MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).
 persistence:
   home:
     enabled: true

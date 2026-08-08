@@ -1,0 +1,44 @@
+# Authentik domain forward-auth for observability HTTPRoutes.
+# Gatus/Prometheus scrape paths use in-cluster Services and are unaffected.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: observability-forward-auth
+  namespace: observability
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: gatus
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: kube-prometheus-stack-prometheus
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: kube-prometheus-stack-alertmanager
+  extAuth:
+    failOpen: false
+    recomputeRoute: true
+    headersToExtAuth:
+      - X-Forwarded-For
+      - X-Real-Ip
+      - accept
+      - cookie
+      - authorization
+      - proxy-authorization
+      - x-forwarded-proto
+    http:
+      backendRefs:
+        - kind: Service
+          name: ak-outpost-authentik-embedded-outpost
+          namespace: authentik
+          port: 9000
+      path: /outpost.goauthentik.io/auth/envoy
+      headersToBackend:
+        - Set-Cookie
+        - X-authentik-uid
+        - X-authentik-username
+        - X-authentik-name
+        - X-authentik-email
+        - X-authentik-groups
+        - X-authentik-entitlements

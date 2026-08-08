@@ -21,13 +21,17 @@ Protects apps that lack good native SSO by checking cookies at the gateway.
 | `ReferenceGrant` | Lets `SecurityPolicy` in `default` / `longhorn-system` / `minio` call the outpost |
 | `SecurityPolicy` | Homepage, Longhorn, MinIO console → `/outpost.goauthentik.io/auth/envoy` |
 
-Protected today:
+Protected today (forward-auth):
 
 - https://home.veliz.cc
 - https://longhorn.veliz.cc
 - https://minio.veliz.cc
+- Media: Seerr, Sonarr, Radarr, Prowlarr, Bazarr, SABnzbd, Tautulli
+- Observability: Gatus, Prometheus, Alertmanager
 
 Cookie domain is **`veliz.cc`** (shared with `auth.veliz.cc`). After login once, other protected hosts reuse the session.
+
+In-cluster Service URLs (Gatus probes, *arr sync) bypass the gateway and are unaffected.
 
 **Verify in Authentik UI:** Applications → Envoy; Outposts → authentik Embedded Outpost lists the Envoy provider. Outpost config must have `authentik_host` / `authentik_host_browser` = `https://auth.veliz.cc` (otherwise redirects go to `localhost`). Brand domain should be `auth.veliz.cc`.
 
@@ -44,6 +48,8 @@ Issuers:
 
 - `https://auth.veliz.cc/application/o/grafana/`
 - `https://auth.veliz.cc/application/o/argo/`
+
+Authentik **2026.5+** requires OAuth2 providers to set **Grant types** to at least `authorization_code` (and usually `refresh_token`). Empty `grant_types` yields `invalid_request` / Grafana “Login provider denied login request”.
 
 ## Ops
 

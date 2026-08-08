@@ -19,10 +19,32 @@ UniFi Drive NFS works with **NFSv3** only. Longhorn’s NFS backup target requir
 1. Create 1Password item `minio-secrets` (see `../minio/SECRETS.md`).
 2. Merge/push these manifests; Argo syncs `minio` then `longhorn`.
 3. Confirm:
-   - `kubectl -n minio get pods` Ready
+   - `kubectl -n minio get pods` Ready (runs as UID **977** for UniFi NFS squash)
    - `kubectl -n longhorn-system get backuptarget default` → `available: true`
    - Longhorn UI → Backup → volumes listed after the first job (or trigger **Create Backup** once)
 
+## Manual backup (UI)
+
+1. Open https://longhorn.veliz.cc
+2. **Volume** → click a volume (e.g. `gatus`)
+3. **Create Backup** (takes a snapshot and uploads to MinIO / SuperUNAS)
+4. Confirm under **Backup** that the volume appears
+
+Or CLI (already used for the gatus PVC smoke test): create a `Snapshot` then a `Backup` CR in `longhorn-system`.
+
+## Alerting
+
+PrometheusRules in `kube-prometheus-stack` (`homelab-rules` / `storage`):
+
+| Alert | Severity | When |
+| --- | --- | --- |
+| `MinIOBackupStoreDown` | critical | MinIO deployment unavailable 5m |
+| `GatusImportantEndpointDown` (name=minio) | warning | Gatus storage check fails 15m |
+| `LonghornBackupTargetEmpty` | warning | 0 backed-up volumes for 36h |
+| `LonghornVolumeNeverBackedUp` | warning | Healthy volume never backed up 36h |
+| `LonghornVolumeBackupStale` | warning | Last backup older than 48h |
+
+Routes to Pushover + Discord via Alertmanager.
 ## Restore (volume)
 
 1. Longhorn UI → **Backup** → pick volume / backup.

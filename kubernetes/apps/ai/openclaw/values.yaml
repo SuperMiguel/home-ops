@@ -181,6 +181,17 @@ configMaps:
             "defaults": {
               "workspace": "~/.openclaw/workspace",
               "thinkingDefault": "off",
+              "skills": [],
+              "bootstrapTotalMaxChars": 2500,
+              "skipOptionalBootstrapFiles": [
+                "HEARTBEAT.md",
+                "IDENTITY.md"
+              ],
+              "compaction": {
+                "reserveTokens": 2048,
+                "reserveTokensFloor": 0,
+                "keepRecentTokens": 3000
+              },
               "model": {
                 "primary": "ollama/qwen3:8b"
               }

@@ -11,7 +11,7 @@ UniFi Drive NFS works with **NFSv3** only. Longhorn’s NFS backup target requir
 | NFS share | SuperUNAS `Longhorn_Backups` → `/volume/.../Longhorn_Backups/.data` |
 | MinIO | namespace `minio`, console https://minio.veliz.cc |
 | Bucket | `longhorn` |
-| Longhorn target | `s3://longhorn@minio.minio.svc.cluster.local:9000/` |
+| Longhorn target | `s3://longhorn@us-east-1/` (endpoint via credential Secret) |
 | Schedule | Daily backup 07:00 UTC, retain 7; weekly snapshot-cleanup |
 
 ## Setup

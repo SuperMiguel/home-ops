@@ -45,7 +45,8 @@ defaultSettings:
 # UniFi Drive does not expose usable NFSv4, so Longhorn cannot use nfs:// directly.
 # Credentials: Secret longhorn-backup-credentials (ExternalSecret → 1Password minio-secrets).
 defaultBackupStore:
-  backupTarget: s3://longhorn@minio.minio.svc.cluster.local:9000/
+  # Region token is required in the URL; real endpoint is AWS_ENDPOINTS in the credential Secret.
+  backupTarget: s3://longhorn@us-east-1/
   backupTargetCredentialSecret: longhorn-backup-credentials
   pollInterval: "300"
 

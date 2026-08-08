@@ -247,10 +247,6 @@ configMaps:
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.33
-          - name: wikijs
-            <<: *lan-icmp
-            group: core
-            url: icmp://10.0.20.77
           # UniFi-managed LAN/IoT/CCTV/Trusted/NAS/Mac Mini/Ruckus/PVE → unpoller-rules (MAC).
 persistence:
   config:

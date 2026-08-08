@@ -1,0 +1,44 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: kubernetes
+  sources:
+    - repoURL: "https://github.com/SuperMiguel/home-ops.git"
+      targetRevision: main
+      ref: repo
+    - repoURL: "https://github.com/SuperMiguel/home-ops.git"
+      path: kubernetes/apps/network/authentik/resources
+      targetRevision: main
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.5.6
+      helm:
+        releaseName: authentik
+        valueFiles:
+          - $repo/kubernetes/apps/network/authentik/values.yaml
+  destination:
+    name: in-cluster
+    namespace: authentik
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 1
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

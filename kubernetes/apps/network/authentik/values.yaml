@@ -1,0 +1,66 @@
+# Authentik IdP (https://auth.veliz.cc) — Phase 1: deploy + bootstrap.
+# Forward-auth / OIDC for apps is Phase 2 (see README.md).
+#
+# Secrets: ExternalSecret → 1Password item authentik-secrets (SECRETS.md).
+
+authentik:
+  # Chart-managed secret disabled; we supply AUTHENTIK_* via existingSecret.
+  existingSecret:
+    secretName: authentik-secrets
+  error_reporting:
+    enabled: false
+  # host/user/name still needed for non-secret config when using existingSecret;
+  # password comes from AUTHENTIK_POSTGRESQL__PASSWORD in the Secret.
+  postgresql:
+    host: authentik-postgresql
+    name: authentik
+    user: authentik
+    port: 5432
+
+postgresql:
+  enabled: true
+  auth:
+    username: authentik
+    database: authentik
+    existingSecret: authentik-secrets
+    secretKeys:
+      userPasswordKey: password
+      adminPasswordKey: postgres-password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 8Gi
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+
+server:
+  replicas: 1
+  route:
+    main:
+      enabled: true
+      hostnames:
+        - auth.veliz.cc
+      parentRefs:
+        - name: envoy-internal
+          namespace: network
+          sectionName: https
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 512Mi
+    limits:
+      memory: 1Gi

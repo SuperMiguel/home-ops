@@ -113,7 +113,7 @@ additionalPrometheusRulesMap:
           - alert: GatusCriticalEndpointDown
             expr: >-
               gatus_results_endpoint_success{
-                group=~"servers|lan-mgmt|trusted|home|cctv",
+                group=~"servers|lan-mgmt|trusted|home",
                 name!="mqtt"
               } == 0
             for: 5m
@@ -123,7 +123,7 @@ additionalPrometheusRulesMap:
               summary: Critical endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 5m
-                — cluster, non-UniFi LAN (e.g. Ruckus), home hubs, or CCTV.
+                — cluster, non-UniFi LAN (e.g. Ruckus), or home hubs.
           - alert: GatusCriticalIoTDown
             expr: gatus_results_endpoint_success{group="iot-critical"} == 0
             for: 15m
@@ -321,3 +321,27 @@ additionalPrometheusRulesMap:
               description: >-
                 Network {{ $labels.network }} DHCP utilization at {{ $value }}%
                 — new clients may fail to get an address.
+      - name: unifi-cctv
+        rules:
+          # Protect cams + UNVR appear as UniFi clients on network=CCTV.
+          # Cluster cannot ICMP VLAN 130 (firewall); Unpoller is the monitor path.
+          - alert: UnifiCctvClientsMissing
+            expr: count(unpoller_client_uptime_seconds{network="CCTV"}) < 11
+            for: 10m
+            labels:
+              severity: critical
+            annotations:
+              summary: CCTV client count dropped (Protect/UNVR)
+              description: >-
+                Unpoller sees {{ $value }} CCTV clients (baseline ~12: UNVR + cameras).
+                One or more Protect devices may be offline or adopted elsewhere.
+          - alert: UnifiUnvrOffline
+            expr: absent(unpoller_client_uptime_seconds{network="CCTV", name="UNVR"})
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: UniFi UNVR is offline
+              description: >-
+                UNVR (Protect NVR) is not reporting as a CCTV client — camera
+                recording/UI may be down.

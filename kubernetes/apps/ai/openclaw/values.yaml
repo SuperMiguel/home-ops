@@ -282,7 +282,7 @@ configMaps:
                 }
               },
               "homeassistant": {
-                "url": "http://home-assistant.home.svc.cluster.local:8123/api/mcp",
+                "url": "http://home-assistant-app.home.svc.cluster.local:8123/api/mcp",
                 "transport": "streamable-http",
                 "enabled": true,
                 "connectionTimeoutMs": 10000,

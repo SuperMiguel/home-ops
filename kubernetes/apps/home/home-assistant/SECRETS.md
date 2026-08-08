@@ -18,4 +18,4 @@ Configure in the UI once; credentials stay in the Longhorn PVC under `.storage/`
 | Node-RED | Stored in Node-RED credential secret / flows (not Git) |
 | OpenClaw MCP | Homelab item **`openclaw-secrets`** field `HOME_ASSISTANT_TOKEN` |
 
-Also enable **Model Context Protocol Server** (Assist API) so OpenClaw can call `http://home-assistant.home.svc:8123/api/mcp`. Details: `kubernetes/apps/ai/openclaw/SECRETS.md`.
+Also enable **Model Context Protocol Server** (Assist API) so OpenClaw can call `http://home-assistant-app.home.svc:8123/api/mcp`. Details: `kubernetes/apps/ai/openclaw/SECRETS.md`.

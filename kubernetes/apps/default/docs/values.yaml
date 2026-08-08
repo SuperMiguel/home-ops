@@ -5,7 +5,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/supermiguel/super-veliz-network
-          tag: sha-f945831
+          tag: sha-c73e520
           pullPolicy: IfNotPresent
         probes:
           liveness:

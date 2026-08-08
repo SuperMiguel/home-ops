@@ -2,30 +2,30 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: longhorn
+  name: minio
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    # Before Longhorn backup target (wave 1) so the S3 endpoint exists.
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: kubernetes
   sources:
-    # Ref only (no path): avoids Argo treating values.yaml in that folder as plain manifests.
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
       targetRevision: main
       ref: repo
     - repoURL: "https://github.com/SuperMiguel/home-ops.git"
-      path: kubernetes/apps/kube-system/longhorn/resources
+      path: kubernetes/apps/kube-system/minio/resources
       targetRevision: main
-    - repoURL: https://charts.longhorn.io
-      chart: longhorn
-      targetRevision: 1.12.0
+    - repoURL: ghcr.io/bjw-s-labs/helm
+      chart: app-template
+      targetRevision: 5.0.1
       helm:
-        releaseName: longhorn
+        releaseName: minio
         valueFiles:
-          - $repo/kubernetes/apps/kube-system/longhorn/values.yaml
+          - $repo/kubernetes/apps/kube-system/minio/values.yaml
   destination:
     name: in-cluster
-    namespace: longhorn-system
+    namespace: minio
   syncPolicy:
     automated:
       allowEmpty: true

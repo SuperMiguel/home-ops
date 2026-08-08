@@ -1,0 +1,108 @@
+# MinIO on SuperUNAS NFS (Longhorn_Backups). Longhorn talks S3 to this
+# service because UniFi Drive NFS is v3-only and Longhorn backup NFS needs v4.
+#
+# NFS path must stay on UNAS — do not put MinIO data on a Longhorn PVC
+# (that would nest backups inside the volumes they protect).
+controllers:
+  minio:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: quay.io/minio/minio
+          tag: RELEASE.2025-07-23T15-54-02Z
+        args:
+          - server
+          - /data
+          - --console-address
+          - :9001
+        env:
+          MINIO_ROOT_USER:
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ROOT_USER
+          MINIO_ROOT_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ROOT_PASSWORD
+          # Browser console behind envoy-internal HTTPS.
+          MINIO_BROWSER_REDIRECT_URL: https://minio.veliz.cc
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /minio/health/live
+                port: &api 9000
+              initialDelaySeconds: 20
+              periodSeconds: 20
+              timeoutSeconds: 5
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /minio/health/ready
+                port: *api
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+defaultPodOptions:
+  securityContext:
+    # UniFi Drive NFS squashes to this ownership on the export.
+    runAsNonRoot: true
+    runAsUser: 988
+    runAsGroup: 988
+    fsGroup: 988
+    fsGroupChangePolicy: OnRootMismatch
+persistence:
+  data:
+    enabled: true
+    type: nfs
+    server: 10.0.20.10
+    path: /volume/06037eaa-69f3-455a-ba49-735e4dcbcc7e/.srv/.unifi-drive/Longhorn_Backups/.data
+    globalMounts:
+      - path: /data
+  tmp:
+    enabled: true
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 64Mi
+    globalMounts:
+      - path: /tmp
+service:
+  app:
+    ports:
+      http:
+        port: *api
+      console:
+        port: &console 9001
+route:
+  console:
+    hostnames:
+      - minio.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: *console

@@ -15,16 +15,6 @@ preUpgradeChecker:
   jobEnabled: false
   upgradeVersionCheck: false
 
-extraObjects:
-  - apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: longhorn-system
-      labels:
-        pod-security.kubernetes.io/enforce: privileged
-        pod-security.kubernetes.io/audit: privileged
-        pod-security.kubernetes.io/warn: privileged
-
 httproute:
   enabled: true
   hostnames:
@@ -48,3 +38,52 @@ defaultSettings:
   # Raise if rebuilds fail under load (see Longhorn docs).
   storageReservedPercentageForDefaultDisk: "15"
   replicaAutoBalance: best-effort
+  # Back up detached volumes (idle PVCs) on the recurring schedule.
+  allowRecurringJobWhileVolumeDetached: "true"
+
+# S3 on in-cluster MinIO; object data lives on SuperUNAS NFS share Longhorn_Backups.
+# UniFi Drive does not expose usable NFSv4, so Longhorn cannot use nfs:// directly.
+# Credentials: Secret longhorn-backup-credentials (ExternalSecret → 1Password minio-secrets).
+defaultBackupStore:
+  backupTarget: s3://longhorn@minio.minio.svc.cluster.local:9000/
+  backupTargetCredentialSecret: longhorn-backup-credentials
+  pollInterval: "300"
+
+extraObjects:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: longhorn-system
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
+  # RecurringJobs (default group → all volumes without an explicit job label).
+  - apiVersion: longhorn.io/v1beta2
+    kind: RecurringJob
+    metadata:
+      name: daily-backup
+      namespace: longhorn-system
+    spec:
+      # 07:00 UTC ≈ 03:00 America/New_York (EDT).
+      cron: "0 7 * * *"
+      task: backup
+      groups:
+        - default
+      retain: 7
+      concurrency: 2
+      labels:
+        schedule: daily
+  - apiVersion: longhorn.io/v1beta2
+    kind: RecurringJob
+    metadata:
+      name: snapshot-cleanup
+      namespace: longhorn-system
+    spec:
+      # Weekly Sunday 08:00 UTC ≈ 04:00 ET.
+      cron: "0 8 * * 0"
+      task: snapshot-cleanup
+      groups:
+        - default
+      retain: 1
+      concurrency: 1

@@ -1,5 +1,5 @@
-# Authentik IdP (https://auth.veliz.cc) — Phase 1: deploy + bootstrap.
-# Forward-auth / OIDC for apps is Phase 2 (see README.md).
+# Authentik IdP (https://auth.veliz.cc).
+# Phase 2: domain forward-auth via embedded outpost + Envoy SecurityPolicy.
 #
 # Secrets: ExternalSecret → 1Password item authentik-secrets (SECRETS.md).
 
@@ -16,6 +16,11 @@ authentik:
     name: authentik
     user: authentik
     port: 5432
+
+# Worker applies YAML from these ConfigMaps (keys ending in .yaml).
+blueprints:
+  configMaps:
+    - authentik-blueprint-envoy-forward-auth
 
 postgresql:
   enabled: true
@@ -49,6 +54,15 @@ server:
         - name: envoy-internal
           namespace: network
           sectionName: https
+      # Embedded outpost paths (required for domain forward-auth cookies/login).
+      additionalRules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /outpost.goauthentik.io
+          backendRefs:
+            - name: ak-outpost-authentik-embedded-outpost
+              port: 9000
   resources:
     requests:
       cpu: 100m

@@ -1,0 +1,57 @@
+# Domain-level forward-auth for Envoy Gateway SecurityPolicy (extAuth).
+# Mounted by the authentik worker via blueprints.configMaps in values.yaml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-envoy-forward-auth
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprints
+data:
+  envoy-forward-auth.yaml: |
+    version: 1
+    metadata:
+      name: Envoy Forward Auth
+    entries:
+      - model: authentik_brands.brand
+        state: present
+        identifiers:
+          domain: auth.veliz.cc
+        attrs:
+          domain: auth.veliz.cc
+          default: true
+          branding_title: Veliz
+      - model: authentik_providers_proxy.proxyprovider
+        id: provider
+        state: present
+        identifiers:
+          name: Envoy Forward Auth
+        attrs:
+          name: Envoy Forward Auth
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          mode: forward_domain
+          external_host: https://auth.veliz.cc
+          cookie_domain: veliz.cc
+          access_token_validity: hours=24
+      - model: authentik_core.application
+        id: app
+        state: present
+        identifiers:
+          slug: envoy
+        attrs:
+          name: Envoy
+          slug: envoy
+          provider: !KeyOf provider
+          policy_engine_mode: any
+      - model: authentik_outposts.outpost
+        state: present
+        identifiers:
+          name: authentik Embedded Outpost
+        attrs:
+          providers:
+            - !KeyOf provider
+          config:
+            authentik_host: https://auth.veliz.cc
+            authentik_host_browser: https://auth.veliz.cc

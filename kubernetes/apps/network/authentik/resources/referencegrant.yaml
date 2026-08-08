@@ -1,0 +1,21 @@
+# Allow SecurityPolicy in app namespaces to call the Authentik outpost Service.
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: ext-auth-outpost
+  namespace: authentik
+spec:
+  from:
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: default
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: longhorn-system
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: minio
+  to:
+    - group: ""
+      kind: Service
+      name: ak-outpost-authentik-embedded-outpost

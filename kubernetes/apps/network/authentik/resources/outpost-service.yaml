@@ -1,0 +1,20 @@
+# Embedded outpost runs inside authentik-server; expose port 9000 for
+# Envoy SecurityPolicy extAuth (matches Authentik + James Wynn examples).
+apiVersion: v1
+kind: Service
+metadata:
+  name: ak-outpost-authentik-embedded-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: outpost
+spec:
+  selector:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/instance: authentik
+    app.kubernetes.io/component: server
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP

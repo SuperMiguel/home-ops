@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - externalsecret.yaml
   - bucket-job.yaml
+  - securitypolicy-forward-auth.yaml

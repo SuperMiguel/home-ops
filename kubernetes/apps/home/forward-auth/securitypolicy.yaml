@@ -1,24 +1,24 @@
-# Authentik domain forward-auth for observability HTTPRoutes.
-# Gatus/Prometheus scrape paths use in-cluster Services and are unaffected.
+# Authentik domain forward-auth for home UI HTTPRoutes.
+# Skips Home Assistant (Companion app / LAN API) and Mosquitto (MQTT).
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: observability-forward-auth
-  namespace: observability
+  name: home-forward-auth
+  namespace: home
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: gatus
+      name: node-red
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: kube-prometheus-stack-prometheus
+      name: homebridge-alarm
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: kube-prometheus-stack-alertmanager
+      name: homebridge-downstairs
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: victoria-logs-server
+      name: homebridge-upstairs
   extAuth:
     failOpen: false
     recomputeRoute: true

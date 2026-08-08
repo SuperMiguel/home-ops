@@ -18,8 +18,8 @@ Protects apps that lack good native SSO by checking cookies at the gateway.
 | Blueprint `Envoy Forward Auth` | Proxy provider (domain level), app slug `envoy`, assigned to **authentik Embedded Outpost** |
 | Service `ak-outpost-authentik-embedded-outpost:9000` | Points at authentik-server (embedded outpost) |
 | HTTPRoute extra rule | `/outpost.goauthentik.io` → outpost Service |
-| `ReferenceGrant` | Lets `SecurityPolicy` in `default` / `longhorn-system` / `minio` call the outpost |
-| `SecurityPolicy` | Homepage, Longhorn, MinIO console → `/outpost.goauthentik.io/auth/envoy` |
+| `ReferenceGrant` | Lets `SecurityPolicy` from app namespaces call the outpost |
+| `SecurityPolicy` | Homepage, Longhorn, MinIO, media, observability, home UIs |
 
 Protected today (forward-auth):
 
@@ -27,7 +27,14 @@ Protected today (forward-auth):
 - https://longhorn.veliz.cc
 - https://minio.veliz.cc
 - Media: Seerr, Sonarr, Radarr, Prowlarr, Bazarr, SABnzbd, Tautulli
-- Observability: Gatus, Prometheus, Alertmanager
+- Observability: Gatus, Prometheus, Alertmanager, Victoria Logs
+- Home: Node-RED, Homebridge (alarm / downstairs / upstairs)
+
+Intentionally **not** behind forward-auth (yet):
+
+- Home Assistant (`hass.veliz.cc`) — Companion / LAN APIs
+- OpenClaw (`openclaw.veliz.cc`) — Cursor MCP uses `wss://` + gateway token
+- Mosquitto — MQTT, not HTTP
 
 Cookie domain is **`veliz.cc`** (shared with `auth.veliz.cc`). After login once, other protected hosts reuse the session.
 

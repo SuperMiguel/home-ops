@@ -72,7 +72,7 @@
         siteMonitor: https://gatus.veliz.cc
         widget:
           type: gatus
-          url: https://gatus.veliz.cc
+          url: http://gatus.observability.svc:8080
     - Network docs:
         icon: mdi-book-open-page-variant
         href: https://docs.veliz.cc
@@ -162,7 +162,7 @@
         siteMonitor: https://prometheus.veliz.cc/-/ready
         widget:
           type: prometheus
-          url: https://prometheus.veliz.cc
+          url: http://kube-prometheus-stack-prometheus.observability.svc:9090
     - Alertmanager:
         icon: mdi-bell-alert
         href: https://alertmanager.veliz.cc

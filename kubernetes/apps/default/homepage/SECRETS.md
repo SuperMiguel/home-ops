@@ -5,8 +5,8 @@ Homelab vault item **`homepage-secrets`**. Synced by ExternalSecret → K8s secr
 | Field (concealed) | 1Password item / key | Used for |
 | --- | --- | --- |
 | `PROXMOX_API_PASSWORD` | `homepage-secrets` | Widget token for `api-homepage@pam!homepage` on HL-PVE-35/36 |
-| `UNIFI_USERNAME` | `homepage-secrets` | UniFi OS local user for Homepage widget |
-| `UNIFI_PASSWORD` | `homepage-secrets` | UniFi OS password |
+| `UNIFI_USERNAME` | `homelab-unifi-poller` / `UNIFI_POLLER_USER` | Same read-only UniFi user as Unpoller |
+| `UNIFI_PASSWORD` | `homelab-unifi-poller` / `UNIFI_POLLER_PASSWORD` | UniFi password (shared with Unpoller) |
 | `HOMEBRIDGE_PASSWORD` | `homepage-secrets` | Shared Homebridge UI password (if widget used) |
 | `OPENMETEO_LATITUDE` | `homepage-secrets` | Weather widget |
 | `OPENMETEO_LONGITUDE` | `homepage-secrets` | Weather widget |

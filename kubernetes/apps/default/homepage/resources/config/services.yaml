@@ -5,6 +5,9 @@
 # Keep in sync with Argo apps + observability/SOURCE-OF-TRUTH.md:
 # UniFi-managed gear is monitored via Unpoller (not Homepage ICMP lists).
 #
+# Widget `url` must be in-cluster (http://svc.ns.svc). Public https://*.veliz.cc
+# goes through Authentik and returns HTML to server-side widgets.
+#
 # Icons: https://github.com/walkxcode/dashboard-icons
 
 - Compute:
@@ -184,7 +187,8 @@
         siteMonitor: https://sonarr.veliz.cc
         widget:
           type: sonarr
-          url: https://sonarr.veliz.cc
+          # In-cluster — public *.veliz.cc returns Authentik HTML to server-side widgets
+          url: http://sonarr.media.svc
           key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
     - Radarr:
         icon: radarr.png
@@ -193,7 +197,7 @@
         siteMonitor: https://radarr.veliz.cc
         widget:
           type: radarr
-          url: https://radarr.veliz.cc
+          url: http://radarr.media.svc
           key: {{HOMEPAGE_VAR_RADARR_API_KEY}}
     - Tautulli:
         icon: tautulli.png
@@ -202,7 +206,7 @@
         siteMonitor: https://tautulli.veliz.cc
         widget:
           type: tautulli
-          url: https://tautulli.veliz.cc
+          url: http://tautulli.media.svc
           key: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}
     - Sabnzbd:
         icon: sabnzbd.png
@@ -211,7 +215,7 @@
         siteMonitor: https://sabnzbd.veliz.cc
         widget:
           type: sabnzbd
-          url: https://sabnzbd.veliz.cc
+          url: http://sabnzbd.media.svc
           key: {{HOMEPAGE_VAR_SABNZBD_API_KEY}}
     - Prowlarr:
         icon: prowlarr.png
@@ -220,7 +224,7 @@
         siteMonitor: https://prowlarr.veliz.cc
         widget:
           type: prowlarr
-          url: https://prowlarr.veliz.cc
+          url: http://prowlarr.media.svc
           key: {{HOMEPAGE_VAR_PROWLARR_API_KEY}}
     - Bazarr:
         icon: bazarr.png
@@ -229,7 +233,7 @@
         siteMonitor: https://bazarr.veliz.cc
         widget:
           type: bazarr
-          url: https://bazarr.veliz.cc
+          url: http://bazarr.media.svc
           key: {{HOMEPAGE_VAR_BAZARR_API_KEY}}
     - Seerr:
         icon: jellyseerr.png
@@ -238,7 +242,7 @@
         siteMonitor: https://seerr.veliz.cc
         widget:
           type: seerr
-          url: https://seerr.veliz.cc
+          url: http://seerr.media.svc
           key: {{HOMEPAGE_VAR_SEERR_API_KEY}}
     - Agregarr:
         icon: mdi-chart-box-outline

@@ -1,6 +1,11 @@
 # Gatus — https://github.com/TwiN/gatus
-# Alerts: Pushover + Discord; tokens/webhook from Secret gatus-secret (see cluster-secrets).
-# Docs: https://gatus.io/docs/alerting-pushover https://gatus.io/docs/alerting-discord
+# Status UI + Prometheus metrics only. Push notifications are PrometheusRules → Alertmanager
+# (Pushover + Discord). Do not attach per-endpoint Gatus alerts (avoids duplicate pages).
+#
+# Priority is encoded in `group` (see kube-prometheus-stack homelab-rules):
+#   critical page: servers, lan-mgmt, trusted, home, iot-critical
+#   warning:       core, observability, storage, media, ai, lan-edge, iot-util
+#   silent (UI):   iot-low  — still probed, never pages
 #
 # Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
 # phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
@@ -111,25 +116,16 @@ configMaps:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-        # Anchor for DRY endpoints; not a Gatus key — see https://github.com/TwiN/gatus#keeping-your-configuration-small
+        # Anchors for DRY endpoints; not a Gatus key — see https://github.com/TwiN/gatus#keeping-your-configuration-small
+        # No per-endpoint alerts: severity lives in PrometheusRules by group.
         default-endpoint: &defaults
           interval: 5m
           conditions:
             - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              description: "endpoint unhealthy"
-            - type: discord
-              description: "endpoint unhealthy"
         lan-icmp: &lan-icmp
           interval: 5m
           conditions:
             - "[CONNECTED] == true"
-          alerts:
-            - type: pushover
-              description: "host unreachable"
-            - type: discord
-              description: "host unreachable"
         endpoints:
           - name: home
             <<: *defaults
@@ -264,29 +260,30 @@ configMaps:
             <<: *lan-icmp
             group: lan-mgmt
             url: icmp://10.0.0.10
+          # Room flex minis — useful, but not fabric-critical (warning, not page).
           - name: usw-flex-mini-yanelis-office
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.11
           - name: usw-flex-mini-gaming-room
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.12
           - name: usw-flex-mini-living-room
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.13
           - name: usw-flex-mini-ac-closet
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.14
           - name: usw-flex-mini-gaming-pcs
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.15
           - name: usw-flex-mini-miguel-work
             <<: *lan-icmp
-            group: lan-mgmt
+            group: lan-edge
             url: icmp://10.0.0.16
           - name: usp-pdu-pro
             <<: *lan-icmp
@@ -356,69 +353,72 @@ configMaps:
             url: icmp://10.0.20.36
           - name: wikijs
             <<: *lan-icmp
-            group: servers
+            group: core
             url: icmp://10.0.20.77
-          # --- VLAN 120 IoT (always-on / security / utilities only) ---
+          # --- VLAN 120 IoT ---
+          # iot-critical: security / water / access — pages
           - name: myq-small-garage
             <<: *lan-icmp
-            group: iot
+            group: iot-critical
             url: icmp://192.168.120.106
           - name: myq-large-garage
             <<: *lan-icmp
-            group: iot
+            group: iot-critical
             url: icmp://192.168.120.128
-          - name: ecobee-downstairs
-            <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.107
-          - name: ecobee-upstairs
-            <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.131
-          - name: emporia-ev-charger
-            <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.110
-          - name: water-softener
-            <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.118
-          - name: zodiac-iaqualink
-            <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.120
           - name: ring-pro
             <<: *lan-icmp
-            group: iot
+            group: iot-critical
             url: icmp://192.168.120.112
           - name: flo-by-moen
             <<: *lan-icmp
-            group: iot
+            group: iot-critical
             url: icmp://192.168.120.147
-          - name: rachio
+          - name: water-softener
             <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.160
-          - name: atomi-bridge-backyard
+            group: iot-critical
+            url: icmp://192.168.120.118
+          # iot-util: climate / energy — warning only
+          - name: ecobee-downstairs
             <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.161
-          - name: atomi-bridge-small-garage
+            group: iot-util
+            url: icmp://192.168.120.107
+          - name: ecobee-upstairs
             <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.162
-          - name: atomi-bridge-large-garage
+            group: iot-util
+            url: icmp://192.168.120.131
+          - name: emporia-ev-charger
             <<: *lan-icmp
-            group: iot
-            url: icmp://192.168.120.163
+            group: iot-util
+            url: icmp://192.168.120.110
           - name: emporia-panel-1
             <<: *lan-icmp
-            group: iot
+            group: iot-util
             url: icmp://192.168.120.141
           - name: emporia-panel-2
             <<: *lan-icmp
-            group: iot
+            group: iot-util
             url: icmp://192.168.120.150
+          # iot-low: lights / pool / irrigation — status page only, never pages
+          - name: zodiac-iaqualink
+            <<: *lan-icmp
+            group: iot-low
+            url: icmp://192.168.120.120
+          - name: rachio
+            <<: *lan-icmp
+            group: iot-low
+            url: icmp://192.168.120.160
+          - name: atomi-bridge-backyard
+            <<: *lan-icmp
+            group: iot-low
+            url: icmp://192.168.120.161
+          - name: atomi-bridge-small-garage
+            <<: *lan-icmp
+            group: iot-low
+            url: icmp://192.168.120.162
+          - name: atomi-bridge-large-garage
+            <<: *lan-icmp
+            group: iot-low
+            url: icmp://192.168.120.163
 persistence:
   config:
     type: configMap

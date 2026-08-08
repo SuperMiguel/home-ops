@@ -110,16 +110,33 @@ additionalPrometheusRulesMap:
               description: >-
                 Gatus TCP check home_mqtt has been down for 5m
                 (tcp://mosquitto.home.svc.cluster.local:1883).
-          - alert: GatusEndpointDown
-            expr: gatus_results_endpoint_success{name!="mqtt"} == 0
+          - alert: GatusCriticalEndpointDown
+            expr: >-
+              gatus_results_endpoint_success{
+                group=~"servers|lan-mgmt|trusted|home|iot-critical",
+                name!="mqtt"
+              } == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: Critical endpoint {{ $labels.name }} is down
+              description: >-
+                {{ $labels.name }} (group {{ $labels.group }}) has been failing for 5m
+                — cluster, core network, home hubs, or security/water devices.
+          - alert: GatusImportantEndpointDown
+            expr: >-
+              gatus_results_endpoint_success{
+                group=~"core|observability|storage|media|ai|lan-edge|iot-util"
+              } == 0
             for: 15m
             labels:
               severity: warning
             annotations:
-              summary: Gatus endpoint {{ $labels.name }} is down
+              summary: Endpoint {{ $labels.name }} is down
               description: >-
-                Endpoint {{ $labels.name }} (group {{ $labels.group }}, key {{ $labels.key }})
-                has been failing for 15m.
+                {{ $labels.name }} (group {{ $labels.group }}) has been failing for 15m.
+          # iot-low (lights / pool / irrigation) is probed for the status page only — no alert.
       - name: kubernetes-pods
         rules:
           - alert: KubePodCrashLooping

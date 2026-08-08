@@ -17,6 +17,7 @@ Homelab vault item **`homepage-secrets`**. Synced by ExternalSecret → K8s secr
 | `TAUTULLI_API_KEY` | `homelab-media-api-keys` | Tautulli widget |
 | `BAZARR_API_KEY` | `homelab-media-api-keys` | Bazarr widget |
 | `SEERR_API_KEY` | `homelab-media-api-keys` | Seerr widget |
+| `HOME_ASSISTANT_TOKEN` | `openclaw-secrets` | HA long-lived token (shared with OpenClaw) |
 
 Live config: `resources/config/*.yaml` (not the archived standalone Homepage git repo).
 

@@ -89,6 +89,10 @@
         href: https://hass.veliz.cc
         description: hass.veliz.cc · LAN 10.0.20.50
         siteMonitor: https://hass.veliz.cc
+        widget:
+          type: homeassistant
+          url: http://home-assistant-app.home.svc:8123
+          key: {{HOMEPAGE_VAR_HOME_ASSISTANT_TOKEN}}
     - Node-RED:
         icon: nodered.png
         href: https://nodered.veliz.cc
@@ -122,6 +126,14 @@
         href: http://10.0.20.25:11434
         description: http://10.0.20.25:11434
         ping: 10.0.20.25
+        widget:
+          type: customapi
+          url: http://10.0.20.25:11434/api/tags
+          refreshInterval: 60000
+          mappings:
+            - field: models
+              label: Models
+              format: size
 
 - Kubernetes:
     - Argo CD:
@@ -143,6 +155,11 @@
         href: https://minio.veliz.cc
         description: Longhorn backup store (SuperUNAS)
         siteMonitor: https://minio.veliz.cc
+    - Echo:
+        icon: mdi-lan-connect
+        href: https://echo.veliz.cc
+        description: Connectivity test
+        siteMonitor: https://echo.veliz.cc
 
 - Observability:
     - Veliz Home:

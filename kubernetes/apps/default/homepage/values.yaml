@@ -79,6 +79,11 @@ controllers:
               secretKeyRef:
                 name: homepage-secrets
                 key: SEERR_API_KEY
+          HOMEPAGE_VAR_HOME_ASSISTANT_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: homepage-secrets
+                key: HOME_ASSISTANT_TOKEN
         probes:
           liveness:
             enabled: true

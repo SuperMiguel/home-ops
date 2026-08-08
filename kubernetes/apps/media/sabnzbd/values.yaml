@@ -31,7 +31,8 @@ controllers:
           TZ: America/New_York
           SABNZBD__PORT: &port 80
           # Hostnames only (not URLs); entrypoint merges with pod HOSTNAME. See sabnzbd.org/wiki/extra/hostname-check
-          SABNZBD__HOST_WHITELIST_ENTRIES: sabnzbd.veliz.cc
+          # Include in-cluster DNS so Homepage/Prowlarr widgets work (Host: sabnzbd.media.svc).
+          SABNZBD__HOST_WHITELIST_ENTRIES: sabnzbd.veliz.cc, sabnzbd.media.svc, sabnzbd, localhost
           SABNZBD__API_KEY:
             valueFrom:
               secretKeyRef:

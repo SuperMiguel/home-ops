@@ -1,22 +1,16 @@
 # Gatus — https://github.com/TwiN/gatus
-# Status UI + Prometheus metrics only. Push notifications are PrometheusRules → Alertmanager
-# (Pushover + Discord). Do not attach per-endpoint Gatus alerts (avoids duplicate pages).
+# Status UI + Prometheus metrics. Push notifications: PrometheusRules → Alertmanager.
 #
-# Priority is encoded in `group` (see kube-prometheus-stack homelab-rules):
-#   critical page: servers, trusted, home, iot-critical (+ UniFi/CCTV via Unpoller rules)
-#   warning:       core, observability, storage, media, ai, iot-util
-#   silent (UI):   iot-low, ai-low  — still probed, never pages
+# SOURCE OF TRUTH: see ../SOURCE-OF-TRUTH.md
+#   - UniFi-managed clients/devices → Unpoller (MAC / adoption), NOT ICMP IPs here
+#   - Gatus only probes in-cluster services + hosts UniFi does not list
 #
-# UniFi Network gear (UDM/switches/APs/PDU) and Protect/CCTV clients are monitored by
-# Unpoller → PrometheusRules, not ICMP here (Servers→CCTV ICMP is blocked by design).
-# Keep non-UniFi probes (Ruckus, IoT, servers, etc.).
+# Priority for remaining Gatus groups (homelab-rules):
+#   critical: servers, home (mqtt/node-red)
+#   warning:  core, observability, storage, media, ai
+#   silent:   ai-low
 #
-# Internal ICMP targets: from Super-Veliz-Network network/network-inventory.md (infra only; no
-# phones/laptops/TVs/tablets/Sonos/consoles/streamers). NET_RAW is required for icmp:// from a non-root user.
-# Ensure the cluster can route to 10.0.0.0/8, 192.168.120.0/24, 192.168.130.0/24 as needed.
-#
-# HTTP routes: align with Argo apps (kube-prometheus-stack, grafana-instance, victoria-logs, longhorn, media).
-# Prometheus / Alertmanager use /-/ready (200). Victoria Logs UI may be internal-gateway-only — drop that row if unreachable from the probe pod.
+# NET_RAW required for any remaining icmp:// from non-root.
 controllers:
   gatus:
     # RWO PVC (/data sqlite): RollingUpdate can briefly run two pods on different nodes → second stuck ContainerCreating.
@@ -231,45 +225,11 @@ configMaps:
             <<: *defaults
             group: ai
             url: http://10.0.20.25:11434/api/tags
-          # --- Non-UniFi LAN (UniFi UDM/switches/APs/PDU → Unpoller alerts) ---
-          - name: ap-ruckus-large-garage
+          # --- Hosts NOT visible (or not reliable) in Unpoller — IP probes OK here ---
+          - name: water-softener
             <<: *lan-icmp
-            group: lan-mgmt
-            url: icmp://10.0.0.73
-          # --- VLAN 10 trusted (automation, storage, servers) ---
-          - name: envisalink-alarm
-            <<: *lan-icmp
-            group: trusted
-            url: icmp://10.0.10.5
-          - name: hubitat-downstairs
-            <<: *lan-icmp
-            group: trusted
-            url: icmp://10.0.10.7
-          - name: hubitat-upstairs
-            <<: *lan-icmp
-            group: trusted
-            url: icmp://10.0.10.17
-          - name: superunas-trusted
-            <<: *lan-icmp
-            group: trusted
-            url: icmp://10.0.20.10
-          - name: super-macmini
-            <<: *lan-icmp
-            group: trusted
-            url: icmp://10.0.20.25
-          # --- VLAN 20 servers (UDM reachability → Unpoller controller_up) ---
-          - name: superunas-srv
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.10
-          - name: hl-k8s-30
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.30
-          - name: hl-k8s-31
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.31
+            group: iot-util
+            url: icmp://192.168.120.118
           - name: hl-k8s-32
             <<: *lan-icmp
             group: servers
@@ -278,89 +238,11 @@ configMaps:
             <<: *lan-icmp
             group: servers
             url: icmp://10.0.20.33
-          - name: hl-k8s-34
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.34
-          - name: hl-pve-35
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.35
-          - name: hl-pve-36
-            <<: *lan-icmp
-            group: servers
-            url: icmp://10.0.20.36
           - name: wikijs
             <<: *lan-icmp
             group: core
             url: icmp://10.0.20.77
-          # --- VLAN 120 IoT ---
-          # iot-critical: security / water / access — pages
-          - name: myq-small-garage
-            <<: *lan-icmp
-            group: iot-critical
-            url: icmp://192.168.120.106
-          - name: myq-large-garage
-            <<: *lan-icmp
-            group: iot-critical
-            url: icmp://192.168.120.128
-          - name: ring-pro
-            <<: *lan-icmp
-            group: iot-critical
-            url: icmp://192.168.120.112
-          - name: flo-by-moen
-            <<: *lan-icmp
-            group: iot-critical
-            url: icmp://192.168.120.147
-          # Softener is comfort, not flood risk (Flo covers that) — warning only.
-          - name: water-softener
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.118
-          # iot-util: climate / energy — warning only
-          - name: ecobee-downstairs
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.107
-          - name: ecobee-upstairs
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.131
-          - name: emporia-ev-charger
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.110
-          - name: emporia-panel-1
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.141
-          - name: emporia-panel-2
-            <<: *lan-icmp
-            group: iot-util
-            url: icmp://192.168.120.150
-          # iot-low: lights / pool / irrigation — status page only, never pages
-          - name: zodiac-iaqualink
-            <<: *lan-icmp
-            group: iot-low
-            url: icmp://192.168.120.120
-          - name: rachio
-            <<: *lan-icmp
-            group: iot-low
-            url: icmp://192.168.120.160
-          - name: atomi-bridge-backyard
-            <<: *lan-icmp
-            group: iot-low
-            url: icmp://192.168.120.161
-          - name: atomi-bridge-small-garage
-            <<: *lan-icmp
-            group: iot-low
-            url: icmp://192.168.120.162
-          - name: atomi-bridge-large-garage
-            <<: *lan-icmp
-            group: iot-low
-            url: icmp://192.168.120.163
-          # CCTV / Protect cameras: not ICMP from Servers (firewall). Monitored via
-          # Unpoller clients on network=CCTV (see unpoller-rules).
+          # UniFi-managed LAN/IoT/CCTV/Trusted/NAS/Mac Mini/Ruckus/PVE → unpoller-rules (MAC).
 persistence:
   config:
     type: configMap

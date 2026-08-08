@@ -113,7 +113,7 @@ additionalPrometheusRulesMap:
           - alert: GatusCriticalEndpointDown
             expr: >-
               gatus_results_endpoint_success{
-                group=~"servers|lan-mgmt|trusted|home",
+                group=~"servers|home",
                 name!="mqtt"
               } == 0
             for: 5m
@@ -123,17 +123,7 @@ additionalPrometheusRulesMap:
               summary: Critical endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 5m
-                — cluster, non-UniFi LAN (e.g. Ruckus), or home hubs.
-          - alert: GatusCriticalIoTDown
-            expr: gatus_results_endpoint_success{group="iot-critical"} == 0
-            for: 15m
-            labels:
-              severity: critical
-            annotations:
-              summary: Critical IoT endpoint {{ $labels.name }} is down
-              description: >-
-                {{ $labels.name }} (Wi‑Fi security/water/access device) has been
-                failing for 15m — longer window to avoid flap noise.
+                — hosts UniFi does not list (e.g. k8s-32/33) or home services.
           - alert: GatusImportantEndpointDown
             expr: >-
               gatus_results_endpoint_success{
@@ -146,8 +136,7 @@ additionalPrometheusRulesMap:
               summary: Endpoint {{ $labels.name }} is down
               description: >-
                 {{ $labels.name }} (group {{ $labels.group }}) has been failing for 15m.
-          # iot-low / ai-low are probed for the status page only — no alert.
-          # UniFi Network devices: see unpoller-rules (not Gatus ICMP).
+          # ai-low: status only. UniFi-managed clients: unpoller-rules (MAC).
       - name: kubernetes-pods
         rules:
           - alert: KubePodCrashLooping
@@ -336,12 +325,75 @@ additionalPrometheusRulesMap:
                 Unpoller sees {{ $value }} CCTV clients (baseline ~12: UNVR + cameras).
                 One or more Protect devices may be offline or adopted elsewhere.
           - alert: UnifiUnvrOffline
-            expr: absent(unpoller_client_uptime_seconds{network="CCTV", name="UNVR"})
+            expr: absent(unpoller_client_uptime_seconds{mac="58:d6:1f:64:4b:e9"})
             for: 5m
             labels:
               severity: critical
             annotations:
               summary: UniFi UNVR is offline
               description: >-
-                UNVR (Protect NVR) is not reporting as a CCTV client — camera
-                recording/UI may be down.
+                UNVR (MAC 58:d6:1f:64:4b:e9) is not reporting as a UniFi client —
+                Protect recording/UI may be down.
+      # Critical house clients by MAC (IP-agnostic). Update MAC when hardware is replaced.
+      # See observability/SOURCE-OF-TRUTH.md
+      - name: unifi-clients-critical
+        rules:
+          - alert: UnifiCriticalClientOffline
+            expr: |-
+              label_replace(absent(unpoller_client_uptime_seconds{mac="00:1c:2a:01:a1:e0"}), "client", "EnvisaLink", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="34:e1:d1:81:ac:42"}), "client", "Hubitat-Downstairs", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="34:e1:d1:81:1c:79"}), "client", "Hubitat-Upstairs", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="8c:30:66:c4:8c:c5"}), "client", "SuperNAS", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="d0:11:e5:af:e1:d6"}), "client", "super-macmini", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="50:9a:4c:49:85:39"}), "client", "HL-PVE-30", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="18:66:da:4b:f0:e8"}), "client", "HL-PVE-31", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="50:9a:4c:42:aa:99"}), "client", "HL-PVE-34", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="00:23:24:64:e7:6c"}), "client", "HL-PVE-35", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="00:23:24:64:e0:c5"}), "client", "HL-PVE-36", "", "")
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.client }} offline (UniFi MAC)"
+              description: >-
+                {{ $labels.client }} is missing from Unpoller client metrics.
+                Tracked by MAC so DHCP/IP changes do not false-page.
+          - alert: UnifiCriticalWifiClientOffline
+            expr: |-
+              label_replace(absent(unpoller_client_uptime_seconds{mac="ca:6a:10:23:7c:03"}), "client", "MyQ-Small-Garage", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="ca:6a:10:21:e7:2a"}), "client", "MyQ-Large-Garage", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="08:3a:88:2b:79:76"}), "client", "RingPro", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="4c:24:98:09:c4:6a"}), "client", "flo-by-moen", "", "")
+            for: 15m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.client }} offline (UniFi MAC)"
+              description: >-
+                {{ $labels.client }} missing from Unpoller for 15m (Wi‑Fi flap window).
+          - alert: UnifiRuckusApOffline
+            expr: absent(unpoller_client_uptime_seconds{mac="34:20:e3:24:09:50"})
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: Large-Garage Ruckus AP offline
+              description: >-
+                Ruckus R510 (MAC 34:20:e3:24:09:50) not seen by UniFi — non-UniFi AP
+                still appears as a MANAGEMENT client when up.
+      - name: unifi-clients-warning
+        rules:
+          - alert: UnifiUtilClientOffline
+            expr: |-
+              label_replace(absent(unpoller_client_uptime_seconds{mac="44:61:32:87:e6:58"}), "client", "Ecobee-Downstairs", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="44:61:32:34:23:10"}), "client", "Ecobee-Upstairs", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="c0:5d:89:cf:2d:3c"}), "client", "Emporia-EV-Charger", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="4c:11:ae:e6:9f:74"}), "client", "Emporia-Panel-1", "", "")
+              or label_replace(absent(unpoller_client_uptime_seconds{mac="40:f5:20:70:07:04"}), "client", "Emporia-Panel-2", "", "")
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "{{ $labels.client }} offline (UniFi MAC)"
+              description: >-
+                {{ $labels.client }} missing from Unpoller for 15m (climate/energy util).

@@ -1,11 +1,13 @@
 # Docs site (MkDocs Material) — private GHCR image from Super-Veliz-Network
 #
-# 1Password item **`ghcr-pull`** (Homelab vault):
+# 1Password item title must be exactly **`ghcr-pull`** in the **Homelab** vault
+# (same vault as `homepage-secrets` / `openclaw-secrets`). Use a Login or API
+# Credential item with these field labels (case-sensitive):
 #
 # | Field | Value |
 # | --- | --- |
-# | `username` | GitHub username (`SuperMiguel`) |
-# | `password` | PAT with **`read:packages`** (classic) or fine-grained **Packages: Read** on `Super-Veliz-Network` |
+# | `USERNAME` | GitHub username (`SuperMiguel`) |
+# | `PASSWORD` | PAT with **`read:packages`** (classic) or fine-grained **Packages: Read** on `Super-Veliz-Network` |
 #
 # ExternalSecret → Secret `ghcr-pull` (`kubernetes.io/dockerconfigjson`) for image pulls.
 #

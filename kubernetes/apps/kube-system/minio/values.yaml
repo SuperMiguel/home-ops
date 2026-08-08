@@ -66,9 +66,10 @@ controllers:
             memory: 1Gi
 defaultPodOptions:
   securityContext:
-    # UniFi Drive NFS squashes to this ownership on the export.
+    # UniFi Drive NFS all_squash maps writers to unifi-drive-nfs (977:988).
+    # MinIO must run as that UID or it can create the bucket then get AccessDenied on puts.
     runAsNonRoot: true
-    runAsUser: 988
+    runAsUser: 977
     runAsGroup: 988
     fsGroup: 988
     fsGroupChangePolicy: OnRootMismatch

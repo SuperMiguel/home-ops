@@ -204,6 +204,60 @@ additionalPrometheusRulesMap:
               description: >-
                 Volume {{ $labels.persistentvolumeclaim }} on {{ $labels.node }} is
                 {{ $value | humanizePercentage }} full and needs space soon.
+          # MinIO is Longhorn's S3 backup store (objects on SuperUNAS Longhorn_Backups).
+          # GatusImportantEndpointDown also covers minio in group=storage after 15m.
+          - alert: MinIOBackupStoreDown
+            expr: >-
+              (
+                kube_deployment_status_replicas_available{namespace="minio", deployment="minio"}
+                or vector(0)
+              ) == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: MinIO backup store is down
+              description: >-
+                Deployment minio/minio has 0 available replicas for 5m.
+                Longhorn cannot write volume backups to SuperUNAS.
+                Check https://minio.veliz.cc and Longhorn Backup Target.
+          - alert: LonghornBackupTargetEmpty
+            expr: >-
+              max(longhorn_backup_target_backup_volume_count{backup_target="default"}) == 0
+            for: 36h
+            labels:
+              severity: warning
+            annotations:
+              summary: Longhorn backup target has no volume backups
+              description: >-
+                Default BackupTarget reports 0 backed-up volumes for 36h
+                (daily job is 07:00 UTC). Check MinIO, BackupTarget, and
+                RecurringJob daily-backup in longhorn-system.
+          - alert: LonghornVolumeBackupStale
+            expr: >-
+              (time() - longhorn_volume_last_backup_at) > 48 * 3600
+              and longhorn_volume_last_backup_at > 0
+            for: 2h
+            labels:
+              severity: warning
+            annotations:
+              summary: Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} backup is stale
+              description: >-
+                Volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }})
+                last backup is older than 48h. Daily retain=7 job may be stuck —
+                see Longhorn UI → Backup and RecurringJob daily-backup.
+          - alert: LonghornVolumeNeverBackedUp
+            expr: >-
+              longhorn_volume_last_backup_at == 0
+              and on(volume) longhorn_volume_robustness{state="healthy"} == 1
+            for: 36h
+            labels:
+              severity: warning
+            annotations:
+              summary: Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has never been backed up
+              description: >-
+                Healthy volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }})
+                has last_backup_at=0 for 36h since enabling SuperUNAS backups.
   # UniFi Network via Unpoller (https://github.com/unpoller/unpoller/tree/master/alerts).
   # Covers UDM/switches/APs/PDU so Gatus does not ICMP-duplicate them.
   unpoller-rules:

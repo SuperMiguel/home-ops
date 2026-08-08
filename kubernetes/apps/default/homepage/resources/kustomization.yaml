@@ -11,7 +11,9 @@ configMapGenerator:
       - config/settings.yaml
       - config/widgets.yaml
       - config/bookmarks.yaml
+      - config/kubernetes.yaml
 
 resources:
   - homepage-secrets-externalsecret.yaml
   - securitypolicy-forward-auth.yaml
+  - rbac.yaml

@@ -120,11 +120,15 @@ controllers:
           limits:
             memory: 512Mi
 defaultPodOptions:
+  automountServiceAccountToken: true
   securityContext:
     runAsNonRoot: true
     runAsUser: 568
     runAsGroup: 568
     fsGroup: 568
+serviceAccount:
+  create: true
+  name: homepage
 service:
   app:
     ports:
@@ -150,6 +154,8 @@ persistence:
         subPath: widgets.yaml
       - path: /app/config/bookmarks.yaml
         subPath: bookmarks.yaml
+      - path: /app/config/kubernetes.yaml
+        subPath: kubernetes.yaml
 route:
   app:
     hostnames:

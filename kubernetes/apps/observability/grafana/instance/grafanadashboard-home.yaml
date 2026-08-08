@@ -57,6 +57,13 @@ spec:
           "icon": "database"
         },
         {
+          "title": "MinIO",
+          "type": "link",
+          "url": "https://minio.veliz.cc",
+          "targetBlank": true,
+          "icon": "cloud-upload"
+        },
+        {
           "title": "Alertmanager",
           "type": "link",
           "url": "https://alertmanager.veliz.cc",
@@ -90,7 +97,7 @@ spec:
               "showLineNumbers": false,
               "showMiniMap": false
             },
-            "content": "**Veliz Home** — nodes first, then traffic lights, then only problems. When **Services** is FAIL, the table under Status lists exactly which checks are down. [Gatus](https://gatus.veliz.cc) · [Argo](https://argo.veliz.cc) · [Longhorn](https://longhorn.veliz.cc)"
+            "content": "**Veliz Home** — nodes first, then traffic lights, then only problems. When **Services** is FAIL, the table under Status lists exactly which checks are down. [Gatus](https://gatus.veliz.cc) · [Argo](https://argo.veliz.cc) · [Longhorn](https://longhorn.veliz.cc) · [MinIO](https://minio.veliz.cc) (backups → SuperUNAS)"
           }
         },
         {
@@ -1085,7 +1092,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"}) == bool 1)) * (((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
+              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"}) == bool 1)) * (((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)) + ((max(kube_deployment_status_replicas_available{namespace=\"minio\",deployment=\"minio\"}) or vector(0)) == bool 0)) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
               "legendFormat": "o",
               "refId": "A"
             }
@@ -1374,7 +1381,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0",
+              "expr": "((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)) + ((max(kube_deployment_status_replicas_available{namespace=\"minio\",deployment=\"minio\"}) or vector(0)) == bool 0)) == bool 0",
               "legendFormat": "st",
               "refId": "A"
             }
@@ -2014,7 +2021,7 @@ spec:
               "refId": "C"
             },
             {
-              "expr": "((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0",
+              "expr": "((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)) + ((max(kube_deployment_status_replicas_available{namespace=\"minio\",deployment=\"minio\"}) or vector(0)) == bool 0)) == bool 0",
               "legendFormat": "Storage",
               "refId": "D"
             },
@@ -2809,7 +2816,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "((label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Prometheus\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Alertmanager\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Grafana\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"VictoriaLogs\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0, \"component\", \"LonghornUI\", \"\", \"\") or label_replace((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0, \"component\", \"ArgoCD\", \"\", \"\") or label_replace((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0, \"component\", \"Cilium\", \"\", \"\") or label_replace((max(up{job=\"unpoller\"}) or vector(0)) > bool 0, \"component\", \"Unpoller\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Gatus\", \"\", \"\") or label_replace((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0, \"component\", \"Envoy\", \"\", \"\"))) == 0",
+              "expr": "((label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Prometheus\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Alertmanager\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Grafana\", \"\", \"\") or label_replace((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"VictoriaLogs\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0, \"component\", \"LonghornUI\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"minio\",namespace=\"minio\"}) or vector(0)) > bool 0, \"component\", \"MinIO\", \"\", \"\") or label_replace((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0, \"component\", \"ArgoCD\", \"\", \"\") or label_replace((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0, \"component\", \"Cilium\", \"\", \"\") or label_replace((max(up{job=\"unpoller\"}) or vector(0)) > bool 0, \"component\", \"Unpoller\", \"\", \"\") or label_replace((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0, \"component\", \"Gatus\", \"\", \"\") or label_replace((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0, \"component\", \"Envoy\", \"\", \"\"))) == 0",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -2916,7 +2923,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "sum by (namespace, pod, reason) (kube_pod_container_status_waiting_reason{reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|InvalidImageName|CreateContainerError\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
+              "expr": "sum by (namespace, pod, reason) (kube_pod_container_status_waiting_reason{reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|InvalidImageName|CreateContainerError\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|minio|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -3023,7 +3030,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "sum by (namespace, pod, phase) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
+              "expr": "sum by (namespace, pod, phase) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\",namespace=~\"home|media|network|observability|argo-system|longhorn-system|minio|kube-system|cert-manager|external-secrets|default|system-upgrade\"} == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -3329,7 +3336,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "100 * (scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0)) / 10",
+              "expr": "100 * (scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"prometheus-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"alertmanager-kube-prometheus-stack\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"grafana-deployment\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_statefulset_status_replicas_ready{statefulset=\"victoria-logs-server\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"longhorn-ui\",namespace=\"longhorn-system\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"minio\",namespace=\"minio\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"argocd-server-metrics\"}) or vector(0)) > bool 0) + scalar((min(up{job=\"cilium-agent\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"unpoller\"}) or vector(0)) > bool 0) + scalar((max(kube_deployment_status_replicas_available{deployment=\"gatus\",namespace=\"observability\"}) or vector(0)) > bool 0) + scalar((max(up{job=\"network/envoy-proxy\"}) or vector(0)) > bool 0)) / 11",
               "legendFormat": "p",
               "refId": "A"
             }
@@ -4061,7 +4068,7 @@ spec:
             "y": 73
           },
           "id": 191,
-          "title": "5 · Detail — Storage (Longhorn) & restarts",
+          "title": "5 · Detail — Storage (Longhorn · MinIO backups) & restarts",
           "type": "row",
           "panels": [
             {
@@ -4429,13 +4436,33 @@ spec:
                     "mode": "absolute",
                     "steps": [
                       {
-                        "color": "blue",
+                        "color": "red",
                         "value": null
+                      },
+                      {
+                        "color": "green",
+                        "value": 1
                       }
                     ]
                   },
                   "unit": "none",
-                  "mappings": []
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "red",
+                          "index": 0,
+                          "text": "DOWN"
+                        },
+                        "1": {
+                          "color": "green",
+                          "index": 1,
+                          "text": "OK"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
                 },
                 "overrides": []
               },
@@ -4447,7 +4474,7 @@ spec:
               },
               "id": 176,
               "options": {
-                "colorMode": "value",
+                "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
                 "orientation": "auto",
@@ -4460,12 +4487,13 @@ spec:
                 },
                 "textMode": "auto"
               },
-              "title": "PVC Bound",
+              "title": "MinIO",
               "type": "stat",
+              "description": "S3 backup store for Longhorn (objects on SuperUNAS Longhorn_Backups).",
               "targets": [
                 {
-                  "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Bound\"} == 1) or vector(0)",
-                  "legendFormat": "b",
+                  "expr": "(max(kube_deployment_status_replicas_available{namespace=\"minio\",deployment=\"minio\"}) or vector(0)) > bool 0",
+                  "legendFormat": "m",
                   "refId": "A"
                 }
               ]
@@ -4481,28 +4509,13 @@ spec:
                     "mode": "absolute",
                     "steps": [
                       {
-                        "color": "green",
+                        "color": "blue",
                         "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 1
                       }
                     ]
                   },
                   "unit": "none",
-                  "mappings": [
-                    {
-                      "options": {
-                        "0": {
-                          "color": "green",
-                          "index": 0,
-                          "text": "None"
-                        }
-                      },
-                      "type": "value"
-                    }
-                  ]
+                  "mappings": []
                 },
                 "overrides": []
               },
@@ -4514,7 +4527,7 @@ spec:
               },
               "id": 177,
               "options": {
-                "colorMode": "background",
+                "colorMode": "value",
                 "graphMode": "none",
                 "justifyMode": "center",
                 "orientation": "auto",
@@ -4527,12 +4540,13 @@ spec:
                 },
                 "textMode": "auto"
               },
-              "title": "PVC Pending",
+              "title": "Backup vols",
               "type": "stat",
+              "description": "Volumes with at least one backup on the default target (rises after first daily job).",
               "targets": [
                 {
-                  "expr": "count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0)",
-                  "legendFormat": "p",
+                  "expr": "max(longhorn_backup_target_backup_volume_count{backup_target=\"default\"}) or vector(0)",
+                  "legendFormat": "b",
                   "refId": "A"
                 }
               ]
@@ -4646,7 +4660,7 @@ spec:
               "type": "timeseries",
               "targets": [
                 {
-                  "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[5m])) > 0",
+                  "expr": "sum by (namespace) (rate(kube_pod_container_status_restarts_total{namespace=~\"home|media|network|observability|argo-system|longhorn-system|minio|kube-system|cert-manager|external-secrets|default|system-upgrade\"}[5m])) > 0",
                   "legendFormat": "{{namespace}}",
                   "refId": "A"
                 }

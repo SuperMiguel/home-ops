@@ -123,8 +123,13 @@
     - Longhorn:
         icon: longhorn.png
         href: https://longhorn.veliz.cc
-        description: Block storage
+        description: Block storage · daily backups to UNAS
         siteMonitor: https://longhorn.veliz.cc
+    - MinIO:
+        icon: mdi-database
+        href: https://minio.veliz.cc
+        description: Longhorn backup store (SuperUNAS)
+        siteMonitor: https://minio.veliz.cc
 
 - Observability:
     - Veliz Home:

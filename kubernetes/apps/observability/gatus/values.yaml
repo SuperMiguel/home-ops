@@ -153,6 +153,11 @@ configMaps:
             <<: *defaults
             group: storage
             url: http://longhorn-frontend.longhorn-system.svc.cluster.local
+          - name: minio
+            <<: *defaults
+            group: storage
+            # S3 API live probe (console is separate on :9001).
+            url: http://minio.minio.svc.cluster.local:9000/minio/health/live
           - name: prowlarr
             <<: *defaults
             group: media

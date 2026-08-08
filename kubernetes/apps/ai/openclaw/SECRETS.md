@@ -27,4 +27,4 @@ ExternalSecret remote refs:
 3. Expose entities under **Settings → Voice assistants → Expose** (only what SuperClaw should see).
 4. **Profile → Security → Long-lived access tokens** → Create (`openclaw-mcp`) → paste into `HOME_ASSISTANT_TOKEN`.
 
-See [software/openclaw](https://github.com/SuperMiguel/Super-Veliz-Network/blob/main/software/openclaw/README.md) and [MCP.md](https://github.com/SuperMiguel/Super-Veliz-Network/blob/main/software/openclaw/MCP.md).
+See [software/openclaw](https://github.com/SuperMiguel/Super-Veliz-Network/blob/main/docs/software/openclaw/README.md) and [MCP.md](https://github.com/SuperMiguel/Super-Veliz-Network/blob/main/docs/software/openclaw/MCP.md).

@@ -1,0 +1,88 @@
+controllers:
+  docs:
+    strategy: RollingUpdate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/supermiguel/super-veliz-network
+          tag: latest
+          pullPolicy: Always
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 5
+              periodSeconds: 15
+              timeoutSeconds: 3
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 2
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+defaultPodOptions:
+  imagePullSecrets:
+    - name: ghcr-pull
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    fsGroup: 101
+service:
+  app:
+    ports:
+      http:
+        port: 8080
+persistence:
+  tmp:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 16Mi
+    globalMounts:
+      - path: /tmp
+  nginx-cache:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 16Mi
+    globalMounts:
+      - path: /var/cache/nginx
+  nginx-run:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 8Mi
+    globalMounts:
+      - path: /var/run
+route:
+  app:
+    hostnames:
+      - docs.veliz.cc
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+        sectionName: https
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: 8080

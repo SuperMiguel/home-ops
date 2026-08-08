@@ -24,6 +24,7 @@ Protects apps that lack good native SSO by checking cookies at the gateway.
 Protected today (forward-auth):
 
 - https://home.veliz.cc
+- https://docs.veliz.cc
 - https://longhorn.veliz.cc
 - https://minio.veliz.cc
 - Media: Seerr, Sonarr, Radarr, Prowlarr, Bazarr, SABnzbd, Tautulli

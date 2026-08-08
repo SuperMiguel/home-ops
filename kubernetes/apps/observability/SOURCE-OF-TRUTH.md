@@ -16,7 +16,7 @@ DHCP changes, or VLANs move. Alerts then page on ghosts — or miss the real dev
    (e.g. water softener, wiki, nodes not showing as clients).
 
 3. **Inventory markdown is documentation, not the monitor.**
-   `Super-Veliz-Network/network/network-inventory.md` should be refreshed from UniFi/Unpoller
+   `Super-Veliz-Network/docs/network/network-inventory.md` should be refreshed from UniFi/Unpoller
    when hardware changes — it must not be the only place an IP lives for alerting.
 
 4. **CCTV is Unpoller-only.**

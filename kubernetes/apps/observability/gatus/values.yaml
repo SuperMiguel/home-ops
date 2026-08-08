@@ -129,6 +129,10 @@ configMaps:
             <<: *defaults
             group: core
             url: http://homepage.default.svc.cluster.local:3000
+          - name: docs
+            <<: *defaults
+            group: core
+            url: http://docs.default.svc.cluster.local:8080
           - name: argo
             <<: *defaults
             group: core

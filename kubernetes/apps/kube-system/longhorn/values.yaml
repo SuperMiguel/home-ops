@@ -86,5 +86,6 @@ extraObjects:
       task: snapshot-cleanup
       groups:
         - default
-      retain: 1
+      # Longhorn requires retain=0 for snapshot-cleanup.
+      retain: 0
       concurrency: 1

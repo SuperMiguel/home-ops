@@ -150,18 +150,18 @@ configMaps:
                 "apiKey": "ollama-local",
                 "api": "ollama",
                 "timeoutSeconds": 300,
-                "contextWindow": 12288,
+                "contextWindow": 16384,
                 "params": {
-                  "num_ctx": 12288
+                  "num_ctx": 16384
                 },
                 "models": [
                   {
                     "id": "qwen3:8b",
                     "name": "qwen3:8b",
-                    "contextWindow": 12288,
+                    "contextWindow": 16384,
                     "maxTokens": 512,
                     "params": {
-                      "num_ctx": 12288,
+                      "num_ctx": 16384,
                       "think": false
                     }
                   }

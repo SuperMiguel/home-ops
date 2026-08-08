@@ -252,7 +252,6 @@ configMaps:
                     "get_dashboard_summary",
                     "list_datasources",
                     "query_prometheus",
-                    "query_loki_logs",
                     "check_datasources_health"
                   ]
                 }
@@ -305,9 +304,14 @@ configMaps:
 
         1. Call kubernetes MCP tools for pods/deployments/events/logs (namespaces: home,
            media, observability, ai, default, network, argo-system, kube-system).
-        2. Call grafana MCP tools for Prometheus/Loki/dashboard health as needed.
+        2. Call grafana MCP tools for Prometheus/dashboard health as needed.
         3. Summarize findings and a concrete fix. Do **not** claim you changed the
            cluster — k8s MCP is read-only. Suggest GitOps edits in SuperMiguel/home-ops.
+
+        Grafana datasource UIDs (use these exactly — do not invent names):
+        - Prometheus: `prometheus` (default)
+        - Alertmanager: `alertmanager`
+        There is currently no Loki datasource. Prefer kubernetes pod logs over Loki queries.
 
         Useful endpoints: grafana.veliz.cc, gatus.veliz.cc, argo.veliz.cc, prometheus.veliz.cc.
         MQTT/Mosquitto lives in namespace `home` (service mosquitto, LB 10.0.20.41:1883).

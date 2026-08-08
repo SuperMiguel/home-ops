@@ -31,12 +31,19 @@ Cookie domain is **`veliz.cc`** (shared with `auth.veliz.cc`). After login once,
 
 **Verify in Authentik UI:** Applications → Envoy; Outposts → authentik Embedded Outpost lists the Envoy provider. Outpost config must have `authentik_host` / `authentik_host_browser` = `https://auth.veliz.cc` (otherwise redirects go to `localhost`). Brand domain should be `auth.veliz.cc`.
 
-## Phase 2b — native OIDC (next)
+## Phase 2b — native OIDC (Grafana + Argo CD)
 
-| App | Notes |
-| --- | --- |
-| Grafana | OIDC; turn off anonymous |
-| Argo CD | OIDC |
+| App | Hostname | Authentik app slug | Notes |
+| --- | --- | --- | --- |
+| Grafana | https://grafana.veliz.cc | `grafana` | `auth.generic_oauth`; anonymous **off**; local admin form kept |
+| Argo CD | https://argo.veliz.cc | `argo` | Native `oidc.config` (not Dex); `authentik Admins` → `role:admin` |
+
+1Password: items `grafana-oidc` and `argo-oidc` (see `SECRETS.md`).
+
+Issuers:
+
+- `https://auth.veliz.cc/application/o/grafana/`
+- `https://auth.veliz.cc/application/o/argo/`
 
 ## Ops
 

@@ -1,6 +1,6 @@
 # Authentik secrets (1Password)
 
-Homelab vault item **`authentik-secrets`**:
+## Core — item `authentik-secrets`
 
 | Field (concealed) | Value |
 | --- | --- |
@@ -12,3 +12,27 @@ Homelab vault item **`authentik-secrets`**:
 ExternalSecret remote refs: `authentik-secrets/<FIELD>`.
 
 After first successful boot, bootstrap env vars are only needed once; keep the Secret so Postgres/Authentik keep matching credentials.
+
+## OIDC apps (Phase 2b)
+
+### Item `grafana-oidc`
+
+| Field | Notes |
+| --- | --- |
+| `CLIENT_ID` | Authentik Provider **Grafana** client id |
+| `CLIENT_SECRET` | Authentik Provider **Grafana** client secret |
+
+→ ExternalSecret → Secret `grafana-oidc-secret` (`observability`).  
+Redirect URI: `https://grafana.veliz.cc/login/generic_oauth`
+
+### Item `argo-oidc`
+
+| Field | Notes |
+| --- | --- |
+| `CLIENT_SECRET` | Authentik Provider **Argo CD** client secret |
+
+`CLIENT_ID` lives in `argo-cd/values.yaml` (`oidc.config`) — not in 1Password.  
+→ ExternalSecret merges `oidc.authentik.clientSecret` into `argocd-secret`.  
+Redirect URI: `https://argo.veliz.cc/auth/callback`
+
+If you recreate providers in Authentik, update these fields and force-sync the ExternalSecrets.

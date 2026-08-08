@@ -9,8 +9,21 @@ configs:
     # Server-side diff runs SSA dry-run on Application CRs and fails when status merges to null (app-of-apps).
     controller.diff.server.side: false
   cm:
+    url: https://argo.veliz.cc
     statusbadge.enabled: true
     kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+    # Native OIDC (Authentik). Client secret: argocd-secret key oidc.authentik.clientSecret
+    # (ExternalSecret argo-oidc → 1Password item argo-oidc).
+    oidc.config: |
+      name: Authentik
+      issuer: https://auth.veliz.cc/application/o/argo/
+      clientID: argo-13f365d2a81ade3d
+      clientSecret: $oidc.authentik.clientSecret
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - groups
     helm.valuesFileSchemes: >-
       secrets+gpg-import, secrets+gpg-import-kubernetes,
       secrets+age-import, secrets+age-import-kubernetes,
@@ -53,6 +66,10 @@ configs:
         - .spec.listeners[].tls
         - .spec.listeners[].tls.certificateRefs
         - .spec.listeners[].tls.mode
+  rbac:
+    policy.default: role:readonly
+    policy.csv: |
+      g, authentik Admins, role:admin
 controller:
   replicas: 2
   metrics:

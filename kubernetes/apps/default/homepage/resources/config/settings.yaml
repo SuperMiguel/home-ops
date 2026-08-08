@@ -1,6 +1,6 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/latest/configs/settings
+# https://gethomepage.dev/configs/settings
 
 title: Super Homepage
 color: stone
@@ -9,11 +9,24 @@ target: _blank
 fiveColumns: true
 
 layout:
-    Proxmox Cluster:
-      style: row
-      columns: 4
-    Kubernetes:
-      style: column
-    Media:
-      style: row
-      columns: 3
+  Compute:
+    style: row
+    columns: 4
+  Network:
+    style: row
+    columns: 3
+  Home automation:
+    style: row
+    columns: 3
+  AI:
+    style: row
+    columns: 2
+  Kubernetes:
+    style: row
+    columns: 2
+  Observability:
+    style: row
+    columns: 3
+  Media:
+    style: row
+    columns: 3

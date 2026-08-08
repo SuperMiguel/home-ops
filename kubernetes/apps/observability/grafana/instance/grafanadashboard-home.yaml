@@ -1085,7 +1085,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)) * (((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
+              "expr": "(((sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) == bool count(kube_node_info))) * ((avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"}) == bool 1)) * (((count(argocd_app_info{health_status=~\"Degraded|Missing|Unknown|Suspended\"}) or vector(0)) + (count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0))) == bool 0) * (((count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)) + (count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)) + (count(kube_persistentvolumeclaim_status_phase{phase=\"Pending\"} == 1) or vector(0))) == bool 0) * (1 - (((max(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)) > bool 85) or (max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 85) or (max(100 - ((node_filesystem_avail_bytes{mountpoint=\"/var\",fstype=\"xfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/var\",fstype=\"xfs\"})) > bool 85)))) * ((count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) == bool 0))",
               "legendFormat": "o",
               "refId": "A"
             }
@@ -1229,12 +1229,12 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)",
+              "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"}) == bool 1)",
               "legendFormat": "status",
               "refId": "A"
             }
           ],
-          "description": "Critical Gatus groups (core|observability|storage|home|media). See \"Which services are failing?\" table below for names."
+          "description": "Critical Gatus groups (core|observability|storage|home|media|ai). See \"Which services are failing?\" table below for names."
         },
         {
           "datasource": {
@@ -1588,7 +1588,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)",
+              "expr": "count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"} == 0) or vector(0)",
               "legendFormat": "n",
               "refId": "A"
             }
@@ -1748,7 +1748,7 @@ spec:
           ],
           "targets": [
             {
-              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"} == bool 0) == 1)",
+              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"} == bool 0) == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -1857,7 +1857,7 @@ spec:
             },
             "showHeader": true
           },
-          "title": "Other failing checks (LAN / IoT / etc)",
+          "title": "Other failing Gatus checks (non-app)",
           "type": "table",
           "transformations": [
             {
@@ -1892,13 +1892,13 @@ spec:
           ],
           "targets": [
             {
-              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group!~\"core|observability|storage|home|media\"} == bool 0) == 1)",
+              "expr": "(label_replace(label_replace(label_replace((vector(0) and on() ((count(gatus_results_endpoint_success{group!~\"core|observability|storage|home|media|ai\"} == 0) or vector(0)) == 0)),\"group\",\"—\",\"\",\"\"),\"name\",\"none failing\",\"\",\"\"),\"type\",\"—\",\"\",\"\")) or ((gatus_results_endpoint_success{group!~\"core|observability|storage|home|media|ai\"} == bool 0) == 1)",
               "format": "table",
               "instant": true,
               "refId": "A"
             }
           ],
-          "description": "Non-critical failures (does not flip Services). none failing = OK."
+          "description": "Gatus hosts outside core apps (e.g. wiki, softener). UniFi/CCTV are Unpoller, not listed here."
         },
         {
           "datasource": {
@@ -2004,7 +2004,7 @@ spec:
               "refId": "A"
             },
             {
-              "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"}) == bool 1)",
+              "expr": "(avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"}) == bool 1)",
               "legendFormat": "Services",
               "refId": "B"
             },
@@ -2217,7 +2217,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})",
+              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media|ai\",type=\"HTTP\"})",
               "legendFormat": "lat",
               "refId": "A"
             }
@@ -2437,7 +2437,7 @@ spec:
           "type": "timeseries",
           "targets": [
             {
-              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media\",type=\"HTTP\"})",
+              "expr": "quantile(0.95, gatus_results_duration_seconds{group=~\"core|observability|storage|home|media|ai\",type=\"HTTP\"})",
               "legendFormat": "p95",
               "refId": "A"
             }
@@ -3205,7 +3205,7 @@ spec:
           "type": "stat",
           "targets": [
             {
-              "expr": "100 * avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media\"})",
+              "expr": "100 * avg(gatus_results_endpoint_success{group=~\"core|observability|storage|home|media|ai\"})",
               "legendFormat": "c",
               "refId": "A"
             }
@@ -3464,7 +3464,7 @@ spec:
           "type": "bargauge",
           "targets": [
             {
-              "expr": "100 * avg by (group) (\n  label_replace(\n    label_replace(\n      label_replace(gatus_results_endpoint_success, \"group\", \"obs\", \"group\", \"observability\"),\n    \"group\", \"lan\", \"group\", \"lan-mgmt\"),\n  \"group\", \"svc\", \"group\", \"servers\")\n)",
+              "expr": "100 * avg by (group) (gatus_results_endpoint_success)",
               "legendFormat": "{{group}}",
               "refId": "A"
             }
@@ -4663,7 +4663,7 @@ spec:
             "y": 74
           },
           "id": 192,
-          "title": "5 · Detail — Network edge (UniFi)",
+          "title": "5 · Detail — Network edge (UniFi / Unpoller)",
           "type": "row",
           "panels": [
             {
@@ -4689,7 +4689,7 @@ spec:
               },
               "gridPos": {
                 "h": 4,
-                "w": 6,
+                "w": 4,
                 "x": 0,
                 "y": 0
               },
@@ -4741,8 +4741,8 @@ spec:
               },
               "gridPos": {
                 "h": 4,
-                "w": 6,
-                "x": 6,
+                "w": 4,
+                "x": 4,
                 "y": 0
               },
               "id": 181,
@@ -4760,12 +4760,130 @@ spec:
                 },
                 "textMode": "auto"
               },
-              "title": "Devices",
+              "title": "UniFi devices",
               "type": "stat",
               "targets": [
                 {
                   "expr": "count(unpoller_device_uptime_seconds) or vector(0)",
                   "legendFormat": "d",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "orange",
+                        "value": 11
+                      },
+                      {
+                        "color": "green",
+                        "value": 12
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 0
+              },
+              "id": 182,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "CCTV / Protect",
+              "description": "UniFi clients on network=CCTV (UNVR + cameras). Baseline ~12.",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "count(unpoller_client_uptime_seconds{network=\"CCTV\"}) or vector(0)",
+                  "legendFormat": "cctv",
+                  "refId": "A"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "none",
+                  "mappings": []
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 12,
+                "y": 0
+              },
+              "id": 184,
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "textMode": "auto"
+              },
+              "title": "Disconnected",
+              "description": "UniFi site disconnected count (LAN/WLAN/WAN).",
+              "type": "stat",
+              "targets": [
+                {
+                  "expr": "sum(unpoller_site_disconnected) or vector(0)",
+                  "legendFormat": "down",
                   "refId": "A"
                 }
               ]
@@ -4793,11 +4911,11 @@ spec:
               },
               "gridPos": {
                 "h": 4,
-                "w": 6,
-                "x": 12,
+                "w": 4,
+                "x": 16,
                 "y": 0
               },
-              "id": 182,
+              "id": 183,
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -4845,11 +4963,11 @@ spec:
               },
               "gridPos": {
                 "h": 4,
-                "w": 6,
-                "x": 18,
+                "w": 4,
+                "x": 20,
                 "y": 0
               },
-              "id": 183,
+              "id": 185,
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -4884,7 +5002,8 @@ spec:
         "veliz",
         "sre",
         "overview",
-        "nodes"
+        "nodes",
+        "unpoller"
       ],
       "templating": {
         "list": []
@@ -4897,6 +5016,6 @@ spec:
       "timezone": "browser",
       "title": "Veliz Home",
       "uid": "veliz-home",
-      "version": 10,
+      "version": 11,
       "weekStart": ""
     }

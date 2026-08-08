@@ -1,19 +1,24 @@
 ---
-# For configuration options and examples, please see:
-# https://gethomepage.dev/latest/configs/bookmarks
+# https://gethomepage.dev/configs/bookmarks
 
-- Developer:
-    - Github:
-        - abbr: GH
-          href: https://github.com/
+- Homelab:
+    - Argo CD:
+        - abbr: CD
+          href: https://argo.veliz.cc
+    - Gatus:
+        - abbr: GS
+          href: https://gatus.veliz.cc
+    - Grafana:
+        - abbr: GF
+          href: https://grafana.veliz.cc/d/veliz-home
+    - Home Assistant:
+        - abbr: HA
+          href: https://hass.veliz.cc
 
-- Social:
-    - Reddit:
-        - abbr: RE
-          href: https://reddit.com/
-
-- Entertainment:
-    - YouTube:
-        - abbr: YT
-          href: https://youtube.com/
-
+- Dev:
+    - home-ops:
+        - abbr: HO
+          href: https://github.com/SuperMiguel/home-ops
+    - Super-Veliz-Network:
+        - abbr: NET
+          href: https://github.com/SuperMiguel/Super-Veliz-Network

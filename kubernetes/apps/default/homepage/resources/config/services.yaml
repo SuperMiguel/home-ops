@@ -1,22 +1,33 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/latest/configs/services
+# https://gethomepage.dev/configs/services
 #
-# Aligned with Argo apps: Proxmox nodes, Kubernetes (Argo, Gatus), observability (Grafana, Prometheus,
-# Alertmanager, Victoria Logs), Longhorn, media namespace workloads.
+# Keep in sync with Argo apps + observability/SOURCE-OF-TRUTH.md:
+# UniFi-managed gear is monitored via Unpoller (not Homepage ICMP lists).
+#
+# Icons: https://github.com/walkxcode/dashboard-icons
 
-# Icons:
-# https://github.com/walkxcode/dashboard-icons
-
-- Proxmox Cluster:
+- Compute:
     - HL-K8S-30:
         icon: kubernetes.png
         ping: 10.0.20.30
-        description: Talos worker (same host as former HL-PVE-30)
+        description: Talos worker
     - HL-K8S-31:
         icon: kubernetes.png
         ping: 10.0.20.31
-        description: Talos worker (same host as former HL-PVE-31)
+        description: Talos worker
+    - HL-K8S-32:
+        icon: kubernetes.png
+        ping: 10.0.20.32
+        description: Talos worker (Homebridge downstairs)
+    - HL-K8S-33:
+        icon: kubernetes.png
+        ping: 10.0.20.33
+        description: Talos worker (Homebridge upstairs)
+    - HL-K8S-34:
+        icon: kubernetes.png
+        ping: 10.0.20.34
+        description: Talos worker (Homebridge alarm)
     - HL-PVE-35:
         icon: proxmox.png
         ping: 10.0.20.35
@@ -35,17 +46,50 @@
           username: api-homepage@pam!homepage
           password: {{HOMEPAGE_VAR_PROXMOX_API_PASSWORD}}
           node: HL-PVE-36
+    - Super Mac Mini:
+        icon: mdi-apple
+        ping: 10.0.20.25
+        description: Ollama host for OpenClaw
+
+- Network:
+    - UniFi:
+        icon: unifi.png
+        href: https://10.0.20.1
+        description: UDM Pro Max — fabric + Protect via Unpoller alerts
+        ping: 10.0.20.1
+        widget:
+          type: unifi
+          url: https://10.0.20.1
+          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}
+          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
+    - Gatus:
+        icon: mdi-heart-pulse
+        href: https://gatus.veliz.cc
+        description: In-cluster + non-UniFi probes (status page)
+        siteMonitor: https://gatus.veliz.cc
+        widget:
+          type: gatus
+          url: https://gatus.veliz.cc
+    - UniFi Grafana:
+        icon: grafana.png
+        href: https://grafana.veliz.cc/d/jMfvAjxWz
+        description: Unpoller client insights
 
 - Home automation:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: https://hass.veliz.cc
+        description: hass.veliz.cc · LAN 10.0.20.50
+        siteMonitor: https://hass.veliz.cc
     - Node-RED:
         icon: nodered.png
         href: https://nodered.veliz.cc
-        description: Flows (Super-Node-RED repo)
+        description: Flows (Super-Node-RED)
         siteMonitor: https://nodered.veliz.cc
     - MQTT (Mosquitto):
         icon: mdi-access-point-network
         ping: 10.0.20.41
-        description: Eclipse Mosquitto on K8s (port 1883)
+        description: Eclipse Mosquitto LB :1883
     - Homebridge downstairs:
         icon: homebridge.png
         href: https://homebridge-downstairs.veliz.cc
@@ -63,57 +107,60 @@
     - OpenClaw:
         icon: mdi-robot
         href: https://openclaw.veliz.cc
-        description: Discord + Ollama gateway (Mac Mini)
+        description: Discord bot · Ollama on Mac Mini
         siteMonitor: https://openclaw.veliz.cc
+    - Ollama:
+        icon: mdi-brain
+        href: http://10.0.20.25:11434
+        description: http://10.0.20.25:11434
+        ping: 10.0.20.25
 
 - Kubernetes:
     - Argo CD:
         icon: argocd.png
         href: https://argo.veliz.cc
         description: GitOps
-    - Gatus:
-        icon: mdi-heart-pulse
-        href: https://gatus.veliz.cc
-        description: Service health
-        siteMonitor: https://gatus.veliz.cc
+    - Longhorn:
+        icon: longhorn.png
+        href: https://longhorn.veliz.cc
+        description: Block storage
+        siteMonitor: https://longhorn.veliz.cc
 
-- Observability & storage:
-    - Cluster status:
+- Observability:
+    - Veliz Home:
         icon: grafana.png
         href: https://grafana.veliz.cc/d/veliz-home
-        description: Veliz Home overview (Grafana)
+        description: Cluster overview dashboard
         siteMonitor: https://grafana.veliz.cc/login
     - Grafana:
         icon: grafana.png
-        href: https://grafana.veliz.cc/d/veliz-home
-        description: Dashboards (Grafana Operator) — opens Veliz Home
+        href: https://grafana.veliz.cc
+        description: All dashboards
         siteMonitor: https://grafana.veliz.cc/login
     - Prometheus:
         icon: prometheus.png
         href: https://prometheus.veliz.cc
-        description: Metrics (kube-prometheus-stack)
+        description: Metrics
         siteMonitor: https://prometheus.veliz.cc/-/ready
+        widget:
+          type: prometheus
+          url: https://prometheus.veliz.cc
     - Alertmanager:
         icon: mdi-bell-alert
         href: https://alertmanager.veliz.cc
-        description: Alert UI
+        description: Pushover + Discord
         siteMonitor: https://alertmanager.veliz.cc/-/ready
     - Victoria Logs:
         icon: mdi-text-box-search-outline
         href: https://victoria-logs.veliz.cc/select/vmui/
-        description: Logs (Fluent Bit → Victoria Logs)
+        description: Logs (Fluent Bit)
         siteMonitor: https://victoria-logs.veliz.cc/select/vmui/
-    - Longhorn:
-        icon: longhorn.png
-        href: https://longhorn.veliz.cc
-        description: Block storage UI
-        siteMonitor: https://longhorn.veliz.cc
 
 - Media:
     - Sonarr:
         icon: sonarr.png
         href: https://sonarr.veliz.cc
-        description: Series management
+        description: Series
         siteMonitor: https://sonarr.veliz.cc
         widget:
           type: sonarr
@@ -122,7 +169,8 @@
     - Radarr:
         icon: radarr.png
         href: https://radarr.veliz.cc
-        description: Movie management
+        description: Movies
+        siteMonitor: https://radarr.veliz.cc
         widget:
           type: radarr
           url: https://radarr.veliz.cc
@@ -139,7 +187,8 @@
     - Sabnzbd:
         icon: sabnzbd.png
         href: https://sabnzbd.veliz.cc
-        description: Download client
+        description: Downloads
+        siteMonitor: https://sabnzbd.veliz.cc
         widget:
           type: sabnzbd
           url: https://sabnzbd.veliz.cc
@@ -147,7 +196,8 @@
     - Prowlarr:
         icon: prowlarr.png
         href: https://prowlarr.veliz.cc
-        description: Indexer manager
+        description: Indexers
+        siteMonitor: https://prowlarr.veliz.cc
         widget:
           type: prowlarr
           url: https://prowlarr.veliz.cc
@@ -156,6 +206,7 @@
         icon: bazarr.png
         href: https://bazarr.veliz.cc
         description: Subtitles
+        siteMonitor: https://bazarr.veliz.cc
         widget:
           type: bazarr
           url: https://bazarr.veliz.cc
@@ -182,18 +233,18 @@
     - Notifier:
         icon: mdi-webhook
         href: https://notifier.veliz.cc
-        description: Webhooks → Pushover (Radarr/Sonarr/Seerr)
+        description: Arr webhooks → Pushover
         siteMonitor: https://notifier.veliz.cc
     - Deduparr:
         icon: mdi-content-duplicate
         href: https://deduparr.veliz.cc/health/ready
-        description: Radarr/Sonarr dedupe (no web UI; health check)
+        description: Dedupe health (no UI)
         siteMonitor: https://deduparr.veliz.cc/health/ready
     - Recyclarr:
         icon: recyclarr.png
         href: https://recyclarr.dev
-        description: Trash Guides sync (CronJob)
+        description: Trash Guides CronJob
     - Kometa:
         icon: mdi-movie-filter-outline
         href: https://kometa.wiki
-        description: Plex metadata ops (NC-17→R for kids)
+        description: Plex metadata ops
